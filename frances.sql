@@ -1,2 +1,108 @@
 CREATE DATABASE frances;
 USE frances;
+
+-- =========================
+-- TABLA USUARIOS
+-- =========================
+CREATE TABLE usuarios (
+    ID INT NOT NULL AUTO_INCREMENT,
+    EMAIL VARCHAR(100) NOT NULL,
+    USERNAME VARCHAR(50) NOT NULL,
+    PASSWD CHAR(64) NOT NULL,
+    NOMBRE VARCHAR(50) NOT NULL,
+    APELLIDOS VARCHAR(150) NOT NULL,
+    TELEFONO CHAR(9) NOT NULL,
+    INSTITUTO VARCHAR(50),
+
+    PRIMARY KEY (ID)
+);
+
+-- =========================
+-- TABLA CENTROS
+-- =========================
+CREATE TABLE centros (
+    ID_CENTRO INT NOT NULL AUTO_INCREMENT,
+    LOCALIDAD VARCHAR(50) NOT NULL,
+
+    PRIMARY KEY (ID_CENTRO)
+);
+
+-- =========================
+-- TABLA GRUPOS
+-- =========================
+CREATE TABLE grupos (
+    ID_GRUPO INT NOT NULL AUTO_INCREMENT,
+    NOMBRE VARCHAR(50) NOT NULL,
+    ID_CENTRO INT NOT NULL,
+    TUTOR INT NOT NULL,
+
+    PRIMARY KEY (ID_GRUPO),
+
+    CONSTRAINT FK_GRUPO_CENTRO
+        FOREIGN KEY (ID_CENTRO)
+        REFERENCES centros(ID_CENTRO)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT FK_GRUPO_TUTOR
+        FOREIGN KEY (TUTOR)
+        REFERENCES usuarios(ID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+-- =========================
+-- TABLA ALUMNOS
+-- =========================
+CREATE TABLE alumnos (
+    ID_USUARIO INT NOT NULL,
+    NIVEL INT NOT NULL,
+    RANGO VARCHAR(64) NOT NULL,
+    ULTIMA_CONEXION DATETIME,
+
+    PRIMARY KEY (ID_USUARIO),
+
+    CONSTRAINT FK_ALUMNO_USUARIO
+        FOREIGN KEY (ID_USUARIO)
+        REFERENCES usuarios(ID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+-- =========================
+-- TABLA DOCENTES
+-- =========================
+CREATE TABLE docentes (
+    ID_USUARIO INT NOT NULL,
+    DIRECTOR BOOLEAN NOT NULL,
+
+    PRIMARY KEY (ID_USUARIO),
+
+    CONSTRAINT FK_DOCENTE_USUARIO
+        FOREIGN KEY (ID_USUARIO)
+        REFERENCES usuarios(ID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+-- =========================
+-- TABLA INTERMEDIA ALUMNO-GRUPO
+-- =========================
+CREATE TABLE alumno_grupo (
+    ID_USUARIO INT NOT NULL,
+    ID_GRUPO INT NOT NULL,
+
+    PRIMARY KEY (ID_USUARIO, ID_GRUPO),
+
+    CONSTRAINT FK_AG_ALUMNO
+        FOREIGN KEY (ID_USUARIO)
+        REFERENCES alumnos(ID_USUARIO)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT FK_AG_GRUPO
+        FOREIGN KEY (ID_GRUPO)
+        REFERENCES grupos(ID_GRUPO)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
