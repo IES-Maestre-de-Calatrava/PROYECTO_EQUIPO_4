@@ -3,8 +3,6 @@ package com.grupo4.frances.DTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class ActividadDTO {
 
@@ -88,7 +86,7 @@ public class ActividadDTO {
     }
 
     public void setDuracion(String duracion) {
-        this.duracion = duracion;w
+        this.duracion = duracion;
     }
 
     public String getFechaInicio() {

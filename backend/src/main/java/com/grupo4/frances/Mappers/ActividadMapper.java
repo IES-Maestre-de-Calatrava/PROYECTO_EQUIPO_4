@@ -1,4 +1,4 @@
-package com.grupo4.frances;
+package com.grupo4.frances.Mappers;
 
 import com.grupo4.frances.DTO.ActividadDTO;
 import com.grupo4.frances.persistence.Actividad;
@@ -58,3 +58,4 @@ public class ActividadMapper {
 
         return actividad;
     }
+}
