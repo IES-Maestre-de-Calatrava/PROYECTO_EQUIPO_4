@@ -1,0 +1,51 @@
+package com.example.demo.Controllers;
+
+import com.example.demo.DTO.ActividadDTO;
+import com.example.demo.Exceptions.ActividadNotFoundException;
+import com.example.demo.Mappers.ActividadMapper;
+import com.example.demo.persistence.ActividadRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@CrossOrigin(origins="*")
+@EntityScan(basePackages = {"com.example.demo.persistence"})
+@RestController
+@RequestMapping("/actividad") // Ruta actualizada a /actividad
+public class ActividadController {
+
+    @Autowired
+    private ActividadRepository repository;
+
+    /**
+     * Obtener todas las actividades
+     * @return List de ActividadDTO
+     */
+    @GetMapping("/find")
+    public List<ActividadDTO> getAllActividades() {
+        return repository.findAll()
+                .stream()
+                .map(ActividadMapper::toDTO)
+                .toList();
+    }
+
+    /**
+     * Obtener actividad por ID
+     * @param actividadId
+     * @return ActividadDTO
+     * @throws ActividadNotFoundException
+     */
+    @GetMapping("/find/{id}")
+    public ResponseEntity<ActividadDTO> getActividadByID(@PathVariable(value = "id") Long actividadId)
+            throws ActividadNotFoundException {
+
+        ActividadDTO actividad = repository.findById(actividadId)
+                .map(ActividadMapper::toDTO)
+                .orElseThrow(() -> new ActividadNotFoundException(actividadId));
+
+        return ResponseEntity.ok(actividad);
+    }
+}
