@@ -1,18 +1,16 @@
-package com.example.demo.Controllers;
+package com.grupo4.frances.Controllers;
 
-import com.example.demo.DTO.ActividadDTO;
-import com.example.demo.Exceptions.ActividadNotFoundException;
-import com.example.demo.Mappers.ActividadMapper;
-import com.example.demo.persistence.ActividadRepository;
+import com.grupo4.frances.DTO.ActividadDTO;
+import com.grupo4.frances.Exceptions.ActividadNotFoundException;
+import com.grupo4.frances.Mappers.ActividadMapper;
+import com.grupo4.frances.persistence.ActividadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @CrossOrigin(origins="*")
-@EntityScan(basePackages = {"com.example.demo.persistence"})
 @RestController
 @RequestMapping("/actividad") // Ruta actualizada a /actividad
 public class ActividadController {

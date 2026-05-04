@@ -1,4 +1,4 @@
-package com.example.demo.DTO;
+package com.grupo4.frances.DTO;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,15 +22,15 @@ public class ActividadDTO {
     @Size(max = 20)
     private String idProfesor;
 
-    private LocalDate duracion; // Admite NULL según la tabla
+    private String duracion; // Admite NULL según la tabla
 
     @NotNull
-    private LocalDateTime fechaInicio;
+    private String fechaInicio;
 
-    private LocalDateTime fechaFin; // Admite NULL según la tabla
+    private String fechaFin; // Admite NULL según la tabla
 
     @NotNull
-    private LocalDateTime fechaEntrega;
+    private String fechaEntrega;
 
     // Constructor vacío
     public ActividadDTO() {
@@ -38,8 +38,8 @@ public class ActividadDTO {
 
     // Constructor completo
     public ActividadDTO(Long idActividad, String nombre, String dificultad, String idProfesor,
-                        LocalDate duracion, LocalDateTime fechaInicio, LocalDateTime fechaFin,
-                        LocalDateTime fechaEntrega) {
+                        String duracion, String fechaInicio, String fechaFin,
+                        String fechaEntrega) {
         this.idActividad = idActividad;
         this.nombre = nombre;
         this.dificultad = dificultad;
@@ -83,35 +83,35 @@ public class ActividadDTO {
         this.idProfesor = idProfesor;
     }
 
-    public LocalDate getDuracion() {
+    public String getDuracion() {
         return duracion;
     }
 
-    public void setDuracion(LocalDate duracion) {
-        this.duracion = duracion;
+    public void setDuracion(String duracion) {
+        this.duracion = duracion;w
     }
 
-    public LocalDateTime getFechaInicio() {
+    public String getFechaInicio() {
         return fechaInicio;
     }
 
-    public void setFechaInicio(LocalDateTime fechaInicio) {
+    public void setFechaInicio(String fechaInicio) {
         this.fechaInicio = fechaInicio;
     }
 
-    public LocalDateTime getFechaFin() {
+    public String getFechaFin() {
         return fechaFin;
     }
 
-    public void setFechaFin(LocalDateTime fechaFin) {
+    public void setFechaFin(String fechaFin) {
         this.fechaFin = fechaFin;
     }
 
-    public LocalDateTime getFechaEntrega() {
+    public String getFechaEntrega() {
         return fechaEntrega;
     }
 
-    public void setFechaEntrega(LocalDateTime fechaEntrega) {
+    public void setFechaEntrega(String fechaEntrega) {
         this.fechaEntrega = fechaEntrega;
     }
 }
