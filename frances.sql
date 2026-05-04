@@ -14,7 +14,7 @@ CREATE TABLE CENTRO (
 -- ======================================================
 -- 2. ALUMNO
 -- ======================================================
-CREATE TABLE Alumno (
+CREATE TABLE ALUMNO (
     ID_ALUMNO INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador único del alumno',
     NOMBRE_USUARIO VARCHAR(20) NOT NULL COMMENT 'Nombre de usuario para iniciar sesión',
     CONTRASENA CHAR(64) NOT NULL COMMENT 'Contraseña encriptada en formato SHA-256',
@@ -30,7 +30,7 @@ CREATE TABLE Alumno (
 -- ======================================================
 -- 3. PROFESOR
 -- ======================================================
-CREATE TABLE profesor (
+CREATE TABLE PROFESOR (
     ID_PROFESOR INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador único del profesor',
     NOMBRE_USUARIO VARCHAR(20) NOT NULL COMMENT 'Nombre de usuario del profesor',
     CONTRASENA CHAR(64) NOT NULL COMMENT 'Contraseña encriptada del profesor',
@@ -45,7 +45,7 @@ CREATE TABLE profesor (
 -- ======================================================
 -- 4. GRUPO
 -- ======================================================
-CREATE TABLE Grupo (
+CREATE TABLE GRUPO (
     ID_GRUPO INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador único del grupo',
     NOMBRE VARCHAR(50) NOT NULL COMMENT 'Nombre del grupo (ej: Francés A1 Mañana)',
     TUTOR INT NOT NULL COMMENT 'ID del profesor que actúa como tutor del grupo',
@@ -55,29 +55,29 @@ CREATE TABLE Grupo (
         REFERENCES CENTRO(ID_CENTRO),
         
     CONSTRAINT FK_GRUPO_TUTOR FOREIGN KEY (TUTOR) 
-        REFERENCES profesor(ID_PROFESOR)
+        REFERENCES PROFESOR(ID_PROFESOR)
 ) COMMENT = 'Tabla que almacena los grupos de alumnos';
 
 -- ======================================================
 -- 5. ALUMNO_GRUPO (N:M)
 -- ======================================================
-CREATE TABLE Alumno_Grupo (
+CREATE TABLE ALUMNO_GRUPO (
     ID_ALUMNO INT COMMENT 'ID del alumno asignado al grupo',
     ID_GRUPO INT COMMENT 'ID del grupo al que pertenece el alumno',
     
     PRIMARY KEY (ID_ALUMNO, ID_GRUPO),
     
     CONSTRAINT FK_ALUMNO_GRUPO_ALUMNO FOREIGN KEY (ID_ALUMNO) 
-        REFERENCES Alumno(ID_ALUMNO) ON DELETE CASCADE,
+        REFERENCES ALUMNO(ID_ALUMNO) ON DELETE CASCADE,
         
     CONSTRAINT FK_ALUMNO_GRUPO_GRUPO FOREIGN KEY (ID_GRUPO) 
-        REFERENCES Grupo(ID_GRUPO) ON DELETE CASCADE
+        REFERENCES GRUPO(ID_GRUPO) ON DELETE CASCADE
 ) COMMENT = 'Tabla intermedia que relaciona alumnos con grupos';
 
 -- ======================================================
 -- 6. ACTIVIDAD
 -- ======================================================
-CREATE TABLE actividad (
+CREATE TABLE ACTIVIDAD (
     ID_ACTIVIDAD INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador único de la actividad',
     NOMBRE VARCHAR(50) NOT NULL COMMENT 'Nombre o título de la actividad',
     DIFICULTAD VARCHAR(64) NOT NULL COMMENT 'Nivel de dificultad de la actividad',
@@ -88,29 +88,29 @@ CREATE TABLE actividad (
     FECHA_ENTREGA DATETIME NOT NULL COMMENT 'Fecha límite de entrega de la actividad',
     
     CONSTRAINT FK_ACTIVIDAD_PROFESOR FOREIGN KEY (ID_PROFESOR) 
-        REFERENCES profesor(ID_PROFESOR)
+        REFERENCES PROFESOR(ID_PROFESOR)
 ) COMMENT = 'Tabla que almacena las actividades académicas';
 
 -- ======================================================
 -- 7. ACTIVIDAD_GRUPO (N:M)
 -- ======================================================
-CREATE TABLE actividad_grupo (
+CREATE TABLE ACTIVIDAD_GRUPO (
     ID_GRUPO INT NOT NULL COMMENT 'ID del grupo al que se asigna la actividad',
     ID_ACTIVIDAD INT NOT NULL COMMENT 'ID de la actividad asignada',
     
     PRIMARY KEY (ID_GRUPO, ID_ACTIVIDAD),
     
     CONSTRAINT FK_AG_GRUPO FOREIGN KEY (ID_GRUPO) 
-        REFERENCES Grupo(ID_GRUPO),
+        REFERENCES GRUPO(ID_GRUPO),
         
     CONSTRAINT FK_AG_ACTIVIDAD FOREIGN KEY (ID_ACTIVIDAD) 
-        REFERENCES actividad(ID_ACTIVIDAD)
+        REFERENCES ACTIVIDAD(ID_ACTIVIDAD)
 ) COMMENT = 'Relación entre actividades y grupos';
 
 -- ======================================================
 -- 8. CONEXION
 -- ======================================================
-CREATE TABLE conexion (
+CREATE TABLE CONEXION (
     ID_ALUMNO INT NOT NULL COMMENT 'Alumno que inicia la sesión',
     ENTRADA DATETIME NOT NULL COMMENT 'Fecha y hora de inicio de sesión',
     SALIDA DATETIME COMMENT 'Fecha y hora de cierre de sesión',
@@ -118,5 +118,5 @@ CREATE TABLE conexion (
     PRIMARY KEY (ID_ALUMNO, ENTRADA),
     
     CONSTRAINT FK_CONEXION_ALUMNO FOREIGN KEY (ID_ALUMNO) 
-        REFERENCES Alumno(ID_ALUMNO)
+        REFERENCES ALUMNO(ID_ALUMNO)
 ) COMMENT = 'Registro de accesos de los alumnos al sistema';
