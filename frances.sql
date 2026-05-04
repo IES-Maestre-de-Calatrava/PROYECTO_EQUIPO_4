@@ -8,9 +8,10 @@ USE GestionAcademica;
 --       CENTRO
 -- ===================
 CREATE TABLE Centro (
-    Id_Centro INT(10),
-    Localidad VARCHAR(50),
-    PRIMARY KEY (Id_Centro, Localidad)
+    Id_Centro INT(10) AUTO_INCREMENT NOT NULL,
+    NOMBRE VARCHAR(50) NOT NULL,
+    Localidad VARCHAR(50) NOT NULL,
+    PRIMARY KEY (Id_Centro)
 );
 
 -- ===================
