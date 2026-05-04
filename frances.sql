@@ -94,4 +94,15 @@ CREATE TABLE actividad_grupo (
     PRIMARY KEY (ID_GRUPO, ID_ACTIVIDAD),
     CONSTRAINT FK_GRUPO_REL FOREIGN KEY (ID_GRUPO) REFERENCES Grupo(Id_Grupo),
     CONSTRAINT FK_ACT_REL FOREIGN KEY (ID_ACTIVIDAD) REFERENCES actividad(ID_ACTIVIDAD)
-) COMMENT = 'Relación de qué actividades han sido asignadas a qué grupos';
+);
+-- ===================
+--   CONEXIÓN
+-- ===================
+CREATE TABLE conexion (
+    ID_ALUMNO NUMBER(10) NOT NULL COMMENT 'Identificador del alumno conectado',
+    ENTRADA DATETIME NOT NULL COMMENT 'Fecha y hora de inicio de la conexión',
+    SALIDA DATETIME NULL COMMENT 'Fecha y hora de fin de la conexión',
+
+    -- Definición de restricciones
+    CONSTRAINT PK_CONEXION PRIMARY KEY (ID_ALUMNO)
+);
