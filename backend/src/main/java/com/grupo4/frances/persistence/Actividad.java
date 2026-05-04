@@ -1,4 +1,4 @@
-package com.example.demo.persistence;
+package com.grupo4.frances.persistence;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
