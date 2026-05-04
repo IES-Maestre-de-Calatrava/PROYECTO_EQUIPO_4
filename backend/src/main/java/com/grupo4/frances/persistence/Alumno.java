@@ -50,7 +50,6 @@ public class Alumno implements java.io.Serializable {
 		@Column(name="ULTIMA_CONEXION")
 		private LocalDateTime ultimaConexion;
 
-		// Constructor vacío (necesario para JPA)
 		public Alumno() {
 		}
 
