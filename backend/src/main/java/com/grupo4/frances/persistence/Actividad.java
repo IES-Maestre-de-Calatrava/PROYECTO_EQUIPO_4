@@ -1,8 +1,6 @@
 package com.grupo4.frances.persistence;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name="Actividad")
@@ -23,16 +21,16 @@ public class Actividad implements java.io.Serializable {
     private String idProfesor; // Esta puede ser FK en el futuro
 
     @Column(name="Duracion")
-    private LocalDate duracion;
+    private String duracion;
 
     @Column(name="FECHA_INICIO", nullable = false)
-    private LocalDateTime fechaInicio;
+    private String fechaInicio;
 
     @Column(name="FECHA_FIN")
-    private LocalDateTime fechaFin;
+    private String fechaFin;
 
     @Column(name="FECHA_ENTREGA", nullable = false)
-    private LocalDateTime fechaEntrega;
+    private String fechaEntrega;
 
 
     public Actividad() {
@@ -40,8 +38,8 @@ public class Actividad implements java.io.Serializable {
 
 
     public Actividad(Long idActividad, String nombre, String dificultad, String idProfesor,
-                     LocalDate duracion, LocalDateTime fechaInicio, LocalDateTime fechaFin,
-                     LocalDateTime fechaEntrega) {
+                     String duracion, String fechaInicio, String fechaFin,
+                     String fechaEntrega) {
         this.idActividad = idActividad;
         this.nombre = nombre;
         this.dificultad = dificultad;
@@ -85,35 +83,35 @@ public class Actividad implements java.io.Serializable {
         this.idProfesor = idProfesor;
     }
 
-    public LocalDate getDuracion() {
+    public String getDuracion() {
         return duracion;
     }
 
-    public void setDuracion(LocalDate duracion) {
+    public void setDuracion(String duracion) {
         this.duracion = duracion;
     }
 
-    public LocalDateTime getFechaInicio() {
+    public String getFechaInicio() {
         return fechaInicio;
     }
 
-    public void setFechaInicio(LocalDateTime fechaInicio) {
+    public void setFechaInicio(String fechaInicio) {
         this.fechaInicio = fechaInicio;
     }
 
-    public LocalDateTime getFechaFin() {
+    public String getFechaFin() {
         return fechaFin;
     }
 
-    public void setFechaFin(LocalDateTime fechaFin) {
+    public void setFechaFin(String fechaFin) {
         this.fechaFin = fechaFin;
     }
 
-    public LocalDateTime getFechaEntrega() {
+    public String getFechaEntrega() {
         return fechaEntrega;
     }
 
-    public void setFechaEntrega(LocalDateTime fechaEntrega) {
+    public void setFechaEntrega(String fechaEntrega) {
         this.fechaEntrega = fechaEntrega;
     }
 }
