@@ -1,30 +1,28 @@
-package es.proyecto.persistence;
+package com.grupo4.frances.persistence;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import jakarta.persistence. Table;
 
 @Entity
-@Table(name="ALUMNO", schema="frances")
-public class Alumno implements java.io.Serializable {
+
+@Table(name="PROFESOR", schema="frances")
+
+public class Profesor implements java.io.Serializable{
 
 		@Id
-		@Column(name="ID_ALUMNO")
+		@Column(name="ID_PROFESOR")
 		@GeneratedValue(strategy=GenerationType.IDENTITY)
-		private Long idAlumno;
+		private Long idProfesor;
 		
 		@Column(name="NOMBRE_USUARIO")
 		private String nombreUsuario;
 		
-		@Column(name="CONTRASENA")
+		@Column(name="CONTRASENA") 
 		private String contrasena;
-		
-		@Column(name="ROL")
-		private String rol;
 		
 		@Column(name="NOMBRE")
 		private String nombre;
@@ -32,51 +30,40 @@ public class Alumno implements java.io.Serializable {
 		@Column(name="APELLIDOS")
 		private String apellidos;
 
-		@Column(name="INSTITUTO")
+        @Column(name="INSTITUTO")
 		private String instituto;
 
-		@Column(name="TELEFONO")
+        @Column(name="TELEFONO")
 		private int telefono;
 
-		@Column(name="CORREO")
+        @Column(name="CORREO")
 		private String correo;
 
-		@Column(name="NIVEL")
-		private String nivel;
+        @Column(name="DIRECTOR")
+		private boolean director;
 
-		@Column(name="RANGO")
-		private String rango;
+	public Profesor() {
+	}
 
-		@Column(name="ULTIMA_CONEXION")
-		private LocalDateTime ultimaConexion;
-
-		// Constructor vacío (necesario para JPA)
-		public Alumno() {
-		}
-
-		public Alumno(Long idAlumno, String nombreUsuario, String contrasena, String rol, String nombre, 
-				String apellidos, String instituto, int telefono, String correo, String nivel, 
-				String rango, LocalDateTime ultimaConexion) {
-			this.idAlumno = idAlumno;
+	public Profesor(Long idProfesor, String nombreUsuario, String contrasena, String nombre, String apellidos,
+	                String instituto, int telefono, String correo, boolean director) {
+			this.idProfesor = idProfesor;
 			this.nombreUsuario = nombreUsuario;
 			this.contrasena = contrasena;
-			this.rol = rol;
 			this.nombre = nombre;
 			this.apellidos = apellidos;
 			this.instituto = instituto;
 			this.telefono = telefono;
 			this.correo = correo;
-			this.nivel = nivel;
-			this.rango = rango;
-			this.ultimaConexion = ultimaConexion;
+			this.director = director;
 		}
 
-		public Long getIdAlumno() {
-			return idAlumno;
+		public Long getIdProfesor() {
+			return idProfesor;
 		}
 
-		public void setIdAlumno(Long idAlumno) {
-			this.idAlumno = idAlumno;
+		public void setIdProfesor(Long idProfesor) {
+			this.idProfesor = idProfesor;
 		}
 
 		public String getNombreUsuario() {
@@ -93,14 +80,6 @@ public class Alumno implements java.io.Serializable {
 
 		public void setContrasena(String contrasena) {
 			this.contrasena = contrasena;
-		}
-
-		public String getRol() {
-			return rol;
-		}
-
-		public void setRol(String rol) {
-			this.rol = rol;
 		}
 
 		public String getNombre() {
@@ -143,27 +122,13 @@ public class Alumno implements java.io.Serializable {
 			this.correo = correo;
 		}
 
-		public String getNivel() {
-			return nivel;
+		public boolean isDirector() {
+			return director;
 		}
 
-		public void setNivel(String nivel) {
-			this.nivel = nivel;
+		public void setDirector(boolean director) {
+			this.director = director;
 		}
-
-		public String getRango() {
-			return rango;
-		}
-
-		public void setRango(String rango) {
-			this.rango = rango;
-		}
-
-		public LocalDateTime getUltimaConexion() {
-			return ultimaConexion;
-		}
-
-		public void setUltimaConexion(LocalDateTime ultimaConexion) {
-			this.ultimaConexion = ultimaConexion;
-		}
-}
+        
+        
+} 

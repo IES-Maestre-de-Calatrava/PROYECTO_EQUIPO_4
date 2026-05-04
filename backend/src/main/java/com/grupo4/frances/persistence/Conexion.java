@@ -1,9 +1,7 @@
-package es.proyecto.persistence;
+package com.grupo4.frances.persistence;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence. Table;
 
@@ -22,6 +20,10 @@ public class Conexion implements java.io.Serializable{
 	
 	@Column(name="SALIDA")
 	private String salida;
+
+	public Conexion(){
+
+	}
 
 	public Conexion(Long idAlumno,String entrada,String salida) {
 		this.idAlumno = idAlumno;
@@ -45,12 +47,11 @@ public class Conexion implements java.io.Serializable{
 		this.entrada = entrada;
 	}
 
-	public Long getSalida() {
+	public String getSalida() {
 		return salida;
 	}
 
-	public String setSalida(String salida) {
+	public void setSalida(String salida) {
 		this.salida = salida;
 	}
-	
 }

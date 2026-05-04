@@ -1,4 +1,4 @@
-package es.proyecto.persistence;
+package com.grupo4.frances.persistence;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,6 +25,10 @@ public class Grupo implements java.io.Serializable{
 	
 	@Column(name="TUTOR")
 	private Long profesor;
+
+	public Grupo(){
+
+	}
 
 	public Grupo(Long idGrupo, String nombre, Long centro, Long profesor) {
 		this.idGrupo = idGrupo;
