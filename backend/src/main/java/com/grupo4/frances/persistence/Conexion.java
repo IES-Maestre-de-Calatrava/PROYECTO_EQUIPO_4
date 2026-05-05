@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 
-@Table(name="CONEXION", schema="frances")
+@Table(name="conexion", schema="frances")
 
 public class Conexion implements java.io.Serializable{
 

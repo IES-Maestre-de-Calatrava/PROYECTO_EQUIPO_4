@@ -13,7 +13,7 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long> {
     @Query("SELECT a FROM Actividad a WHERE a.nombre = :nombre")
     List<Actividad> buscarPorNombre(@Param("nombre") String nombre);
 
-    @Query("SELECT a FROM Actividad a WHERE a.class = :dificultad")
+    @Query("SELECT a FROM Actividad a WHERE a.dificultad = :dificultad")
     List<Actividad> buscarPorDificultad(@Param("dificultad") int dificultad);
 
     @Query("SELECT a FROM Actividad a WHERE a.duracion = :duracion")

@@ -6,7 +6,7 @@ import java.util.Set;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="Actividad")
+@Table(name="actividad", schema="frances")
 public class Actividad implements java.io.Serializable {
 
     @Id
