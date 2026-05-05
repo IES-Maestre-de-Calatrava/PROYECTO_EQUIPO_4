@@ -1,17 +1,18 @@
 package com.grupo4.frances.persistence;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence. Table;
+import jakarta.persistence.*;
 
 @Entity
 
 @Table(name="CONEXION", schema="frances")
 
 public class Conexion implements java.io.Serializable{
-	
+
 	@Id
+	@Column(name="ID_CONEXION")
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long idConexion;
+
 	@Column(name="ID_ALUMNO")
 	private Long idAlumno;
 	
@@ -25,10 +26,19 @@ public class Conexion implements java.io.Serializable{
 
 	}
 
-	public Conexion(Long idAlumno,String entrada,String salida) {
+	public Conexion(Long idConexion, Long idAlumno,String entrada,String salida) {
+		this.idConexion = idConexion;
 		this.idAlumno = idAlumno;
 		this.entrada = entrada;
 		this.salida = salida;
+	}
+
+	public Long getIdConexion() {
+		return idConexion;
+	}
+
+	public void setIdConexion(long idConexion) {
+		this.idConexion = idConexion;
 	}
 
 	public Long getIdAlumno() {
