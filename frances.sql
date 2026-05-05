@@ -22,7 +22,7 @@ CREATE TABLE ALUMNO (
     NOMBRE VARCHAR(20) NOT NULL COMMENT 'Nombre del alumno',
     APELLIDOS VARCHAR(64) NOT NULL COMMENT 'Apellidos completos del alumno',
     INSTITUTO VARCHAR(50) DEFAULT NULL COMMENT 'Nombre del instituto de procedencia',
-    TELEFONO VARCHAR(15) NOT NULL COMMENT 'Número de teléfono del alumno (incluye prefijo)',
+    TELEFONO INT NOT NULL COMMENT 'Número de teléfono del alumno (incluye prefijo)',
     CORREO VARCHAR(50) NOT NULL UNIQUE COMMENT 'Correo electrónico del alumno',
     NIVEL VARCHAR(10) NOT NULL COMMENT 'Nivel académico de francés (A1, A2, B1, etc.)',
     RANGO VARCHAR(20) DEFAULT NULL COMMENT 'Categoría o rango dentro de la plataforma'
@@ -38,7 +38,7 @@ CREATE TABLE PROFESOR (
     NOMBRE VARCHAR(20) NOT NULL COMMENT 'Nombre del profesor',
     APELLIDOS VARCHAR(64) NOT NULL COMMENT 'Apellidos del profesor',
     INSTITUTO VARCHAR(50) COMMENT 'Centro educativo al que pertenece el profesor',
-    TELEFONO VARCHAR(15) NOT NULL COMMENT 'Número de teléfono del profesor',
+    TELEFONO INT NOT NULL COMMENT 'Número de teléfono del profesor',
     CORREO VARCHAR(50) NOT NULL UNIQUE COMMENT 'Correo electrónico del profesor',
     DIRECTOR TINYINT(1) NOT NULL COMMENT 'Indica si es director (1 = sí, 0 = no)'
 ) COMMENT = 'Tabla que almacena los profesores';
