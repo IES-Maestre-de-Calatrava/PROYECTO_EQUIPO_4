@@ -1,6 +1,5 @@
 package com.grupo4.frances.Mappers;
 
-
 import com.grupo4.frances.DTO.CentroDTO;
 import com.grupo4.frances.persistence.Centro;
 
