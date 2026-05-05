@@ -14,10 +14,6 @@ public class AlumnoDTO {
     private String nombreUsuario;
 
     @NotBlank
-    @Size(max = 20)
-    private String rol;
-
-    @NotBlank
     @Size(max = 50)
     private String nombre;
 
@@ -40,17 +36,14 @@ public class AlumnoDTO {
     @Size(max = 20)
     private String rango;
 
-    private LocalDateTime ultimaConexion;
 
     public AlumnoDTO() {
     }
 
-    public AlumnoDTO(Long idAlumno, String nombreUsuario, String rol, String nombre, String apellidos, 
-                     String instituto, int telefono, String correo, String nivel, String rango, 
-                     LocalDateTime ultimaConexion) {
+    public AlumnoDTO(Long idAlumno, String nombreUsuario, String nombre, String apellidos,
+                     String instituto, int telefono, String correo, String nivel, String rango) {
         this.idAlumno = idAlumno;
         this.nombreUsuario = nombreUsuario;
-        this.rol = rol;
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.instituto = instituto;
@@ -58,7 +51,6 @@ public class AlumnoDTO {
         this.correo = correo;
         this.nivel = nivel;
         this.rango = rango;
-        this.ultimaConexion = ultimaConexion;
     }
 
     public Long getIdAlumno() {
@@ -75,14 +67,6 @@ public class AlumnoDTO {
 
     public void setNombreUsuario(String nombreUsuario) {
         this.nombreUsuario = nombreUsuario;
-    }
-
-    public String getRol() {
-        return rol;
-    }
-
-    public void setRol(String rol) {
-        this.rol = rol;
     }
 
     public String getNombre() {
@@ -139,13 +123,5 @@ public class AlumnoDTO {
 
     public void setRango(String rango) {
         this.rango = rango;
-    }
-
-    public LocalDateTime getUltimaConexion() {
-        return ultimaConexion;
-    }
-
-    public void setUltimaConexion(LocalDateTime ultimaConexion) {
-        this.ultimaConexion = ultimaConexion;
     }
 }

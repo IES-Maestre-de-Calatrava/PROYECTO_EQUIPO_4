@@ -173,6 +173,26 @@ public class Profesor implements java.io.Serializable{
 			return nuevoProfesor;
 		}
 
+		public Alumno crearAlumno(Long idAlumno, String nombreUsuario, String contrasena,
+                           String nombre, String apellidos, String instituto,
+                           int telefono, String correo, String nivel, String rango) {
+
+			// ✅ Solo un director puede crear alumnos
+			if (!this.director) {
+				System.err.println("❌ El profesor '" + this.nombre + "' no es director. " +
+								"No tiene permiso para crear alumnos.");
+				return null;
+			}
+
+			Alumno nuevoAlumno = new Alumno(idAlumno, nombreUsuario, contrasena,
+											nombre, apellidos, instituto, telefono, correo,
+											nivel, rango);
+
+			System.out.println("✅ Alumno '" + nombre + " " + apellidos + 
+							"' creado por el director '" + this.nombre + "'");
+			return nuevoAlumno;
+		}
+
 		public boolean eliminarProfesor(Profesor profesor) {
 
 			if (!this.director) {

@@ -28,9 +28,6 @@ public class Alumno implements java.io.Serializable {
 		@Column(name="CONTRASENA")
 		private String contrasena;
 		
-		@Column(name="ROL")
-		private String rol;
-		
 		@Column(name="NOMBRE")
 		private String nombre;
 		
@@ -52,22 +49,18 @@ public class Alumno implements java.io.Serializable {
 		@Column(name="RANGO")
 		private String rango;
 
-		@Column(name="ULTIMA_CONEXION")
-		private LocalDateTime ultimaConexion;
-
 		@ManyToMany(mappedBy = "alumnos")
     	private Set<Grupo> grupos = new HashSet<>();
 
 		public Alumno() {
 		}
 
-		public Alumno(Long idAlumno, String nombreUsuario, String contrasena, String rol, String nombre, 
+		public Alumno(Long idAlumno, String nombreUsuario, String contrasena, String nombre,
 				String apellidos, String instituto, int telefono, String correo, String nivel, 
-				String rango, LocalDateTime ultimaConexion) {
+				String rango) {
 			this.idAlumno = idAlumno;
 			this.nombreUsuario = nombreUsuario;
 			this.contrasena = contrasena;
-			this.rol = rol;
 			this.nombre = nombre;
 			this.apellidos = apellidos;
 			this.instituto = instituto;
@@ -75,7 +68,6 @@ public class Alumno implements java.io.Serializable {
 			this.correo = correo;
 			this.nivel = nivel;
 			this.rango = rango;
-			this.ultimaConexion = ultimaConexion;
 		}
 
 		public Long getIdAlumno() {
@@ -100,14 +92,6 @@ public class Alumno implements java.io.Serializable {
 
 		public void setContrasena(String contrasena) {
 			this.contrasena = contrasena;
-		}
-
-		public String getRol() {
-			return rol;
-		}
-
-		public void setRol(String rol) {
-			this.rol = rol;
 		}
 
 		public String getNombre() {
@@ -164,14 +148,6 @@ public class Alumno implements java.io.Serializable {
 
 		public void setRango(String rango) {
 			this.rango = rango;
-		}
-
-		public LocalDateTime getUltimaConexion() {
-			return ultimaConexion;
-		}
-
-		public void setUltimaConexion(LocalDateTime ultimaConexion) {
-			this.ultimaConexion = ultimaConexion;
 		}
 
 		public Set getGrupos() {
