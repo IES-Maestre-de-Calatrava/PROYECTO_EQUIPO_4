@@ -184,9 +184,9 @@ public class Profesor implements java.io.Serializable{
 				return null;
 			}
 
-			Alumno nuevoAlumno = new Alumno(idAlumno, nombreUsuario, contrasena, "ALUMNO",
+			Alumno nuevoAlumno = new Alumno(idAlumno, nombreUsuario, contrasena,
 											nombre, apellidos, instituto, telefono, correo,
-											nivel, rango, LocalDateTime.now());
+											nivel, rango);
 
 			System.out.println("✅ Alumno '" + nombre + " " + apellidos + 
 							"' creado por el director '" + this.nombre + "'");
