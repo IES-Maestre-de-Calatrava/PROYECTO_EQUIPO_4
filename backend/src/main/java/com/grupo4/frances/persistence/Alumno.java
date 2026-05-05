@@ -6,7 +6,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
+import jakarta.persistence.ManyToMany;
 
 @Entity
 @Table(name="ALUMNO", schema="frances")
@@ -49,6 +54,9 @@ public class Alumno implements java.io.Serializable {
 
 		@Column(name="ULTIMA_CONEXION")
 		private LocalDateTime ultimaConexion;
+
+		@ManyToMany(mappedBy = "alumnos")
+    	private Set<Grupo> grupos = new HashSet<>();
 
 		public Alumno() {
 		}
@@ -164,5 +172,13 @@ public class Alumno implements java.io.Serializable {
 
 		public void setUltimaConexion(LocalDateTime ultimaConexion) {
 			this.ultimaConexion = ultimaConexion;
+		}
+
+		public Set getGrupos() {
+			return grupos;
+		}
+
+		public void setGrupos(Set grupos) {
+			this.grupos = grupos;
 		}
 }

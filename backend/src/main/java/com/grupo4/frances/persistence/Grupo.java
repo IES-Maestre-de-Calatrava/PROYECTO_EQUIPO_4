@@ -1,8 +1,16 @@
 package com.grupo4.frances.persistence;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence. Table;
 
 @Entity
@@ -23,6 +31,20 @@ public class Grupo implements java.io.Serializable{
 	
 	@Column(name="TUTOR")
 	private Long profesor;
+
+	@ManyToMany
+    @JoinTable(
+        name = "GRUPO_ALUMNO",                         
+        schema = "frances",
+        joinColumns = @JoinColumn(name = "ID_GRUPO"),   
+        inverseJoinColumns = @JoinColumn(name = "ID_ALUMNO") 
+    )
+
+	private Set<Alumno> alumnos = new HashSet<>();
+
+	@ManyToMany(mappedBy = "grupos")
+	@JsonIgnore  // evita bucle infinito en JSON
+	private Set<Actividad> actividades = new HashSet<>();
 
 	public Grupo(){
 
@@ -66,5 +88,33 @@ public class Grupo implements java.io.Serializable{
 	public void setProfesor(Long profesor) {
 		this.profesor = profesor;
 	}
+
+    public Set getAlumnos() {
+        return alumnos;
+    }
+
+    public void setAlumnos(Set alumnos) {
+        this.alumnos = alumnos;
+    }
+
+    public Set<Actividad> getActividades() {
+        return actividades;
+    }
+
+    public void setActividades(Set<Actividad> actividades) {
+        this.actividades = actividades;
+    }
+
+	public void agregarAlumno(Alumno alumno) {
+        this.alumnos.add(alumno);
+        alumno.getGrupos().add(this);
+    }
+
+    public void eliminarAlumno(Alumno alumno) {
+        this.alumnos.remove(alumno);
+        alumno.getGrupos().remove(this);
+    }
+
+
 	
 }
