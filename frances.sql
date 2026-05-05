@@ -53,7 +53,7 @@ CREATE TABLE GRUPO (
     ID_GRUPO INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador único del grupo',
     NOMBRE VARCHAR(50) NOT NULL COMMENT 'Nombre del grupo (ej: Francés A1 Mañana)',
     TUTOR INT NOT NULL COMMENT 'ID del profesor que actúa como tutor del grupo',
-    CODIGO VARCHAR(9) COMMENT 'Codigo autogenerado para unirse a un grupo, formato AAAA-0000'
+    CODIGO VARCHAR(9) COMMENT 'Codigo autogenerado para unirse a un grupo, formato AAAA-0000',
     ID_CENTRO INT NOT NULL COMMENT 'ID del centro al que pertenece el grupo',
     
     CONSTRAINT FK_GRUPO_CENTRO FOREIGN KEY (ID_CENTRO) 
@@ -118,7 +118,7 @@ CREATE TABLE ACTIVIDAD_GRUPO (
 -- 8. CONEXION
 -- ======================================================
 CREATE TABLE CONEXION (
-    ID_CONEXION INT NOT NULL AUTO_INCREMENT COMMENT 'Identificador unico de cada conexion'
+    ID_CONEXION INT NOT NULL AUTO_INCREMENT COMMENT 'Identificador unico de cada conexion',
     ID_ALUMNO INT NOT NULL COMMENT 'Alumno que inicia la sesión',
     ENTRADA DATETIME NOT NULL COMMENT 'Fecha y hora de inicio de sesión',
     SALIDA DATETIME COMMENT 'Fecha y hora de cierre de sesión',
