@@ -3,7 +3,7 @@ package com.grupo4.frances.Controllers;
 import com.grupo4.frances.DTO.ActividadDTO;
 import com.grupo4.frances.Exceptions.ActividadNotFoundException;
 import com.grupo4.frances.Mappers.ActividadMapper;
-import com.grupo4.frances.persistence.ActividadRepository;
+import com.grupo4.frances.Repositories.ActividadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

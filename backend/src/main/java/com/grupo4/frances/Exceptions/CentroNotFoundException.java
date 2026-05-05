@@ -1,4 +1,4 @@
-package com.example.demo.Exceptions;
+package com.grupo4.frances.Exceptions;
 
 public class CentroNotFoundException extends RuntimeException {
 
