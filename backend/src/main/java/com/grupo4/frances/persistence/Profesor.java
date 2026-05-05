@@ -1,5 +1,7 @@
 package com.grupo4.frances.persistence;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -149,6 +151,79 @@ public class Profesor implements java.io.Serializable{
 							"' subida al grupo '" + grupo.getNombre() + 
 							"' por el profesor '" + this.nombre + "'");
 			return actividad;
+		}
+
+		public Profesor crearProfesor(Long idProfesor, String nombreUsuario, String contrasena,
+                               String nombre, String apellidos, String instituto,
+                               int telefono, String correo, boolean esDirector) {
+
+			// ✅ Solo un director puede crear profesores
+			if (!this.director) {
+				System.err.println("❌ El profesor '" + this.nombre + "' no es director. " +
+								"No tiene permiso para crear profesores.");
+				return null;
+			}
+
+			Profesor nuevoProfesor = new Profesor(idProfesor, nombreUsuario, contrasena,
+												nombre, apellidos, instituto,
+												telefono, correo, esDirector);
+
+			System.out.println("✅ Profesor '" + nombre + " " + apellidos + 
+							"' creado por el director '" + this.nombre + "'");
+			return nuevoProfesor;
+		}
+
+		public Alumno crearAlumno(Long idAlumno, String nombreUsuario, String contrasena,
+                           String nombre, String apellidos, String instituto,
+                           int telefono, String correo, String nivel, String rango) {
+
+			// ✅ Solo un director puede crear alumnos
+			if (!this.director) {
+				System.err.println("❌ El profesor '" + this.nombre + "' no es director. " +
+								"No tiene permiso para crear alumnos.");
+				return null;
+			}
+
+			Alumno nuevoAlumno = new Alumno(idAlumno, nombreUsuario, contrasena, "ALUMNO",
+											nombre, apellidos, instituto, telefono, correo,
+											nivel, rango, LocalDateTime.now());
+
+			System.out.println("✅ Alumno '" + nombre + " " + apellidos + 
+							"' creado por el director '" + this.nombre + "'");
+			return nuevoAlumno;
+		}
+
+		public boolean eliminarProfesor(Profesor profesor) {
+
+			if (!this.director) {
+				System.err.println("❌ El profesor '" + this.nombre + "' no es director. " +
+								"No tiene permiso para eliminar profesores.");
+				return false;
+			}
+
+			// ✅ Un director no puede eliminarse a sí mismo
+			if (profesor.getIdProfesor().equals(this.idProfesor)) {
+				System.err.println("❌ El director '" + this.nombre + "' no puede eliminarse a sí mismo.");
+				return false;
+			}
+
+			System.out.println("✅ Profesor '" + profesor.getNombre() + " " + profesor.getApellidos() +
+							"' eliminado por el director '" + this.nombre + "'");
+			return true;
+		}
+
+		public boolean eliminarAlumno(Alumno alumno) {
+
+			// ✅ Solo un director puede eliminar alumnos
+			if (!this.director) {
+				System.err.println("❌ El profesor '" + this.nombre + "' no es director. " +
+								"No tiene permiso para eliminar alumnos.");
+				return false;
+			}
+
+			System.out.println("✅ Alumno '" + alumno.getNombre() + " " + alumno.getApellidos() +
+							"' eliminado por el director '" + this.nombre + "'");
+			return true;
 		}
         
         
