@@ -4,13 +4,13 @@ import jakarta.persistence.*;
 
 @Entity
 
-@Table(name="conexion", schema="frances")
+@Table(name="CONEXION", schema="frances")
 
 public class Conexion implements java.io.Serializable{
 
 	@Id
 	@Column(name="ID_CONEXION")
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long idConexion;
 
 	@Column(name="ID_ALUMNO")

@@ -15,7 +15,7 @@ import jakarta.persistence. Table;
 
 @Entity
 
-@Table(name="grupo", schema="frances")
+@Table(name="GRUPO", schema="frances")
 
 public class Grupo implements java.io.Serializable{
 	

@@ -11,6 +11,7 @@ public class ConexionMapper {
         dto.setEntrada(conexion.getEntrada());
         dto.setSalida(conexion.getSalida());
         dto.setIdAlumno(conexion.getIdAlumno());
+        dto.setIdConexion(conexion.getIdConexion());
 
         return dto;
     }
@@ -35,6 +36,7 @@ public class ConexionMapper {
         conexion.setEntrada(dto.getEntrada());
         conexion.setSalida(dto.getSalida());
         conexion.setIdAlumno(dto.getIdAlumno());
+        dto.setIdConexion(conexion.getIdConexion());
 
         return conexion;
     }

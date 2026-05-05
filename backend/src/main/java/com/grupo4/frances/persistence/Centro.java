@@ -3,7 +3,7 @@ package com.grupo4.frances.persistence;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="centro", schema="frances")
+@Table(name="CENTRO", schema="frances")
 public class Centro implements java.io.Serializable {
 
     @Id
