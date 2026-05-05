@@ -86,6 +86,7 @@ CREATE TABLE ACTIVIDAD (
     FECHA_INICIO DATETIME NOT NULL COMMENT 'Fecha y hora en la que se activa la actividad',
     FECHA_FIN DATETIME COMMENT 'Fecha y hora en la que deja de estar disponible',
     FECHA_ENTREGA DATETIME NOT NULL COMMENT 'Fecha límite de entrega de la actividad',
+    CONTENIDO JSON,
     
     CONSTRAINT FK_ACTIVIDAD_PROFESOR FOREIGN KEY (ID_PROFESOR) 
         REFERENCES PROFESOR(ID_PROFESOR)
