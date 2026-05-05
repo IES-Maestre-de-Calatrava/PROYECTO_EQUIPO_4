@@ -1,9 +1,9 @@
 package com.grupo4.frances.Controllers;
 
-import com.example.demo.DTO.ConexionDTO;
-import com.example.demo.Exceptions.ConexionNotFoundException;
-import com.example.demo.Mappers.ConexionMapper;
-import com.example.demo.persistence.ConexionRepository;
+import com.grupo4.frances.DTO.ConexionDTO;
+import com.grupo4.frances.Exceptions.ConexionNotFoundException;
+import com.grupo4.frances.Mappers.ConexionMapper;
+import com.grupo4.frances.Repositories.ConexionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,17 +12,18 @@ import java.util.List;
 
 @CrossOrigin(origins="*")
 @RestController
-@RequestMapping("/conexion")
+@RequestMapping("/conexion") // Ruta actualizada a /actividad
 public class ConexionController {
 
     @Autowired
     private ConexionRepository repository;
 
     /**
-     * Obtener todo el historial de conexiones
+     * Obtener todas las actividades
+     * @return List de ActividadDTO
      */
     @GetMapping("/find")
-    public List<ConexionDTO> getAllConexiones() {
+    public List<ConexionDTO> getAllActividades() {
         return repository.findAll()
                 .stream()
                 .map(ConexionMapper::toDTO)
@@ -30,22 +31,19 @@ public class ConexionController {
     }
 
     /**
-     * Obtener las conexiones de un alumno específico
-     * @param idAlumno
+     * Obtener actividad por ID
+     * @param conexionID
+     * @return ConexionDTO
+     * @throws ConexionNotFoundException
      */
-    @GetMapping("/alumno/{id}")
-    public List<ConexionDTO> getConexionesByAlumno(@PathVariable(value = "id") Long idAlumno) {
-        return repository.findByIdAlumno(idAlumno)
-                .stream()
-                .map(ConexionMapper::toDTO)
-                .toList();
-    }
+    @GetMapping("/find/{id}")
+    public ResponseEntity<ConexionDTO> getAlumnoByID(@PathVariable(value = "id") Long alumnoID)
+            throws ConexionNotFoundException {
 
-    /**
-     * Registrar una nueva entrada (Create)
-     */
-    @PostMapping("/add")
-    public ConexionDTO registrarEntrada(@RequestBody ConexionDTO conexionDTO) {
-        return ConexionMapper.toDTO(repository.save(ConexionMapper.toEntity(conexionDTO)));
+        ConexionDTO conexion = repository.findById(alumnoID)
+                .map(ConexionMapper::toDTO)
+                .orElseThrow(() -> new ConexionNotFoundException(alumnoID));
+
+        return ResponseEntity.ok(conexion);
     }
 }
