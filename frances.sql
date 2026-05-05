@@ -112,11 +112,12 @@ CREATE TABLE ACTIVIDAD_GRUPO (
 -- 8. CONEXION
 -- ======================================================
 CREATE TABLE CONEXION (
+    ID_CONEXION INT NOT NULL AUTO_INCREMENT COMMENT 'Identificador unico de cada conexion'
     ID_ALUMNO INT NOT NULL COMMENT 'Alumno que inicia la sesión',
     ENTRADA DATETIME NOT NULL COMMENT 'Fecha y hora de inicio de sesión',
     SALIDA DATETIME COMMENT 'Fecha y hora de cierre de sesión',
     
-    PRIMARY KEY (ID_ALUMNO, ENTRADA),
+    PRIMARY KEY (ID_CONEXION),
     
     CONSTRAINT FK_CONEXION_ALUMNO FOREIGN KEY (ID_ALUMNO) 
         REFERENCES ALUMNO(ID_ALUMNO) ON DELETE CASCADE
