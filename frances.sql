@@ -1,3 +1,6 @@
+-- Si existe, borramos la base de datos, y luego la creamos
+-- Queremos que siempre que importemos este esquema se cree un esquema nuevo
+DROP TABLE IF EXISTS frances;
 CREATE DATABASE IF NOT EXISTS frances;
 USE frances;
 
