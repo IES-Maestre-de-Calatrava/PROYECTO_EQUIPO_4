@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.grupo4.frances.persistence.Profesor;
 
-public interface ProfesorRepository extends JpaRepository<Profesor,List> {
+public interface ProfesorRepository extends JpaRepository<Profesor, Long> {
     @Query("SELECT c FROM Grupo c WHERE c.nombre = :nombre")
     List<Profesor> buscarPorNombre(@Param("nombre") String nombre);
 

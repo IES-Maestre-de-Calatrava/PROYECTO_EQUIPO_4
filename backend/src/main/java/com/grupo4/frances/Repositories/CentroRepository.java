@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface CentroRepository extends JpaRepository<Centro, List> {
+public interface CentroRepository extends JpaRepository<Centro, Long> {
     @Query("SELECT c FROM Centro c WHERE c.nombre = :nombre")
     List<Centro> buscarPorNombre(@Param("nombre") String nombre);
 

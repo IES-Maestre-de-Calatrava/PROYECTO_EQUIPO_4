@@ -32,17 +32,17 @@ public class ProfesorController {
 
     /**
      * Obtener actividad por ID
-     * @param profesorId
+     * @param profesorID
      * @return ProfesorDTO
      * @throws ProfesorNotFoundException
      */
     @GetMapping("/find/{id}")
-    public ResponseEntity<ProfesorDTO> getProfesorByID(@PathVariable(value = "id") Long profesorId)
+    public ResponseEntity<ProfesorDTO> getProfesorByID(@PathVariable(value = "id") Long profesorID)
             throws ProfesorNotFoundException {
 
-        ProfesorDTO profesor = repository.findById(profesorId)
+        ProfesorDTO profesor = repository.findById(profesorID)
                 .map(ProfesorMapper::toDTO)
-                .orElseThrow(() -> new ProfesorNotFoundException(profesorId));
+                .orElseThrow(() -> new ProfesorNotFoundException(profesorID));
 
         return ResponseEntity.ok(profesor);
     }

@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ActividadRepository extends JpaRepository<Actividad, List> {
+public interface ActividadRepository extends JpaRepository<Actividad, Long> {
 
     @Query("SELECT a FROM Actividad a WHERE a.nombre = :nombre")
     List<Actividad> buscarPorNombre(@Param("nombre") String nombre);
