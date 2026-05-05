@@ -38,7 +38,7 @@ public class Alumno implements java.io.Serializable {
 		@Column(name="TELEFONO")
 		private int telefono;
 
-		@Column(name="CORREO")
+		@Column(name="CORREO", nullable = false, unique = true)
 		private String correo;
 
 		@Column(name="NIVEL")

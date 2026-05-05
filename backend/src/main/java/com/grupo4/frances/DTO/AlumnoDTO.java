@@ -42,11 +42,9 @@ public class AlumnoDTO {
 
     private LocalDateTime ultimaConexion;
 
-    // Constructor vacío
     public AlumnoDTO() {
     }
 
-    // Constructor con campos
     public AlumnoDTO(Long idAlumno, String nombreUsuario, String rol, String nombre, String apellidos, 
                      String instituto, int telefono, String correo, String nivel, String rango, 
                      LocalDateTime ultimaConexion) {
@@ -63,7 +61,6 @@ public class AlumnoDTO {
         this.ultimaConexion = ultimaConexion;
     }
 
-    // Getters y Setters
     public Long getIdAlumno() {
         return idAlumno;
     }
