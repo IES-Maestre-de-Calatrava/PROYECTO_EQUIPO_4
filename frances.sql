@@ -6,6 +6,7 @@ USE frances;
 -- ======================================================
 CREATE TABLE CENTRO (
     ID_CENTRO INT AUTO_INCREMENT COMMENT 'Identificador único del centro educativo',
+    NOMBRE VARCHAR(150) NOT NULL COMMENT 'Nombre del centro',
     LOCALIDAD VARCHAR(50) COMMENT 'Ciudad o localidad donde se encuentra el centro',
     
     PRIMARY KEY (ID_CENTRO)
