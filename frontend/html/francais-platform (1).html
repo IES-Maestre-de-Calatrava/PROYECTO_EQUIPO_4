@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Le Français — Plataforma de Aprendizaje</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    /* =============================================
+       CSS VARIABLES & BASE
+    ============================================= */
+    :root {
+      --blue-deep:    #1a3a5c;
+      --blue-mid:     #2563eb;
+      --blue-light:   #dbeafe;
+      --green-mid:    #059669;
+      --green-light:  #d1fae5;
+      --gold:         #d97706;
+      --gold-light:   #fef3c7;
+      --gold-bright:  #f59e0b;
+      --text-main:    #1e293b;
+      --text-muted:   #64748b;
+      --surface:      #f8fafc;
+      --white:        #ffffff;
+      --border:       #e2e8f0;
+      --shadow-sm:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md:    0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg:    0 10px 40px rgba(0,0,0,.14);
+      --radius:       14px;
+      --radius-sm:    8px;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body:    'DM Sans', sans-serif;
+      --transition:   all .28s cubic-bezier(.4,0,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: var(--surface);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* =============================================
+       SCREEN MANAGER
+    ============================================= */
+    .screen { display: none !important; animation: fadeInUp .4s ease both; }
+    .screen.active { display: block !important; }
+    #screen-login.active { display: flex !important; }
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity:0; } to { opacity:1; }
+    }
+    @keyframes popIn {
+      0%   { transform: scale(.85); opacity:0; }
+      70%  { transform: scale(1.04); }
+      100% { transform: scale(1); opacity:1; }
+    }
+    @keyframes slideRight {
+      from { opacity:0; transform:translateX(-20px); }
+      to   { opacity:1; transform:translateX(0); }
+    }
+
+    /* =============================================
+       LOGIN SCREEN
+    ============================================= */
+    #screen-login {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a3a5c 0%, #2563eb 55%, #0ea5e9 100%);
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #screen-login::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.04);
+      top: -200px; right: -200px;
+      pointer-events: none;
+    }
+    #screen-login::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.04);
+      bottom: -150px; left: -100px;
+      pointer-events: none;
+    }
+    .login-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 2.5rem 2.25rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      z-index: 2;
+    }
+    .login-logo {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--blue-mid);
+      letter-spacing: -.5px;
+    }
+    .login-logo span { color: var(--gold); }
+    .login-subtitle {
+      font-size: .9rem;
+      color: var(--text-muted);
+      margin-top: .25rem;
+      margin-bottom: 1.75rem;
+    }
+    .form-label { font-weight: 500; font-size: .875rem; color: var(--text-main); }
+    .form-control, .form-select {
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      font-size: .9rem;
+      padding: .65rem .9rem;
+      transition: var(--transition);
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--blue-mid);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    }
+    .btn-login {
+      background: linear-gradient(135deg, var(--blue-mid), #0ea5e9);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      padding: .7rem;
+      font-size: .95rem;
+      transition: var(--transition);
+      width: 100%;
+    }
+    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,.35); color:#fff; }
+    .login-register { font-size: .85rem; color: var(--text-muted); text-align: center; margin-top: 1rem; }
+    .login-register a { color: var(--blue-mid); cursor: pointer; font-weight:500; text-decoration: none; }
+    .login-register a:hover { text-decoration: underline; }
+    .role-badge {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .35rem .75rem;
+      border-radius: 50px;
+      font-size: .8rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 2px solid var(--border);
+      transition: var(--transition);
+      color: var(--text-muted);
+    }
+    .role-badge.active {
+      border-color: var(--blue-mid);
+      background: var(--blue-light);
+      color: var(--blue-mid);
+    }
+
+    /* =============================================
+       MAIN LAYOUT (navbar + sidebar + content)
+    ============================================= */
+    #screen-app { min-height: 100vh; }
+
+    /* TOP NAVBAR */
+    .app-navbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: .75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .navbar-logo {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--blue-mid);
+    }
+    .navbar-logo span { color: var(--gold); }
+    .navbar-user {
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue-mid), #0ea5e9);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .85rem;
+    }
+    .user-name { font-weight: 600; font-size: .9rem; }
+    .user-role-pill {
+      font-size: .72rem; font-weight: 600;
+      padding: .2rem .6rem;
+      border-radius: 50px;
+      background: var(--blue-light);
+      color: var(--blue-mid);
+    }
+    .user-role-pill.profesor {
+      background: var(--gold-light);
+      color: var(--gold);
+    }
+
+    /* SIDEBAR */
+    .app-layout {
+      display: flex;
+      min-height: calc(100vh - 61px);
+    }
+    .sidebar {
+      width: 240px; min-width: 240px;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem .75rem;
+      display: flex; flex-direction: column; gap: .25rem;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: .65rem;
+      padding: .6rem .85rem;
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+      border: none; background: none; width: 100%; text-align: left;
+    }
+    .sidebar-item i { font-size: 1.1rem; }
+    .sidebar-item:hover { background: var(--surface); color: var(--text-main); }
+    .sidebar-item.active { background: var(--blue-light); color: var(--blue-mid); }
+    .sidebar-item.active i { color: var(--blue-mid); }
+    .sidebar-divider { border-top: 1px solid var(--border); margin: .5rem 0; }
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1; padding: 2rem;
+      overflow-y: auto;
+    }
+
+    /* =============================================
+       PANEL VIEWS (inside app)
+    ============================================= */
+    .panel { display: none; animation: fadeInUp .35s ease both; }
+    .panel.active { display: block; }
+
+    /* =============================================
+       DASHBOARD
+    ============================================= */
+    .dash-greeting {
+      font-family: var(--font-display);
+      font-size: 1.75rem; font-weight: 700;
+      color: var(--blue-deep);
+    }
+    .dash-sub { color: var(--text-muted); font-size: .95rem; margin-top: .2rem; }
+
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      display: flex; flex-direction: column; gap: .35rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+    .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .stat-label { font-size: .8rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--blue-deep); line-height: 1.1; }
+    .stat-icon { font-size: 1.5rem; margin-bottom: .25rem; }
+
+    /* LEVEL CARD */
+    .level-card {
+      background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid));
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-md);
+    }
+    .level-card.intermedio {
+      background: linear-gradient(135deg, #065f46, var(--green-mid));
+    }
+    .level-card.avanzado {
+      background: linear-gradient(135deg, #92400e, var(--gold-bright));
+    }
+    .level-name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; }
+    .level-desc { font-size: .85rem; opacity: .8; margin-top: .25rem; }
+    .level-progress-label { font-size: .8rem; opacity: .7; margin-top: 1rem; }
+    .level-progress-bar {
+      height: 8px; border-radius: 4px;
+      background: rgba(255,255,255,.25);
+      margin-top: .35rem; overflow: hidden;
+    }
+    .level-progress-fill {
+      height: 100%; border-radius: 4px;
+      background: rgba(255,255,255,.85);
+      transition: width .8s cubic-bezier(.4,0,.2,1);
+    }
+    .level-next { font-size: .82rem; opacity: .75; margin-top: .5rem; }
+
+    /* MOTIVATIONAL BANNER */
+    .motivational-banner {
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      background: linear-gradient(90deg, #eff6ff, #dbeafe);
+      border-left: 4px solid var(--blue-mid);
+      display: flex; align-items: center; gap: .75rem;
+      animation: slideRight .5s ease both;
+    }
+    .motivational-banner .msg-icon { font-size: 1.6rem; }
+    .motivational-banner .msg-text { font-weight: 600; color: var(--blue-deep); }
+
+    /* =============================================
+       COURSES
+    ============================================= */
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--blue-deep);
+      margin-bottom: 1.25rem;
+    }
+    .course-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      height: 100%;
+      display: flex; flex-direction: column;
+    }
+    .course-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+    .course-level-badge {
+      display: inline-block;
+      font-size: .72rem; font-weight: 700;
+      padding: .2rem .65rem;
+      border-radius: 50px;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .badge-a1 { background: var(--blue-light); color: var(--blue-mid); }
+    .badge-a2 { background: var(--green-light); color: var(--green-mid); }
+    .badge-b1 { background: var(--gold-light); color: var(--gold); }
+    .course-title { font-weight: 700; font-size: 1.05rem; margin: .6rem 0 .3rem; color: var(--blue-deep); }
+    .course-meta { font-size: .82rem; color: var(--text-muted); }
+    .course-progress-bar {
+      height: 6px; background: var(--border);
+      border-radius: 3px; margin: .75rem 0 .25rem; overflow: hidden;
+    }
+    .course-progress-fill {
+      height: 100%; background: linear-gradient(90deg, var(--blue-mid), #0ea5e9);
+      border-radius: 3px; transition: width .7s ease;
+    }
+    .course-progress-text { font-size: .78rem; color: var(--text-muted); margin-bottom: .85rem; }
+    .btn-course {
+      border: none;
+      background: linear-gradient(135deg, var(--blue-mid), #0ea5e9);
+      color: #fff; font-weight: 600; font-size: .88rem;
+      border-radius: var(--radius-sm);
+      padding: .5rem 1rem;
+      cursor: pointer; transition: var(--transition);
+      margin-top: auto; align-self: flex-start;
+    }
+    .btn-course:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,.3); }
+
+    /* =============================================
+       ACTIVITIES (inside course)
+    ============================================= */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .88rem; font-weight: 600;
+      color: var(--text-muted); cursor: pointer;
+      transition: var(--transition);
+      background: none; border: none;
+      padding: .3rem 0; margin-bottom: 1rem;
+    }
+    .back-btn:hover { color: var(--blue-mid); }
+
+    .activity-item {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.3rem;
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: .75rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .activity-item:hover { box-shadow: var(--shadow-md); border-color: var(--blue-mid); }
+    .activity-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: var(--blue-light);
+      color: var(--blue-mid);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .activity-info { flex: 1; }
+    .activity-title { font-weight: 600; font-size: .95rem; }
+    .activity-subtitle { font-size: .8rem; color: var(--text-muted); margin-top: .1rem; }
+    .activity-status {
+      font-size: .75rem; font-weight: 600; padding: .2rem .65rem;
+      border-radius: 50px;
+    }
+    .status-pending { background: #f1f5f9; color: var(--text-muted); }
+    .status-done    { background: var(--green-light); color: var(--green-mid); }
+    .status-partial { background: var(--gold-light); color: var(--gold); }
+
+    /* =============================================
+       EXERCISE ENGINE
+    ============================================= */
+    .exercise-header {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.4rem;
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .ex-counter { font-size: .85rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+    .ex-progress-wrap { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .ex-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue-mid), #0ea5e9);
+      border-radius: 4px; transition: width .5s ease;
+    }
+    .ex-points-live {
+      font-size: .82rem; font-weight: 700;
+      color: var(--gold);
+      white-space: nowrap;
+      display: flex; align-items: center; gap: .3rem;
+    }
+
+    .exercise-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+      min-height: 340px;
+      display: flex; flex-direction: column;
+    }
+    .exercise-type-badge {
+      font-size: .72rem; font-weight: 700;
+      padding: .2rem .65rem; border-radius: 50px;
+      text-transform: uppercase; letter-spacing: .06em;
+      background: var(--blue-light); color: var(--blue-mid);
+      display: inline-block; margin-bottom: 1rem;
+    }
+    .exercise-question {
+      font-family: var(--font-display);
+      font-size: 1.25rem; font-weight: 600;
+      color: var(--blue-deep);
+      line-height: 1.45;
+      margin-bottom: 1.5rem;
+    }
+
+    /* OPTIONS */
+    .option-btn {
+      display: flex; align-items: center; gap: .75rem;
+      width: 100%; padding: .75rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      cursor: pointer; font-size: .9rem; font-weight: 500;
+      text-align: left; transition: var(--transition);
+      margin-bottom: .6rem; color: var(--text-main);
+    }
+    .option-btn:hover:not(:disabled) { border-color: var(--blue-mid); background: var(--blue-light); }
+    .option-btn.correct  { border-color: var(--green-mid); background: var(--green-light); color: var(--green-mid); }
+    .option-btn.wrong    { border-color: #ef4444; background: #fee2e2; color: #dc2626; }
+    .option-btn:disabled { cursor: not-allowed; }
+    .option-letter {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: var(--surface); border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; flex-shrink: 0;
+    }
+    .option-btn.correct .option-letter  { background: var(--green-mid); border-color: var(--green-mid); color: #fff; }
+    .option-btn.wrong   .option-letter  { background: #ef4444; border-color: #ef4444; color: #fff; }
+
+    /* FILL IN THE BLANK */
+    .fill-blank-wrap { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+    .fill-input {
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: .5rem .85rem;
+      font-size: .95rem; font-weight: 500;
+      min-width: 150px; transition: var(--transition);
+      font-family: var(--font-body);
+    }
+    .fill-input:focus { outline: none; border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .fill-input.correct { border-color: var(--green-mid); background: var(--green-light); }
+    .fill-input.wrong   { border-color: #ef4444; background: #fee2e2; }
+    .btn-check {
+      background: linear-gradient(135deg, var(--blue-mid), #0ea5e9);
+      color: #fff; border: none; border-radius: var(--radius-sm);
+      padding: .55rem 1.25rem; font-weight: 600; font-size: .88rem;
+      cursor: pointer; transition: var(--transition);
+    }
+    .btn-check:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,.3); }
+    .btn-check:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* FEEDBACK TOAST */
+    .feedback-toast {
+      position: fixed; bottom: 2rem; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1rem 1.5rem;
+      box-shadow: var(--shadow-lg);
+      display: flex; align-items: center; gap: .75rem;
+      font-weight: 600; font-size: .95rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s ease, transform .3s ease;
+      z-index: 9999;
+      border: 2px solid var(--border);
+      min-width: 280px; max-width: 90vw;
+    }
+    .feedback-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .feedback-toast.toast-correct { border-color: var(--green-mid); background: var(--green-light); color: var(--green-mid); }
+    .feedback-toast.toast-wrong   { border-color: #f59e0b; background: #fef3c7; color: #b45309; }
+    .feedback-toast .toast-icon   { font-size: 1.5rem; }
+    .feedback-points {
+      margin-left: auto; background: rgba(0,0,0,.08);
+      padding: .15rem .55rem; border-radius: 50px;
+      font-size: .82rem;
+    }
+
+    /* ACTIVITY COMPLETE SCREEN */
+    .activity-complete {
+      text-align: center; padding: 3rem 2rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+    }
+    .complete-icon { font-size: 4rem; animation: popIn .5s ease; }
+    .complete-title {
+      font-family: var(--font-display);
+      font-size: 1.75rem; font-weight: 700;
+      color: var(--blue-deep); margin-top: 1rem;
+    }
+    .complete-points {
+      font-size: 2.5rem; font-weight: 800;
+      color: var(--gold); margin: .75rem 0;
+    }
+    .complete-sub { color: var(--text-muted); font-size: .9rem; }
+    .btn-back-courses {
+      margin-top: 1.5rem;
+      background: linear-gradient(135deg, var(--blue-mid), #0ea5e9);
+      color: #fff; border: none; border-radius: var(--radius-sm);
+      padding: .65rem 1.75rem; font-weight: 600; cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-back-courses:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,.3); }
+
+    /* LEVEL UP OVERLAY */
+    .levelup-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9998;
+      animation: fadeIn .3s ease;
+    }
+    .levelup-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 2.5rem;
+      text-align: center;
+      max-width: 360px; width: 90%;
+      animation: popIn .5s ease;
+      box-shadow: var(--shadow-lg);
+    }
+    .levelup-icon { font-size: 4rem; }
+    .levelup-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem; font-weight: 800;
+      color: var(--blue-deep); margin: .75rem 0 .25rem;
+    }
+    .levelup-sub { color: var(--text-muted); font-size: .9rem; }
+    .btn-levelup {
+      margin-top: 1.5rem;
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+      color: #fff; border: none; border-radius: var(--radius-sm);
+      padding: .65rem 1.75rem; font-weight: 600; cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-levelup:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(245,158,11,.4); }
+
+    /* =============================================
+       PROFESOR PANEL
+    ============================================= */
+    .student-row {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: .75rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+    .student-row:hover { box-shadow: var(--shadow-md); }
+    .student-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--green-mid), #0ea5e9);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .9rem; flex-shrink: 0;
+    }
+    .student-name { font-weight: 600; font-size: .93rem; }
+    .student-meta { font-size: .78rem; color: var(--text-muted); }
+    .student-stats { margin-left: auto; text-align: right; }
+    .student-points { font-weight: 700; font-size: 1rem; color: var(--gold); }
+    .student-level { font-size: .75rem; color: var(--text-muted); }
+
+    .metric-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .metric-value { font-size: 2rem; font-weight: 800; color: var(--blue-mid); }
+    .metric-label { font-size: .8rem; color: var(--text-muted); margin-top: .2rem; }
+
+    /* =============================================
+       MESSAGING
+    ============================================= */
+    .chat-container {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      height: 500px; box-shadow: var(--shadow-sm);
+    }
+    .chat-header {
+      background: linear-gradient(135deg, var(--blue-deep), var(--blue-mid));
+      color: #fff; padding: .85rem 1.25rem;
+      display: flex; align-items: center; gap: .6rem;
+      font-weight: 600; font-size: .95rem;
+    }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 1.25rem;
+      display: flex; flex-direction: column; gap: .75rem;
+      background: var(--surface);
+    }
+    .chat-bubble {
+      max-width: 72%; padding: .65rem 1rem;
+      border-radius: 14px; font-size: .88rem; line-height: 1.5;
+      animation: fadeIn .2s ease;
+    }
+    .chat-bubble.sent {
+      background: linear-gradient(135deg, var(--blue-mid), #0ea5e9);
+      color: #fff; border-bottom-right-radius: 4px;
+      align-self: flex-end;
+    }
+    .chat-bubble.received {
+      background: var(--white);
+      border: 1px solid var(--border);
+      color: var(--text-main); border-bottom-left-radius: 4px;
+      align-self: flex-start;
+    }
+    .chat-bubble .bubble-meta { font-size: .7rem; opacity: .65; margin-top: .3rem; }
+    .chat-input-row {
+      padding: .85rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex; gap: .6rem; background: var(--white);
+    }
+    .chat-input {
+      flex: 1; border: 1.5px solid var(--border);
+      border-radius: 50px; padding: .5rem 1rem;
+      font-size: .88rem; font-family: var(--font-body);
+      transition: var(--transition);
+    }
+    .chat-input:focus { outline: none; border-color: var(--blue-mid); }
+    .btn-send {
+      background: linear-gradient(135deg, var(--blue-mid), #0ea5e9);
+      color: #fff; border: none; border-radius: 50%;
+      width: 38px; height: 38px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition);
+    }
+    .btn-send:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(37,99,235,.3); }
+
+    /* =============================================
+       UTILITY
+    ============================================= */
+    .points-pop {
+      position: fixed; pointer-events: none;
+      font-size: 1.1rem; font-weight: 800;
+      color: var(--gold); z-index: 9999;
+      animation: pointsPop .9s ease forwards;
+    }
+    @keyframes pointsPop {
+      0%   { opacity:1; transform: translateY(0) scale(1); }
+      100% { opacity:0; transform: translateY(-60px) scale(1.3); }
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { padding: 1.25rem 1rem; }
+      .dash-greeting { font-size: 1.35rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     SCREEN: LOGIN
+============================================================ -->
+<div id="screen-login" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">Le <span>Français</span></div>
+    <div class="login-subtitle">Tu plataforma para dominar el idioma</div>
+
+    <div id="login-error" class="alert alert-danger py-2 px-3 d-none" style="font-size:.85rem;border-radius:8px;"></div>
+
+    <div class="mb-3">
+      <label class="form-label">Correo electrónico</label>
+      <input id="login-email" type="email" class="form-control" placeholder="tu@email.com"/>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Contraseña</label>
+      <input id="login-password" type="password" class="form-control" placeholder="••••••••"/>
+    </div>
+    <div class="mb-4">
+      <label class="form-label d-block mb-2">Rol</label>
+      <div class="d-flex gap-2">
+        <button class="role-badge active" id="role-alumno" onclick="selectRole('alumno')">
+          <i class="bi bi-person-fill"></i> Alumno
+        </button>
+        <button class="role-badge" id="role-profesor" onclick="selectRole('profesor')">
+          <i class="bi bi-person-video3"></i> Profesor
+        </button>
+      </div>
+    </div>
+    <button class="btn-login" onclick="doLogin()">Iniciar sesión →</button>
+    <div class="login-register">
+      ¿No tienes cuenta? <a onclick="doRegister()">Regístrate gratis</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN: APP
+============================================================ -->
+<div id="screen-app" class="screen">
+
+  <!-- NAVBAR -->
+  <nav class="app-navbar">
+    <div class="navbar-logo">Le <span>Français</span></div>
+    <div class="navbar-user">
+      <div class="user-avatar" id="nav-avatar">--</div>
+      <div>
+        <div class="user-name" id="nav-username">Usuario</div>
+        <div class="user-role-pill" id="nav-role-pill">Alumno</div>
+      </div>
+      <button class="btn btn-sm btn-outline-secondary ms-2" onclick="doLogout()" style="border-radius:8px;font-size:.8rem;">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- LAYOUT -->
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <!-- alumno sidebar -->
+      <div id="sidebar-alumno">
+        <button class="sidebar-item active" onclick="showPanel('dashboard')"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
+        <button class="sidebar-item" onclick="showPanel('courses')"><i class="bi bi-book-fill"></i> Cursos</button>
+        <div class="sidebar-divider"></div>
+        <button class="sidebar-item" onclick="showPanel('progress')"><i class="bi bi-bar-chart-fill"></i> Mi progreso</button>
+        <button class="sidebar-item" onclick="showPanel('messages')"><i class="bi bi-chat-fill"></i> Mensajes</button>
+      </div>
+      <!-- profesor sidebar -->
+      <div id="sidebar-profesor" style="display:none">
+        <button class="sidebar-item active" onclick="showPanel('profe-dashboard')"><i class="bi bi-grid-1x2-fill"></i> Panel</button>
+        <button class="sidebar-item" onclick="showPanel('profe-students')"><i class="bi bi-people-fill"></i> Alumnos</button>
+        <button class="sidebar-item" onclick="showPanel('profe-courses')"><i class="bi bi-collection-fill"></i> Cursos</button>
+        <div class="sidebar-divider"></div>
+        <button class="sidebar-item" onclick="showPanel('messages')"><i class="bi bi-chat-fill"></i> Mensajes</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="main-content">
+
+      <!-- ── PANEL: ALUMNO DASHBOARD ── -->
+      <div id="dashboard" class="panel active">
+        <div class="dash-greeting">¡Hola, <span id="dash-name">Alumno</span>! 👋</div>
+        <div class="dash-sub">Continúa tu camino hacia el francés perfecto</div>
+
+        <!-- Motivational banner -->
+        <div class="motivational-banner mt-3 mb-4" id="motivational-banner">
+          <span class="msg-icon">🎯</span>
+          <span class="msg-text" id="motivational-msg">¡Vas genial! Sigue así 🔥</span>
+        </div>
+
+        <!-- Stats row -->
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon">⭐</div>
+              <div class="stat-label">Puntos totales</div>
+              <div class="stat-value" id="user-score">0</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon">🔥</div>
+              <div class="stat-label">Ejercicios hechos</div>
+              <div class="stat-value" id="dash-exercises-done">0</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon">📚</div>
+              <div class="stat-label">Actividades</div>
+              <div class="stat-value" id="dash-activities-done">0</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon">🎯</div>
+              <div class="stat-label">Precisión</div>
+              <div class="stat-value" id="dash-accuracy">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Level card -->
+        <div id="level-card" class="level-card mb-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div style="font-size:.8rem;opacity:.7;text-transform:uppercase;letter-spacing:.06em;">Nivel actual</div>
+              <div class="level-name" id="level-indicator">Básico</div>
+              <div class="level-desc" id="level-desc">Empezando tu aventura en francés</div>
+            </div>
+            <div style="font-size:2.5rem;" id="level-icon">🔵</div>
+          </div>
+          <div class="level-progress-label" id="level-progress-label">Progreso al siguiente nivel</div>
+          <div class="level-progress-bar">
+            <div class="level-progress-fill" id="level-progress-fill" style="width:0%"></div>
+          </div>
+          <div class="level-next" id="level-next">Te faltan 2 000 puntos para Intermedio</div>
+        </div>
+
+        <!-- Quick start -->
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="section-title mb-0">Continúa aprendiendo</div>
+          <button class="btn btn-sm btn-outline-primary" onclick="showPanel('courses')" style="border-radius:8px;font-size:.82rem;">Ver todos →</button>
+        </div>
+        <div class="row g-3" id="quick-courses"></div>
+      </div>
+
+      <!-- ── PANEL: COURSES ── -->
+      <div id="courses" class="panel">
+        <div class="section-title">Mis Cursos</div>
+        <div class="row g-3" id="courses-container"></div>
+      </div>
+
+      <!-- ── PANEL: ACTIVITY LIST ── -->
+      <div id="activity-container" class="panel">
+        <button class="back-btn" onclick="showPanel('courses')">
+          <i class="bi bi-arrow-left"></i> Volver a cursos
+        </button>
+        <div class="section-title" id="activity-course-title">Actividades</div>
+        <div id="activity-list"></div>
+      </div>
+
+      <!-- ── PANEL: EXERCISE ENGINE ── -->
+      <div id="exercise-panel" class="panel">
+        <button class="back-btn" id="exercise-back-btn">
+          <i class="bi bi-arrow-left"></i> Volver a actividad
+        </button>
+        <div class="exercise-header">
+          <span class="ex-counter" id="ex-counter">Ejercicio 1/3</span>
+          <div class="ex-progress-wrap">
+            <div class="ex-progress-fill" id="ex-progress-fill" style="width:0%"></div>
+          </div>
+          <span class="ex-points-live"><i class="bi bi-star-fill"></i> <span id="ex-points-live">0</span> pts</span>
+        </div>
+        <div id="exercise-list" class="exercise-card">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- ── PANEL: ACTIVITY COMPLETE ── -->
+      <div id="activity-complete-panel" class="panel">
+        <div class="activity-complete">
+          <div class="complete-icon" id="complete-icon">🎉</div>
+          <div class="complete-title">¡Actividad completada!</div>
+          <div class="complete-points" id="complete-points">+0 puntos</div>
+          <div class="complete-sub" id="complete-sub">Has completado todos los ejercicios</div>
+          <button class="btn-back-courses" onclick="showPanel('activity-container')">
+            Ver más actividades
+          </button>
+        </div>
+      </div>
+
+      <!-- ── PANEL: PROGRESS ── -->
+      <div id="progress" class="panel">
+        <div class="section-title">Mi Progreso</div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="stat-card p-3">
+              <div class="stat-label">Puntos totales</div>
+              <div class="stat-value" id="prog-score">0</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="stat-card p-3">
+              <div class="stat-label">Nivel</div>
+              <div class="stat-value" id="prog-level">Básico</div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="section-title">Historial de cursos</div>
+          <div id="progress-course-list"></div>
+        </div>
+      </div>
+
+      <!-- ── PANEL: MESSAGES ── -->
+      <div id="messages" class="panel">
+        <div class="section-title">Mensajes</div>
+        <div class="chat-container">
+          <div class="chat-header">
+            <i class="bi bi-chat-dots-fill"></i>
+            <span id="chat-partner-name">Conversación</span>
+          </div>
+          <div class="chat-messages" id="chat-messages"></div>
+          <div class="chat-input-row">
+            <input class="chat-input" id="chat-input" type="text" placeholder="Escribe un mensaje…" onkeydown="if(event.key==='Enter')sendMessage()"/>
+            <button class="btn-send" onclick="sendMessage()"><i class="bi bi-send-fill" style="font-size:.85rem;"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           PROFESOR PANELS
+      ═══════════════════════════════════ -->
+
+      <!-- ── PANEL: PROFE DASHBOARD ── -->
+      <div id="profe-dashboard" class="panel">
+        <div class="dash-greeting">Panel del Profesor 👨‍🏫</div>
+        <div class="dash-sub">Visión general de tu aula</div>
+        <div class="row g-3 mt-2 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="metric-card">
+              <div class="metric-value">5</div>
+              <div class="metric-label">Alumnos activos</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="metric-card">
+              <div class="metric-value">42</div>
+              <div class="metric-label">Ejercicios completados</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="metric-card">
+              <div class="metric-value">3</div>
+              <div class="metric-label">Cursos activos</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="metric-card">
+              <div class="metric-value">78%</div>
+              <div class="metric-label">Tasa de aciertos</div>
+            </div>
+          </div>
+        </div>
+        <div class="section-title">Actividad reciente</div>
+        <div id="profe-recent-activity"></div>
+      </div>
+
+      <!-- ── PANEL: PROFE STUDENTS ── -->
+      <div id="profe-students" class="panel">
+        <div class="section-title">Alumnos</div>
+        <div id="students-list"></div>
+      </div>
+
+      <!-- ── PANEL: PROFE COURSES ── -->
+      <div id="profe-courses" class="panel">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="section-title mb-0">Gestión de Cursos</div>
+          <button class="btn btn-sm btn-primary" style="border-radius:8px;font-size:.82rem;">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo curso
+          </button>
+        </div>
+        <div class="row g-3" id="profe-courses-container"></div>
+      </div>
+
+    </main><!-- /main-content -->
+  </div><!-- /app-layout -->
+</div><!-- /screen-app -->
+
+<!-- FEEDBACK TOAST -->
+<div class="feedback-toast" id="feedback-toast">
+  <span class="toast-icon" id="toast-icon">🎉</span>
+  <span id="toast-msg">¡Perfecto!</span>
+  <span class="feedback-points" id="toast-points">+100 pts</span>
+</div>
+
+<!-- LEVEL UP OVERLAY -->
+<div class="levelup-overlay" id="levelup-overlay" style="display:none">
+  <div class="levelup-card">
+    <div class="levelup-icon" id="levelup-icon">🎉</div>
+    <div class="levelup-title" id="levelup-title">¡Nivel desbloqueado!</div>
+    <div class="levelup-sub" id="levelup-sub">Has alcanzado el nivel Intermedio</div>
+    <button class="btn-levelup" onclick="closeLevelUp()">¡Genial! ✨</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* =============================================================
+   STATE
+============================================================= */
+const state = {
+  currentUser: null,   // { name, email, role }
+  score: 0,
+  exercisesDone: 0,
+  activitiesDone: 0,
+  correctAnswers: 0,
+  totalAnswers: 0,
+  currentLevel: 'basico',
+  currentCourseId: null,
+  currentActivityId: null,
+  currentExerciseIndex: 0,
+  exerciseSessionScore: 0,
+  exerciseAnswered: false,
+  completedActivities: new Set(),
+  selectedRole: 'alumno',
+};
+
+/* =============================================================
+   DATA
+============================================================= */
+const LEVELS = [
+  { id:'basico',      label:'Básico',      min:0,    max:2000, icon:'🔵', class:'',          desc:'Empezando tu aventura en francés' },
+  { id:'intermedio',  label:'Intermedio',  min:2000, max:8000, icon:'🟢', class:'intermedio', desc:'Construyendo bases sólidas' },
+  { id:'avanzado',    label:'Avanzado',    min:8000, max:Infinity, icon:'🏆', class:'avanzado', desc:'¡Maestro del francés!' },
+];
+
+const MOTIVATIONAL_MSGS = [
+  { icon:'🎯', msg:'¡Vas genial! Sigue así 🔥' },
+  { icon:'💪', msg:'Cada ejercicio te acerca a la fluidez' },
+  { icon:'🌟', msg:'¡Increíble progreso! No pares ahora' },
+  { icon:'🚀', msg:'Nivel desbloqueado... ¡casi ahí! 👀' },
+  { icon:'🎉', msg:'¡Eres una máquina del francés!' },
+  { icon:'⚡', msg:'¡Racha perfecta! Mantén el ritmo' },
+];
+
+const COURSES = [
+  {
+    id: 'a1', title: 'Francés A1 Básico', level: 'A1', badge: 'badge-a1',
+    desc: 'Vocabulario esencial, saludos y presentaciones',
+    activities: [
+      {
+        id:'a1-act1', title:'Saludos y presentaciones', icon:'bi-hand-wave-fill',
+        subtitle:'Aprende a saludar y presentarte en francés',
+        exercises: [
+          { type:'test', question:'¿Cómo se dice "Buenos días" en francés?', options:['Bonjour','Bonsoir','Bonne nuit','Au revoir'], correct:0 },
+          { type:'fill', question:'Completa: Je m\'appelle _____ (Yo me llamo María)', hint:'prénom féminin', correct:'Maria' },
+          { type:'test', question:'¿Qué significa "Comment t\'appelles-tu ?"', options:['¿Cómo estás?','¿Cuántos años tienes?','¿Cómo te llamas?','¿De dónde eres?'], correct:2 },
+          { type:'fill', question:'Traduce al francés: "Encantado de conocerte" → _____ de te rencontrer', hint:'', correct:'Enchanté' },
+        ]
+      },
+      {
+        id:'a1-act2', title:'Los números del 1 al 20', icon:'bi-123',
+        subtitle:'Domina los primeros números en francés',
+        exercises: [
+          { type:'test', question:'¿Cómo se dice "5" en francés?', options:['Quatre','Cinq','Six','Sept'], correct:1 },
+          { type:'fill', question:'Escribe en francés el número 12: _____', hint:'', correct:'Douze' },
+          { type:'test', question:'¿Cuánto es "dix + sept" en español?', options:['15','16','17','18'], correct:2 },
+        ]
+      },
+      {
+        id:'a1-act3', title:'Los colores', icon:'bi-palette-fill',
+        subtitle:'Aprende los colores básicos en francés',
+        exercises: [
+          { type:'test', question:'¿Cómo se dice "rojo" en francés?', options:['Bleu','Vert','Rouge','Jaune'], correct:2 },
+          { type:'fill', question:'Traduce "azul" al francés: _____', hint:'couleur du ciel', correct:'Bleu' },
+          { type:'test', question:'"Le chat est _____ (negro)" — ¿qué palabra falta?', options:['Blanc','Noir','Gris','Marron'], correct:1 },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'a2', title: 'Francés A2 Elemental', level: 'A2', badge: 'badge-a2',
+    desc: 'Conversación básica, verbos y rutinas diarias',
+    activities: [
+      {
+        id:'a2-act1', title:'Verbos esenciales: être y avoir', icon:'bi-lightning-fill',
+        subtitle:'Los dos verbos más importantes del francés',
+        exercises: [
+          { type:'test', question:'"Je _____ étudiant" — ¿qué verbo usar?', options:['ai','suis','est','sont'], correct:1 },
+          { type:'fill', question:'Completa: Nous _____ deux chiens (Tenemos dos perros)', hint:'forme de avoir', correct:'avons' },
+          { type:'test', question:'¿Cuál es la traducción de "Ils sont français"?', options:['Ellos tienen francés','Ellos son franceses','Ellas están en Francia','Nosotros somos franceses'], correct:1 },
+        ]
+      },
+      {
+        id:'a2-act2', title:'La vida cotidiana', icon:'bi-house-fill',
+        subtitle:'Vocabulario de actividades diarias',
+        exercises: [
+          { type:'test', question:'¿Qué significa "Je mange à midi"?', options:['Como a medianoche','Ceno a las doce','Como al mediodía','Desayuno a las doce'], correct:2 },
+          { type:'fill', question:'Traduce: "Voy al trabajo" → Je vais au _____', hint:'lieu de travail', correct:'travail' },
+          { type:'test', question:'"Il se lève à sept heures" significa:', options:['Se acuesta a las siete','Se levanta a las siete','Trabaja siete horas','Duerme siete horas'], correct:1 },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'b1', title: 'Francés B1 Intermedio', level: 'B1', badge: 'badge-b1',
+    desc: 'Expresión oral, cultura francesa y gramática avanzada',
+    activities: [
+      {
+        id:'b1-act1', title:'El pasado: Passé Composé', icon:'bi-clock-history',
+        subtitle:'Habla de eventos pasados con fluidez',
+        exercises: [
+          { type:'test', question:'"J\'ai mangé une pomme" está en:', options:['Presente','Futuro','Passé composé','Imparfait'], correct:2 },
+          { type:'fill', question:'Forma el passé composé de parler (yo): J\'_____ parlé', hint:'auxiliaire avoir', correct:'ai' },
+          { type:'test', question:'¿Cuál es el participio pasado de "finir"?', options:['finissant','fini','finira','finissais'], correct:1 },
+        ]
+      },
+    ]
+  },
+];
+
+const MOCK_STUDENTS = [
+  { name:'Ana García',      initials:'AG', points:3400, level:'Intermedio', exercises:28, lastSeen:'Hace 2 horas',   time:'4h 30m' },
+  { name:'Carlos López',   initials:'CL', points:890,  level:'Básico',     exercises:12, lastSeen:'Hace 1 día',     time:'1h 15m' },
+  { name:'Marta Ruiz',     initials:'MR', points:9200, level:'Avanzado',   exercises:76, lastSeen:'Hace 30 min',    time:'12h 00m' },
+  { name:'Luis Fernández', initials:'LF', points:1750, level:'Básico',     exercises:19, lastSeen:'Hace 3 días',    time:'2h 45m' },
+  { name:'Sofía Jiménez',  initials:'SJ', points:5100, level:'Intermedio', exercises:41, lastSeen:'Ayer',           time:'7h 20m' },
+];
+
+const MOCK_USERS = [
+  { email:'alumno@test.com',   password:'1234', name:'Alumno Demo',   role:'alumno' },
+  { email:'profesor@test.com', password:'1234', name:'Profesor Demo', role:'profesor' },
+];
+
+/* =============================================================
+   AUTH
+============================================================= */
+function selectRole(role) {
+  state.selectedRole = role;
+  document.getElementById('role-alumno').classList.toggle('active', role === 'alumno');
+  document.getElementById('role-profesor').classList.toggle('active', role === 'profesor');
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value.trim();
+  const err   = document.getElementById('login-error');
+
+  if (!email || !pass) { showLoginError('Por favor completa todos los campos.'); return; }
+
+  // Check mock users OR allow any valid email/pass combo as alumno
+  let user = MOCK_USERS.find(u => u.email === email && u.password === pass);
+  if (!user) {
+    if (email.includes('@') && pass.length >= 4) {
+      user = { email, password:pass, name: email.split('@')[0], role: state.selectedRole };
+    } else {
+      showLoginError('Credenciales incorrectas. Prueba alumno@test.com / 1234');
+      return;
+    }
+  }
+
+  // Override role with selector
+  user = { ...user, role: state.selectedRole };
+  state.currentUser = user;
+  err.classList.add('d-none');
+  enterApp();
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.classList.remove('d-none');
+}
+
+function doRegister() {
+  const email = document.getElementById('login-email').value.trim() || 'nuevo@usuario.com';
+  const name  = email.split('@')[0];
+  state.currentUser = { email, name, role: state.selectedRole };
+  enterApp();
+}
+
+function doLogout() {
+  state.currentUser = null;
+  state.score = 0;
+  state.exercisesDone = 0;
+  state.activitiesDone = 0;
+  state.correctAnswers = 0;
+  state.totalAnswers = 0;
+  state.completedActivities.clear();
+  showScreen('screen-login');
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+}
+
+function enterApp() {
+  const user = state.currentUser;
+  // Update navbar
+  document.getElementById('nav-avatar').textContent = user.name.substring(0,2).toUpperCase();
+  document.getElementById('nav-username').textContent = user.name;
+  const pill = document.getElementById('nav-role-pill');
+  pill.textContent = user.role === 'profesor' ? 'Profesor' : 'Alumno';
+  pill.className = 'user-role-pill' + (user.role === 'profesor' ? ' profesor' : '');
+
+  // Show correct sidebar
+  document.getElementById('sidebar-alumno').style.display  = user.role === 'alumno'   ? '' : 'none';
+  document.getElementById('sidebar-profesor').style.display = user.role === 'profesor' ? '' : 'none';
+
+  // Build content
+  if (user.role === 'alumno') {
+    buildCourses();
+    updateDashboard();
+    showPanel('dashboard');
+  } else {
+    buildProfeDashboard();
+    buildStudents();
+    buildProfeCourses();
+    showPanel('profe-dashboard');
+  }
+
+  // Seed chat
+  seedChat();
+  showScreen('screen-app');
+}
+
+/* =============================================================
+   SCREEN / PANEL NAVIGATION
+============================================================= */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+}
+
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  // Sync sidebar active
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  const map = {
+    'dashboard':'Inicio','courses':'Cursos','progress':'Mi progreso','messages':'Mensajes',
+    'profe-dashboard':'Panel','profe-students':'Alumnos','profe-courses':'Cursos',
+  };
+  document.querySelectorAll('.sidebar-item').forEach(b => {
+    if (b.textContent.trim().startsWith(map[id] || '____')) b.classList.add('active');
+  });
+}
+
+/* =============================================================
+   DASHBOARD
+============================================================= */
+function updateDashboard() {
+  // Score
+  document.getElementById('user-score').textContent    = state.score.toLocaleString();
+  document.getElementById('dash-exercises-done').textContent = state.exercisesDone;
+  document.getElementById('dash-activities-done').textContent = state.activitiesDone;
+  document.getElementById('prog-score').textContent    = state.score.toLocaleString();
+
+  // Accuracy
+  const acc = state.totalAnswers > 0
+    ? Math.round((state.correctAnswers / state.totalAnswers) * 100) + '%'
+    : '—';
+  document.getElementById('dash-accuracy').textContent = acc;
+
+  // Level
+  const lvl = getLevelData();
+  state.currentLevel = lvl.id;
+  document.getElementById('level-indicator').textContent = lvl.label;
+  document.getElementById('prog-level').textContent = lvl.label;
+  document.getElementById('level-desc').textContent  = lvl.desc;
+  document.getElementById('level-icon').textContent  = lvl.icon;
+  document.getElementById('level-card').className = 'level-card mb-4 ' + lvl.class;
+
+  // Progress bar inside level
+  const range = lvl.max === Infinity ? state.score - lvl.min : lvl.max - lvl.min;
+  const done  = lvl.max === Infinity ? range : state.score - lvl.min;
+  const pct   = Math.min(100, Math.round((done / range) * 100));
+  document.getElementById('level-progress-fill').style.width = pct + '%';
+
+  const nextLvl = LEVELS.find(l => l.min > lvl.min);
+  if (nextLvl) {
+    const remaining = nextLvl.min - state.score;
+    document.getElementById('level-progress-label').textContent = `Progreso hacia ${nextLvl.label}`;
+    document.getElementById('level-next').textContent = `Te faltan ${remaining.toLocaleString()} puntos para ${nextLvl.label}`;
+  } else {
+    document.getElementById('level-progress-label').textContent = '¡Nivel máximo alcanzado! 🏆';
+    document.getElementById('level-next').textContent = 'Eres un maestro del francés';
+  }
+
+  // Motivational message
+  const m = MOTIVATIONAL_MSGS[Math.floor(Math.random() * MOTIVATIONAL_MSGS.length)];
+  document.getElementById('motivational-banner').querySelector('.msg-icon').textContent = m.icon;
+  document.getElementById('motivational-msg').textContent = m.msg;
+
+  // Dash name
+  document.getElementById('dash-name').textContent = state.currentUser.name.split(' ')[0];
+
+  // Quick courses
+  buildQuickCourses();
+  buildProgressCourseList();
+}
+
+function getLevelData() {
+  return LEVELS.slice().reverse().find(l => state.score >= l.min) || LEVELS[0];
+}
+
+function buildQuickCourses() {
+  const el = document.getElementById('quick-courses');
+  el.innerHTML = COURSES.slice(0,3).map(c => courseCardHTML(c, true)).join('');
+}
+
+/* =============================================================
+   COURSES
+============================================================= */
+function buildCourses() {
+  const el = document.getElementById('courses-container');
+  el.innerHTML = COURSES.map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c, false)}</div>`).join('');
+}
+
+function courseCardHTML(c, quick) {
+  const total   = c.activities.reduce((s,a) => s + a.exercises.length, 0);
+  const done    = c.activities.filter(a => state.completedActivities.has(a.id)).length;
+  const pct     = Math.round((done / c.activities.length) * 100);
+  const wrap    = quick ? `<div class="col-md-4 col-sm-6">` : '';
+  const wrapEnd = quick ? `</div>` : '';
+  return `${wrap}<div class="course-card">
+    <span class="course-level-badge ${c.badge}">${c.level}</span>
+    <div class="course-title">${c.title}</div>
+    <div class="course-meta">${c.desc}</div>
+    <div class="course-meta mt-1">${c.activities.length} actividades · ${total} ejercicios</div>
+    <div class="course-progress-bar"><div class="course-progress-fill" style="width:${pct}%"></div></div>
+    <div class="course-progress-text">${done}/${c.activities.length} actividades completadas</div>
+    <button class="btn-course" onclick="openCourse('${c.id}')">
+      ${done === 0 ? 'Empezar' : done < c.activities.length ? 'Continuar' : 'Revisar'} →
+    </button>
+  </div>${wrapEnd}`;
+}
+
+function openCourse(courseId) {
+  const course = COURSES.find(c => c.id === courseId);
+  if (!course) return;
+  state.currentCourseId = courseId;
+  document.getElementById('activity-course-title').textContent = course.title;
+  buildActivityList(course);
+  showPanel('activity-container');
+}
+
+/* =============================================================
+   ACTIVITIES
+============================================================= */
+function buildActivityList(course) {
+  const el = document.getElementById('activity-list');
+  el.innerHTML = course.activities.map((act, i) => {
+    const done    = state.completedActivities.has(act.id);
+    const statusCls  = done ? 'status-done' : 'status-pending';
+    const statusTxt  = done ? '✓ Completada' : 'Pendiente';
+    return `<div class="activity-item" onclick="openActivity('${course.id}','${act.id}')">
+      <div class="activity-icon"><i class="bi ${act.icon}"></i></div>
+      <div class="activity-info">
+        <div class="activity-title">${i+1}. ${act.title}</div>
+        <div class="activity-subtitle">${act.subtitle} · ${act.exercises.length} ejercicios</div>
+      </div>
+      <span class="activity-status ${statusCls}">${statusTxt}</span>
+    </div>`;
+  }).join('');
+}
+
+function openActivity(courseId, activityId) {
+  const course   = COURSES.find(c => c.id === courseId);
+  const activity = course.activities.find(a => a.id === activityId);
+  state.currentCourseId    = courseId;
+  state.currentActivityId  = activityId;
+  state.currentExerciseIndex = 0;
+  state.exerciseSessionScore = 0;
+
+  document.getElementById('exercise-back-btn').onclick = () => {
+    openCourse(courseId);
+  };
+
+  loadExercise(activity, 0);
+  showPanel('exercise-panel');
+}
+
+/* =============================================================
+   EXERCISE ENGINE
+============================================================= */
+function loadExercise(activity, index) {
+  const ex    = activity.exercises[index];
+  const total = activity.exercises.length;
+  state.exerciseAnswered = false;
+
+  // Header
+  document.getElementById('ex-counter').textContent = `Ejercicio ${index+1}/${total}`;
+  document.getElementById('ex-progress-fill').style.width = Math.round(((index)/total)*100) + '%';
+  document.getElementById('ex-points-live').textContent = state.exerciseSessionScore;
+
+  const card = document.getElementById('exercise-list');
+  const typeTxt = ex.type === 'test' ? '🔘 Opción múltiple' : '✏️ Rellenar hueco';
+
+  if (ex.type === 'test') {
+    card.innerHTML = `
+      <span class="exercise-type-badge">${typeTxt}</span>
+      <div class="exercise-question">${ex.question}</div>
+      <div id="options-container">
+        ${ex.options.map((opt,i) => `
+          <button class="option-btn" id="opt-${i}" onclick="checkTest(${i}, ${ex.correct}, '${activity.id}', ${index})">
+            <span class="option-letter">${['A','B','C','D'][i]}</span>
+            ${opt}
+          </button>`).join('')}
+      </div>
+      <div id="ex-feedback" class="mt-3"></div>`;
+  } else {
+    card.innerHTML = `
+      <span class="exercise-type-badge">${typeTxt}</span>
+      <div class="exercise-question">${ex.question}</div>
+      <div class="fill-blank-wrap mt-2">
+        <input class="fill-input" id="fill-input" type="text" placeholder="${ex.hint || 'Tu respuesta…'}" autocomplete="off"/>
+        <button class="btn-check" id="fill-btn" onclick="checkFill('${ex.correct}', '${activity.id}', ${index})">
+          Comprobar →
+        </button>
+      </div>
+      <div id="ex-feedback" class="mt-3"></div>`;
+    document.getElementById('fill-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('fill-btn').click();
+    });
+  }
+}
+
+function checkTest(chosen, correct, actId, exIndex) {
+  if (state.exerciseAnswered) return;
+  state.exerciseAnswered = true;
+  state.totalAnswers++;
+
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const isCorrect = chosen === correct;
+  const pts = isCorrect ? 100 : 20;
+  btns[chosen].classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) btns[correct].classList.add('correct');
+
+  if (isCorrect) state.correctAnswers++;
+
+  applyPoints(pts, isCorrect);
+  showFeedback(isCorrect, pts);
+  scheduleNextExercise(actId, exIndex);
+}
+
+function checkFill(correct, actId, exIndex) {
+  if (state.exerciseAnswered) return;
+  const input = document.getElementById('fill-input');
+  const val   = input.value.trim();
+  if (!val) return;
+  state.exerciseAnswered = true;
+  state.totalAnswers++;
+
+  const isCorrect = val.toLowerCase() === correct.toLowerCase();
+  const pts = isCorrect ? 100 : 20;
+  input.disabled = true;
+  document.getElementById('fill-btn').disabled = true;
+  input.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) {
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:.82rem;color:#059669;margin-top:.4rem;font-weight:500;';
+    hint.textContent = `Respuesta correcta: ${correct}`;
+    input.parentElement.appendChild(hint);
+  }
+
+  if (isCorrect) state.correctAnswers++;
+
+  applyPoints(pts, isCorrect);
+  showFeedback(isCorrect, pts);
+  scheduleNextExercise(actId, exIndex);
+}
+
+function applyPoints(pts, isCorrect) {
+  const prevLevel = getLevelData().id;
+  state.score += pts;
+  state.exerciseSessionScore += pts;
+  state.exercisesDone++;
+  document.getElementById('ex-points-live').textContent = state.exerciseSessionScore;
+
+  // Floating points pop
+  const el = document.createElement('div');
+  el.className = 'points-pop';
+  el.textContent = `+${pts}`;
+  el.style.cssText = `top:${Math.random()*30+40}%;left:${Math.random()*30+35}%;`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+
+  const newLevel = getLevelData().id;
+  if (newLevel !== prevLevel) {
+    setTimeout(() => showLevelUp(newLevel), 700);
+  }
+  updateDashboard();
+}
+
+function showFeedback(isCorrect, pts) {
+  const t = document.getElementById('feedback-toast');
+  const msgs = isCorrect
+    ? ['¡Perfecto! 🔥','¡Excelente! ⭐','¡Correcto! 💪','¡Brillante! ✨']
+    : ['¡Casi! Sigue intentándolo 💪','¡Muy cerca! No te rindas 🎯','¡Buen intento! Aprende y avanza 📚'];
+  t.querySelector('#toast-msg').textContent = msgs[Math.floor(Math.random()*msgs.length)];
+  t.querySelector('#toast-points').textContent = `+${pts} pts`;
+  t.querySelector('#toast-icon').textContent = isCorrect ? '🎉' : '💡';
+  t.className = `feedback-toast show ${isCorrect ? 'toast-correct' : 'toast-wrong'}`;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function scheduleNextExercise(actId, exIndex) {
+  const course   = COURSES.find(c => c.id === state.currentCourseId);
+  const activity = course.activities.find(a => a.id === actId);
+  const nextIdx  = exIndex + 1;
+
+  setTimeout(() => {
+    if (nextIdx < activity.exercises.length) {
+      loadExercise(activity, nextIdx);
+      state.currentExerciseIndex = nextIdx;
+    } else {
+      finishActivity(activity);
+    }
+  }, 1600);
+}
+
+function finishActivity(activity) {
+  state.completedActivities.add(activity.id);
+  state.activitiesDone++;
+  updateDashboard();
+
+  document.getElementById('complete-icon').textContent  = '🎉';
+  document.getElementById('complete-points').textContent = `+${state.exerciseSessionScore} puntos`;
+  document.getElementById('complete-sub').textContent   =
+    `Has completado "${activity.title}" con ${state.exerciseSessionScore} puntos 🏆`;
+  showPanel('activity-complete-panel');
+}
+
+/* =============================================================
+   LEVEL UP
+============================================================= */
+function showLevelUp(levelId) {
+  const lvl = LEVELS.find(l => l.id === levelId);
+  document.getElementById('levelup-icon').textContent  = lvl.icon;
+  document.getElementById('levelup-title').textContent = `¡Nivel ${lvl.label} desbloqueado!`;
+  document.getElementById('levelup-sub').textContent   = lvl.desc;
+  document.getElementById('levelup-overlay').style.display = 'flex';
+}
+function closeLevelUp() {
+  document.getElementById('levelup-overlay').style.display = 'none';
+}
+
+/* =============================================================
+   PROGRESS
+============================================================= */
+function buildProgressCourseList() {
+  const el = document.getElementById('progress-course-list');
+  if (!el) return;
+  el.innerHTML = COURSES.map(c => {
+    const done = c.activities.filter(a => state.completedActivities.has(a.id)).length;
+    const pct  = Math.round((done / c.activities.length) * 100);
+    return `<div class="mb-3">
+      <div class="d-flex justify-content-between mb-1">
+        <span style="font-weight:600;font-size:.9rem;">${c.title}</span>
+        <span style="font-size:.82rem;color:var(--text-muted);">${done}/${c.activities.length} actividades</span>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue-mid),#0ea5e9);border-radius:4px;transition:width .7s ease;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* =============================================================
+   MESSAGING
+============================================================= */
+function seedChat() {
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '';
+  const isProf = state.currentUser.role === 'profesor';
+  document.getElementById('chat-partner-name').textContent = isProf ? 'Chat con alumnos' : 'Mensaje de tu profesor';
+
+  const seed = isProf
+    ? [{ sent:false, text:'Profesor, tengo dudas con el passé composé 🙁', time:'10:12' },
+       { sent:true,  text:'¡Hola Ana! Claro, repasemos juntos. ¿Qué parte no entiendes?', time:'10:14' }]
+    : [{ sent:false, text:'¡Hola! Recuerda practicar los verbos hoy 💪', time:'09:00' },
+       { sent:true,  text:'¡Gracias! Acabo de completar la actividad de "être y avoir" 🎉', time:'09:05' },
+       { sent:false, text:'Perfecto, ¡vas genial! Sigue así 🔥', time:'09:06' }];
+  seed.forEach(m => appendBubble(m.text, m.sent, m.time));
+}
+
+function sendMessage() {
+  const inp  = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  const now = new Date();
+  const time = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  appendBubble(text, true, time);
+
+  // Auto-reply after 800ms
+  const replies = [
+    '¡Buen punto! 👍','Recuerda practicar todos los días 🔥','¡Excellente! Sigue así ⭐',
+    '¿Tienes dudas con algún ejercicio?','¡Ya casi llegas al siguiente nivel! 🚀',
+  ];
+  setTimeout(() => {
+    appendBubble(replies[Math.floor(Math.random()*replies.length)], false, time);
+  }, 900);
+}
+
+function appendBubble(text, sent, time) {
+  const msgs = document.getElementById('chat-messages');
+  const div  = document.createElement('div');
+  div.className = `chat-bubble ${sent ? 'sent' : 'received'}`;
+  div.innerHTML = `${text}<div class="bubble-meta">${time}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+/* =============================================================
+   PROFESOR PANELS
+============================================================= */
+function buildProfeDashboard() {
+  const el = document.getElementById('profe-recent-activity');
+  el.innerHTML = [
+    { icon:'🎯', text:'Ana García completó "Saludos y presentaciones"', time:'Hace 2h' },
+    { icon:'⭐', text:'Marta Ruiz alcanzó el nivel Avanzado', time:'Hace 3h' },
+    { icon:'📚', text:'Carlos López comenzó el curso A1 Básico', time:'Ayer' },
+    { icon:'💪', text:'Sofía Jiménez obtuvo 500 puntos en una sesión', time:'Ayer' },
+  ].map(a => `<div class="d-flex align-items-center gap-3 p-3 mb-2" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);">
+    <span style="font-size:1.4rem;">${a.icon}</span>
+    <div style="flex:1;font-size:.88rem;font-weight:500;">${a.text}</div>
+    <span style="font-size:.75rem;color:var(--text-muted);">${a.time}</span>
+  </div>`).join('');
+}
+
+function buildStudents() {
+  const el = document.getElementById('students-list');
+  el.innerHTML = MOCK_STUDENTS.map(s => {
+    const lvlCls = s.level === 'Avanzado' ? 'color:var(--gold)' : s.level === 'Intermedio' ? 'color:var(--green-mid)' : 'color:var(--blue-mid)';
+    return `<div class="student-row">
+      <div class="student-avatar">${s.initials}</div>
+      <div>
+        <div class="student-name">${s.name}</div>
+        <div class="student-meta">Última conexión: ${s.lastSeen} · Tiempo: ${s.time} · Ejercicios: ${s.exercises}</div>
+      </div>
+      <div class="student-stats">
+        <div class="student-points">${s.points.toLocaleString()} pts</div>
+        <div class="student-level" style="${lvlCls};font-weight:600;">${s.level}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildProfeCourses() {
+  const el = document.getElementById('profe-courses-container');
+  el.innerHTML = COURSES.map(c => `
+    <div class="col-md-4 col-sm-6">
+      <div class="course-card">
+        <span class="course-level-badge ${c.badge}">${c.level}</span>
+        <div class="course-title">${c.title}</div>
+        <div class="course-meta">${c.desc}</div>
+        <div class="course-meta mt-1">${c.activities.length} actividades</div>
+        <div class="mt-3 d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:.8rem;">Editar</button>
+          <button class="btn btn-sm btn-outline-secondary" style="border-radius:8px;font-size:.8rem;">Ver alumnos</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* =============================================================
+   INIT
+============================================================= */
+// Rotating motivational messages every 10s
+setInterval(() => {
+  const el = document.getElementById('motivational-msg');
+  if (!el) return;
+  const m = MOTIVATIONAL_MSGS[Math.floor(Math.random() * MOTIVATIONAL_MSGS.length)];
+  document.getElementById('motivational-banner').querySelector('.msg-icon').textContent = m.icon;
+  el.textContent = m.msg;
+}, 10000);
+</script>
+
+<!--
+=================================================================
+  ESQUEMA DE IDs Y CLASES PRINCIPALES
+=================================================================
+
+── SCREENS (pantallas principales) ──────────────────────────
+  #screen-login           → Pantalla de inicio de sesión (siempre visible al entrar)
+  #screen-app             → Pantalla principal de la aplicación (post-login)
+
+── PANELS (vistas dentro de la app) ─────────────────────────
+  #dashboard              → Dashboard del alumno: stats, nivel, motivación
+  #courses                → Galería de cursos disponibles
+  #activity-container     → Lista de actividades de un curso concreto
+  #exercise-panel         → Motor de ejercicios (test + rellenar hueco)
+  #activity-complete-panel→ Pantalla de "actividad completada" con puntos
+  #progress               → Progreso global del alumno
+  #messages               → Chat simulado alumno ↔ profesor
+  #profe-dashboard        → Panel principal del profesor con métricas
+  #profe-students         → Listado de alumnos con estadísticas
+  #profe-courses          → Gestión de cursos (simulado)
+
+── NAVBAR / SIDEBAR ──────────────────────────────────────────
+  .app-navbar             → Barra de navegación superior
+  #nav-avatar             → Iniciales del usuario (avatar)
+  #nav-username           → Nombre del usuario logueado
+  #nav-role-pill          → Badge de rol (Alumno / Profesor)
+  .sidebar                → Barra lateral de navegación
+  #sidebar-alumno         → Sidebar específico para alumnos
+  #sidebar-profesor       → Sidebar específico para profesores
+  .sidebar-item           → Botón de navegación lateral; .active = activo
+
+── LOGIN ─────────────────────────────────────────────────────
+  #login-email            → Input de email del formulario de login
+  #login-password         → Input de contraseña
+  #login-error            → Alert de error de autenticación
+  #role-alumno            → Badge selector de rol alumno
+  #role-profesor          → Badge selector de rol profesor
+
+── DASHBOARD (alumno) ────────────────────────────────────────
+  #dash-name              → Nombre del alumno en el saludo
+  #user-score             → Puntos totales del alumno
+  #dash-exercises-done    → Número de ejercicios completados
+  #dash-activities-done   → Número de actividades completadas
+  #dash-accuracy          → Porcentaje de precisión
+  #level-card             → Tarjeta del nivel actual; clase dinámica (intermedio/avanzado)
+  #level-indicator        → Texto del nivel: "Básico" / "Intermedio" / "Avanzado"
+  #level-desc             → Descripción del nivel
+  #level-icon             → Emoji/icono del nivel
+  #level-progress-fill    → Barra de progreso hacia el siguiente nivel
+  #level-next             → "Te faltan X puntos para…"
+  #motivational-banner    → Banner motivacional dinámico
+  #motivational-msg       → Texto del mensaje motivacional rotativo
+  #quick-courses          → Cursos en el dashboard (acceso rápido)
+
+── CURSOS ────────────────────────────────────────────────────
+  #courses-container      → Grid de cards de todos los cursos
+  .course-card            → Card individual de un curso
+  .btn-course             → Botón "Entrar / Continuar / Revisar"
+
+── ACTIVIDADES ───────────────────────────────────────────────
+  #activity-course-title  → Título del curso en la vista de actividades
+  #activity-list          → Lista de actividades de un curso
+  .activity-item          → Fila clicable de una actividad
+  .activity-status        → Badge de estado (.status-done / .status-pending)
+
+── MOTOR DE EJERCICIOS ───────────────────────────────────────
+  #exercise-list          → Contenedor del ejercicio actual (renderizado dinámicamente)
+  #ex-counter             → "Ejercicio X/Y"
+  #ex-progress-fill       → Barra de progreso de ejercicios en la actividad
+  #ex-points-live         → Puntos ganados en la sesión actual
+  .option-btn             → Botón de opción múltiple; .correct / .wrong tras responder
+  .option-letter          → Letra de opción (A/B/C/D)
+  #fill-input             → Input de respuesta para ejercicios de hueco
+  #fill-btn               → Botón "Comprobar" del ejercicio de hueco
+
+── FEEDBACK ─────────────────────────────────────────────────
+  #feedback-toast         → Toast flotante de feedback (.toast-correct / .toast-wrong)
+  #toast-icon             → Emoji del toast
+  #toast-msg              → Mensaje de feedback ("¡Perfecto! 🔥" etc.)
+  #toast-points           → Puntos obtenidos en el toast
+  .points-pop             → Animación flotante de puntos (+100)
+
+── NIVEL ─────────────────────────────────────────────────────
+  #levelup-overlay        → Overlay de "nivel desbloqueado"
+  #levelup-icon           → Emoji del nuevo nivel
+  #levelup-title          → Título del overlay
+  #levelup-sub            → Descripción del nuevo nivel
+
+── PROGRESO ─────────────────────────────────────────────────
+  #prog-score             → Puntos en la vista de progreso
+  #prog-level             → Nivel en la vista de progreso
+  #progress-course-list   → Historial de progreso por curso con barras
+
+── PROFESOR ─────────────────────────────────────────────────
+  #profe-recent-activity  → Feed de actividad reciente de alumnos
+  #students-list          → Listado de alumnos con métricas
+  .student-row            → Fila de alumno en el panel del profesor
+  #profe-courses-container→ Grid de cursos para gestión del profesor
+
+── MENSAJERÍA ───────────────────────────────────────────────
+  #chat-partner-name      → Nombre del interlocutor en el chat
+  #chat-messages          → Contenedor de burbujas del chat
+  .chat-bubble.sent       → Burbuja de mensaje enviado (azul, derecha)
+  .chat-bubble.received   → Burbuja de mensaje recibido (blanco, izquierda)
+  #chat-input             → Input de texto para enviar mensajes
+  .btn-send               → Botón de envío de mensaje
+
+── USUARIOS DE PRUEBA ────────────────────────────────────────
+  alumno@test.com   / 1234  → Dashboard de alumno
+  profesor@test.com / 1234  → Panel de profesor
+  (cualquier email válido + contraseña ≥4 chars = acceso como alumno)
+
+=================================================================
+-->
+</body>
+</html>
