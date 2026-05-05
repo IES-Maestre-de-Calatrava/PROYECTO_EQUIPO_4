@@ -211,8 +211,17 @@ public class Profesor implements java.io.Serializable{
 							"' eliminado por el director '" + this.nombre + "'");
 			return true;
 		}
-
 		
+		public boolean eliminarAlumno(Alumno alumno) {
+
+			if (!this.director) {
+				System.err.println("❌ El profesor '" + this.nombre + "' no es director.");
+				return false;
+			}
+
+			System.out.println("✅ Alumno '" + alumno.getNombre() + " " + alumno.getApellidos() + "' eliminado.");
+			return true;
+		}
         
         
 } 
