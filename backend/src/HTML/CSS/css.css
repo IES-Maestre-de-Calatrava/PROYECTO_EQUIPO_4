@@ -1,0 +1,63 @@
+:root {
+    --primary: #0055A4;
+    --secondary: #EF4135;
+    --bg: #f8f9fa;
+    --text: #333;
+    --card-bg: #ffffff;
+    --sidebar-bg: #0055A4;
+}
+
+body.dark-mode {
+    --bg: #121212;
+    --text: #e0e0e0;
+    --card-bg: #1e1e1e;
+    --sidebar-bg: #0a0a0a;
+}
+
+body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; transition: 0.3s; }
+.container { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar { width: 260px; background: var(--sidebar-bg); color: white; padding: 30px 20px; display: flex; flex-direction: column; }
+.nav-label { font-size: 11px; opacity: 0.7; margin: 20px 0 10px; letter-spacing: 1px; }
+nav ul { list-style: none; padding: 0; }
+nav li { padding: 12px; cursor: pointer; border-radius: 8px; transition: 0.2s; margin-bottom: 5px; }
+nav li:hover, .active { background: rgba(255,255,255,0.15); }
+nav li i { margin-right: 10px; width: 20px; }
+
+/* Progreso */
+.progress-section { margin-top: 30px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; }
+.progress-bar { background: rgba(255,255,255,0.3); height: 8px; border-radius: 4px; margin: 10px 0; overflow: hidden; }
+#bar { background: var(--secondary); width: 0%; height: 100%; transition: 1s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+
+/* Main Content */
+.content { flex: 1; padding: 30px; }
+.top-header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+.search-box { position: relative; width: 50%; }
+.search-box input { width: 100%; padding: 12px 40px; border-radius: 25px; border: 1px solid #ddd; background: var(--card-bg); color: var(--text); }
+.search-box i { position: absolute; left: 15px; top: 14px; color: #888; }
+
+.welcome-banner { background: linear-gradient(135deg, #0055A4, #003366); color: white; padding: 40px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.welcome-image i { font-size: 80px; opacity: 0.3; }
+
+/* Cards */
+.main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+.course-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+.card { background: var(--card-bg); padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; }
+.card:hover { transform: translateY(-5px); }
+.card-tag { display: inline-block; padding: 4px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
+.level-a1 { background: #e3f2fd; color: #1976d2; }
+.level-a2 { background: #f3e5f5; color: #7b1fa2; }
+
+/* Modal & Login */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
+.modal-content { background: var(--card-bg); margin: 5% auto; padding: 40px; border-radius: 20px; width: 350px; text-align: center; }
+.input-group { text-align: left; margin-bottom: 15px; }
+.input-group label { display: block; font-size: 14px; margin-bottom: 5px; }
+.input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+.btn-submit { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.remember-me { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; font-size: 13px; }
+.google-btn { width: 100%; padding: 10px; border: 1px solid #ddd; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
+
+.btn-login { margin-top: auto; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 8px; cursor: pointer; }
+.close { float: right; font-size: 24px; cursor: pointer; }
