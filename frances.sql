@@ -50,7 +50,8 @@ CREATE TABLE GRUPO (
     ID_GRUPO INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador único del grupo',
     NOMBRE VARCHAR(50) NOT NULL COMMENT 'Nombre del grupo (ej: Francés A1 Mañana)',
     TUTOR INT NOT NULL COMMENT 'ID del profesor que actúa como tutor del grupo',
-    ID_CENTRO INT COMMENT 'ID del centro al que pertenece el grupo',
+    CODIGO VARCHAR(9) COMMENT 'Codigo autogenerado para unirse a un grupo, formato AAAA-0000'
+    ID_CENTRO INT NOT NULL COMMENT 'ID del centro al que pertenece el grupo',
     
     CONSTRAINT FK_GRUPO_CENTRO FOREIGN KEY (ID_CENTRO) 
         REFERENCES CENTRO(ID_CENTRO),
