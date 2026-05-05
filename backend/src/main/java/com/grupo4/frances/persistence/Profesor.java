@@ -173,26 +173,6 @@ public class Profesor implements java.io.Serializable{
 			return nuevoProfesor;
 		}
 
-		public Alumno crearAlumno(Long idAlumno, String nombreUsuario, String contrasena,
-                           String nombre, String apellidos, String instituto,
-                           int telefono, String correo, String nivel, String rango) {
-
-			// ✅ Solo un director puede crear alumnos
-			if (!this.director) {
-				System.err.println("❌ El profesor '" + this.nombre + "' no es director. " +
-								"No tiene permiso para crear alumnos.");
-				return null;
-			}
-
-			Alumno nuevoAlumno = new Alumno(idAlumno, nombreUsuario, contrasena, "ALUMNO",
-											nombre, apellidos, instituto, telefono, correo,
-											nivel, rango, LocalDateTime.now());
-
-			System.out.println("✅ Alumno '" + nombre + " " + apellidos + 
-							"' creado por el director '" + this.nombre + "'");
-			return nuevoAlumno;
-		}
-
 		public boolean eliminarProfesor(Profesor profesor) {
 
 			if (!this.director) {
@@ -212,19 +192,7 @@ public class Profesor implements java.io.Serializable{
 			return true;
 		}
 
-		public boolean eliminarAlumno(Alumno alumno) {
-
-			// ✅ Solo un director puede eliminar alumnos
-			if (!this.director) {
-				System.err.println("❌ El profesor '" + this.nombre + "' no es director. " +
-								"No tiene permiso para eliminar alumnos.");
-				return false;
-			}
-
-			System.out.println("✅ Alumno '" + alumno.getNombre() + " " + alumno.getApellidos() +
-							"' eliminado por el director '" + this.nombre + "'");
-			return true;
-		}
+		
         
         
 } 
