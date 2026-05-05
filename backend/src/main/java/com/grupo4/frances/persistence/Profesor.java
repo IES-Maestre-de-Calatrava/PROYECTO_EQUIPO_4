@@ -5,7 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence. Table;
+import jakarta.persistence.Table;
 
 @Entity
 
@@ -128,6 +128,27 @@ public class Profesor implements java.io.Serializable{
 
 		public void setDirector(boolean director) {
 			this.director = director;
+		}
+
+		public Grupo crearGrupo(Long idGrupo, String nombre, Long centro) {
+    		return new Grupo(idGrupo, nombre, centro, this.idProfesor);
+		}
+
+		public Actividad subirActividadAGrupo(Actividad actividad, Grupo grupo) {
+
+			if (!grupo.getProfesor().equals(this.idProfesor)) {
+				System.err.println("❌ El profesor '" + this.nombre + 
+								"' no es tutor del grupo '" + grupo.getNombre() + "'");
+				return null;
+			}
+
+			actividad.setIdProfesor(String.valueOf(this.idProfesor));
+			actividad.agregarGrupo(grupo);
+
+			System.out.println("✅ Actividad '" + actividad.getNombre() + 
+							"' subida al grupo '" + grupo.getNombre() + 
+							"' por el profesor '" + this.nombre + "'");
+			return actividad;
 		}
         
         

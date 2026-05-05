@@ -1,5 +1,8 @@
 package com.grupo4.frances.persistence;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -31,6 +34,15 @@ public class Actividad implements java.io.Serializable {
 
     @Column(name="FECHA_ENTREGA", nullable = false)
     private String fechaEntrega;
+
+    @ManyToMany
+    @JoinTable(
+        name = "ACTIVIDAD_GRUPO",
+        schema = "frances",
+        joinColumns = @JoinColumn(name = "ID_ACTIVIDAD"),
+        inverseJoinColumns = @JoinColumn(name = "ID_GRUPO")
+    )
+    private Set<Grupo> grupos = new HashSet<>();
 
 
     public Actividad() {
@@ -114,4 +126,23 @@ public class Actividad implements java.io.Serializable {
     public void setFechaEntrega(String fechaEntrega) {
         this.fechaEntrega = fechaEntrega;
     }
+
+    public Set<Grupo> getGrupos() {
+        return grupos;
+    }   
+
+    public void setGrupos(Set<Grupo> grupos) {
+        this.grupos = grupos;
+    }       
+
+    public void agregarGrupo(Grupo grupo) {
+        this.grupos.add(grupo);
+        grupo.getActividades().add(this);
+    }
+
+    public void eliminarGrupo(Grupo grupo) {
+        this.grupos.remove(grupo);
+        grupo.getActividades().remove(this);
+    }
+
 }
