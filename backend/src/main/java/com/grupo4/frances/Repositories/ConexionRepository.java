@@ -2,7 +2,7 @@ package com.grupo4.frances.Repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.grupo4.frances.persistence.Centro;
+import com.grupo4.frances.persistence.Conexion;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
