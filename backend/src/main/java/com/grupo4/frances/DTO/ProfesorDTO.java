@@ -1,4 +1,4 @@
-package DTO;
+package com.grupo4.frances.DTO;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
