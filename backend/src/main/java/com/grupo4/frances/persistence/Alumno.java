@@ -14,7 +14,7 @@ import java.util.Set;
 import jakarta.persistence.ManyToMany;
 
 @Entity
-@Table(name="ALUMNO", schema="frances")
+@Table(name="alumno", schema="frances")
 public class Alumno implements java.io.Serializable {
 
 		@Id

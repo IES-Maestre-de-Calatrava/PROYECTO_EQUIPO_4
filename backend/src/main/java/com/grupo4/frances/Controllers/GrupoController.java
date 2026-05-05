@@ -31,7 +31,7 @@ public class GrupoController {
     public GrupoDTO getGrupoById(@PathVariable Long id) {
         return repository.findById(id)
                 .map(GrupoMapper::toDTO)
-                .orElseThrow(() -> new GrupoNotFoundException());
+                .orElseThrow(() -> new GrupoNotFoundException(id));
     }
 
     @PostMapping
@@ -43,7 +43,7 @@ public class GrupoController {
     @DeleteMapping("/{id}")
     public void deleteGrupo(@PathVariable Long id) {
         if (!repository.existsById(id)) {
-            throw new GrupoNotFoundException();
+            throw new GrupoNotFoundException(id);
         }
         repository.deleteById(id);
     }

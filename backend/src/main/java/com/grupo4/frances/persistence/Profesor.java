@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
 
 @Entity
 
-@Table(name="PROFESOR", schema="frances")
+@Table(name="profesor", schema="frances")
 
 public class Profesor implements java.io.Serializable{
 

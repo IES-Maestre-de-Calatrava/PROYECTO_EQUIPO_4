@@ -31,7 +31,7 @@ public class CentroController {
     public CentroDTO getCentroById(@PathVariable Long id) {
         return repository.findById(id)
                 .map(CentroMapper::toDTO)
-                .orElseThrow(() -> new CentroNotFoundException());
+                .orElseThrow(() -> new CentroNotFoundException(id));
     }
 
     @PostMapping
@@ -43,7 +43,7 @@ public class CentroController {
     @DeleteMapping("/{id}")
     public void deleteCentro(@PathVariable Long id) {
         if (!repository.existsById(id)) {
-            throw new CentroNotFoundException();
+            throw new CentroNotFoundException(id);
         }
         repository.deleteById(id);
     }
