@@ -1,113 +1,128 @@
-package DTO;
+package com.grupo4.frances.DTO;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class ProfesorDTO {
-	
+
 	private Long idProfesor;
 	
-	@NotBlank
-	@Size(max=45)
-	private String nombreUsuario;
+	@NotBlank(message = "El nombre de usuario es obligatorio")
+    @Size(max = 45)
+    private String nombreUsuario;
 
-    @NotBlank
-    @Size(64)
+    @NotBlank(message = "La contraseña es obligatoria")
+    @Size(min = 8, max = 64) // Añadido un mínimo de seguridad
     private String contrasena;
 
-    @NotBlank
-    @Size(20)
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 20)
     private String nombre;
 
-    @NotBlank
-    @Size(64)
+    @NotBlank(message = "Los apellidos son obligatorios")
+    @Size(max = 64)
     private String apellidos;
 
-    @Size(50)
+    @Size(max = 50)
     private String instituto;
 
-    @NotBlank
-    @Size(9)
+    @Size(min = 9, max = 15) // Cambiado a String para manejar prefijos y ceros
     private int telefono;
-	
-	@Email
-    @Size(50)
-	private String correo;
-	
-    @NotBlank
-    private boolean director;
+
+    @Email(message = "Debe proporcionar un correo válido")
+    @NotBlank(message = "El correo es obligatorio")
+    @Size(max = 50)
+    private String correo;
+
+    private Boolean director;
+
+	public ProfesorDTO(){
+		
+	}
+
+    public ProfesorDTO(String apellidos, String contrasena, String correo, Boolean director, Long idProfesor, String instituto, String nombre, String nombreUsuario, int telefono) {
+        this.apellidos = apellidos;
+        this.contrasena = contrasena;
+        this.correo = correo;
+        this.director = director;
+        this.idProfesor = idProfesor;
+        this.instituto = instituto;
+        this.nombre = nombre;
+        this.nombreUsuario = nombreUsuario;
+        this.telefono = telefono;
+    }
 
     public Long getIdProfesor() {
-			return idProfesor;
-		}
+        return idProfesor;
+    }
 
-		public void setIdProfesor(Long idProfesor) {
-			this.idProfesor = idProfesor;
-		}
+    public String getNombreUsuario() {
+        return nombreUsuario;
+    }
 
-		public String getNombreUsuario() {
-			return nombreUsuario;
-		}
+    public String getContrasena() {
+        return contrasena;
+    }
 
-		public void setNombreUsuario(String nombreUsuario) {
-			this.nombreUsuario = nombreUsuario;
-		}
+    public String getNombre() {
+        return nombre;
+    }
 
-		public String getContrasena() {
-			return contrasena;
-		}
+    public String getApellidos() {
+        return apellidos;
+    }
 
-		public void setContrasena(String contrasena) {
-			this.contrasena = contrasena;
-		}
+    public String getInstituto() {
+        return instituto;
+    }
 
-		public String getNombre() {
-			return nombre;
-		}
+    public int getTelefono() {
+        return telefono;
+    }
 
-		public void setNombre(String nombre) {
-			this.nombre = nombre;
-		}
+    public String getCorreo() {
+        return correo;
+    }
 
-		public String getApellidos() {
-			return apellidos;
-		}
+    public Boolean getDirector() {
+        return director;
+    }
 
-		public void setApellidos(String apellidos) {
-			this.apellidos = apellidos;
-		}
+    public void setIdProfesor(Long idProfesor) {
+        this.idProfesor = idProfesor;
+    }
 
-		public String getInstituto() {
-			return instituto;
-		}
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
+    }
 
-		public void setInstituto(String instituto) {
-			this.instituto = instituto;
-		}
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
+    }
 
-		public int getTelefono() {
-			return telefono;
-		}
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-		public void setTelefono(int telefono) {
-			this.telefono = telefono;
-		}
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
+    }
 
-		public String getCorreo() {
-			return correo;
-		}
+    public void setInstituto(String instituto) {
+        this.instituto = instituto;
+    }
 
-		public void setCorreo(String correo) {
-			this.correo = correo;
-		}
+    public void setTelefono(int telefono) {
+        this.telefono = telefono;
+    }
 
-		public boolean isDirector() {
-			return director;
-		}
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
 
-		public void setDirector(boolean director) {
-			this.director = director;
-		}
+    public void setDirector(Boolean director) {
+        this.director = director;
+    }
 	
 }
