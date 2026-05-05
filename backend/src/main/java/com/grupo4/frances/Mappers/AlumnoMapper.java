@@ -6,6 +6,10 @@ import com.grupo4.frances.persistence.Alumno;
 public class AlumnoMapper {
 
     public static AlumnoDTO toDTO(Alumno alumno) {
+        
+        if(alumno == null){
+            return null;
+        }
         AlumnoDTO dto = new AlumnoDTO();
 
         dto.setIdAlumno(alumno.getIdAlumno());
