@@ -9,11 +9,15 @@ const API_BASE = 'http://localhost:8085/api';
 async function doLogin() {
     const email    = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value.trim();
+    // Captura el rol activo del selector de badges
     const rol      = document.querySelector('.role-badge.active')?.id?.replace('role-', '') || 'alumno';
     const errorDiv = document.getElementById('login-error');
 
+    // Limpiamos errores previos antes de intentar el login
     errorDiv.classList.add('d-none');
+    errorDiv.textContent = '';
 
+    // Validación de campos vacíos
     if (!email || !password) {
         errorDiv.textContent = 'Por favor, rellena todos los campos.';
         errorDiv.classList.remove('d-none');
@@ -21,18 +25,25 @@ async function doLogin() {
     }
 
     try {
-        const usuario = await api.post('/auth/login', { correo: email, contrasena: password, rol });
+        // Petición al servidor incluyendo el rol
+        const usuario = await api.post('/auth/login', { 
+            correo: email, 
+            contrasena: password, 
+            rol 
+        });
 
-        // Guardar sesión
+        // Gestión de persistencia (Local vs Session Storage)[cite: 6]
         if (document.getElementById('remember-me').checked) {
             localStorage.setItem('usuario', JSON.stringify(usuario));
         } else {
             sessionStorage.setItem('usuario', JSON.stringify(usuario));
         }
 
+        // Acceso a la aplicación si todo es correcto[cite: 6]
         enterApp(usuario);
 
     } catch (err) {
+        // Si el servidor devuelve error, se muestra en el banner superior[cite: 6]
         errorDiv.textContent = err.message || 'Correo o contraseña incorrectos.';
         errorDiv.classList.remove('d-none');
     }
