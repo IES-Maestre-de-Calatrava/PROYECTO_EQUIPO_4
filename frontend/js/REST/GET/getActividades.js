@@ -1,4 +1,4 @@
-import {formatearFecha} from  '../Utilidades.js';
+import {formatearFecha} from  '../../Utilidades.js';
 import {getProfesorById} from './getProfesores.js';
 
 const API = "http://localhost:8085/actividad/";
