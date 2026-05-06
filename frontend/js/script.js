@@ -1293,20 +1293,33 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
   }, 10000);
 
   // Restaurar sesión
+  // Restaurar sesión
   try {
     const saved = localStorage.getItem('lf_session');
     if (saved) {
       const { email, role } = JSON.parse(saved);
-      document.getElementById('login-email').value = email;
-      selectRole(role);
-    }
-    const savedNotes = localStorage.getItem('lf_notes');
-    if (savedNotes) state.courseNotes = JSON.parse(savedNotes);
-    const dark = localStorage.getItem('lf_darkmode');
-    if (dark === '1') {
-      document.body.classList.add('dark-mode');
-      const toggle = document.getElementById('dark-mode-toggle');
-      if (toggle) toggle.checked = true;
+      
+      // Rellenar formulario de login SOLO si existe en el DOM
+      const emailInput = document.getElementById('login-email');
+      if (emailInput) {
+          emailInput.value = email;
+          selectRole(role);
+      }
+      
+      // Configurar el usuario actual simulando el login
+      let user = MOCK_USERS.find(u => u.email === email);
+      if (!user) {
+        user = { email, password: '', name: email.split('@')[0], role: role };
+      }
+      state.currentUser = { ...user, role: role };
+
+      // Si estamos en la página principal (index.html), iniciamos la app
+      if (document.getElementById('screen-app')) {
+          enterApp();
+      }
+    } else {
+      // Si no hay sesión guardada y estamos en index.html, redirigir a login
+      // window.location.href = "./login.html"; 
     }
   } catch(e) {}
 })();
