@@ -1,3 +1,5 @@
+const API_BASE = 'http://localhost:8085/api';
+
 // =============================================
 //  auth.js — Login y registro de alumno
 // =============================================
