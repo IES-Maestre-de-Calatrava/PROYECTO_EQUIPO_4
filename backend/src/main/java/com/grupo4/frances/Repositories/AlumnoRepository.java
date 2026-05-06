@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.grupo4.frances.persistence.Alumno;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import java.util.Optional;
 
 import java.util.List;
 
@@ -19,4 +20,7 @@ public interface AlumnoRepository extends JpaRepository<Alumno, Long> {
 
     @Query("SELECT a FROM Alumno a WHERE a.correo = :correo")
     Alumno buscarPorCorreo(@Param("correo") String correo);
+
+    Optional<Alumno> findByCorreo(String correo);
+
 }
