@@ -11,6 +11,44 @@
 </head>
 <body>
     
+    <div id="courses" class="panel">
+        <div class="section-title">Mis Cursos</div>
+        <div class="row g-3" id="courses-container"></div>
+      </div>
+
+      <!-- ── ALUMNO: LISTA ACTIVIDADES ── -->
+      <div id="activity-container" class="panel">
+        <button class="back-btn" onclick="showPanel('courses')"><i class="bi bi-arrow-left"></i> Volver a cursos</button>
+        <div class="section-title" id="activity-course-title">Actividades</div>
+        <div class="notes-card mb-3" id="activity-notes-wrap" style="display:none">
+          <div style="font-size:.78rem;font-weight:700;color:var(--gold);margin-bottom:.35rem;"><i class="bi bi-journal-text me-1"></i>Mis apuntes del curso</div>
+          <textarea id="activity-notes" placeholder="Escribe tus apuntes aquí…" oninput="saveNotes()"></textarea>
+        </div>
+        <div id="activity-list"></div>
+      </div>
+
+      <!-- ── EJERCICIOS ── -->
+      <div id="exercise-panel" class="panel">
+        <button class="back-btn" id="exercise-back-btn"><i class="bi bi-arrow-left"></i> Volver a actividad</button>
+        <div class="exercise-header">
+          <span class="ex-counter" id="ex-counter">Ejercicio 1/3</span>
+          <div class="ex-progress-wrap"><div class="ex-progress-fill" id="ex-progress-fill" style="width:0%"></div></div>
+          <span class="ex-points-live"><i class="bi bi-star-fill"></i> <span id="ex-points-live">0</span> pts</span>
+        </div>
+        <div id="exercise-list" class="exercise-card"></div>
+      </div>
+
+      <!-- ── ACTIVIDAD COMPLETADA ── -->
+      <div id="activity-complete-panel" class="panel">
+        <div class="activity-complete">
+          <div class="complete-icon" id="complete-icon">🎉</div>
+          <div class="complete-title">¡Actividad completada!</div>
+          <div class="complete-points" id="complete-points">+0 puntos</div>
+          <div class="complete-sub" id="complete-sub">Has completado todos los ejercicios</div>
+          <div id="complete-accuracy" class="complete-accuracy-badge" style="display:none"></div>
+          <button class="btn-back-courses" onclick="showPanel('activity-container')">Ver más actividades</button>
+        </div>
+      </div>
 
     <script src="../js/script.js"></script>
 </body>
