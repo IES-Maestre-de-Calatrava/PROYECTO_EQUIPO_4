@@ -18,6 +18,8 @@ public class ActividadMapper {
         dto.setFechaInicio(actividad.getFechaInicio());
         dto.setFechaFin(actividad.getFechaFin());
         dto.setFechaEntrega(actividad.getFechaEntrega());
+        dto.setPreguntas(actividad.getPreguntas());
+        dto.setRespuestas(actividad.getRespuestas());
 
         return dto;
     }
@@ -34,6 +36,8 @@ public class ActividadMapper {
         actividad.setFechaInicio(dto.getFechaInicio());
         actividad.setFechaFin(dto.getFechaFin());
         actividad.setFechaEntrega(dto.getFechaEntrega());
+        actividad.setPreguntas(dto.getPreguntas());
+        actividad.setRespuestas(dto.getRespuestas());
 
         // Manejo del ID para actualizaciones
         if (dto.getIdActividad() != null && dto.getIdActividad() != 0) {
@@ -55,6 +59,8 @@ public class ActividadMapper {
         actividad.setFechaInicio(dto.getFechaInicio());
         actividad.setFechaFin(dto.getFechaFin());
         actividad.setFechaEntrega(dto.getFechaEntrega());
+        actividad.setPreguntas(dto.getPreguntas());
+        actividad.setRespuestas(dto.getRespuestas());
 
         return actividad;
     }

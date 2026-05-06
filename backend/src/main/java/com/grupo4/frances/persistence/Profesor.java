@@ -1,7 +1,6 @@
 package com.grupo4.frances.persistence;
 
-import java.time.LocalDateTime;
-
+import static com.grupo4.frances.utilidades.Seguridad.*;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

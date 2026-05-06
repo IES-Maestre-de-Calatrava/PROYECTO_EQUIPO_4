@@ -30,14 +30,18 @@ public class ActividadDTO {
     @NotNull
     private String fechaEntrega;
 
+    private String preguntas;
+
+    private String respuestas;
+
     // Constructor vacío
     public ActividadDTO() {
     }
 
     // Constructor completo
-    public ActividadDTO(Long idActividad, String nombre, String dificultad, String idProfesor,
-                        String duracion, String fechaInicio, String fechaFin,
-                        String fechaEntrega) {
+
+
+    public ActividadDTO(Long idActividad, String nombre, String dificultad, String idProfesor, String duracion, String fechaInicio, String fechaFin, String fechaEntrega, String preguntas, String respuestas) {
         this.idActividad = idActividad;
         this.nombre = nombre;
         this.dificultad = dificultad;
@@ -46,6 +50,8 @@ public class ActividadDTO {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.fechaEntrega = fechaEntrega;
+        this.preguntas = preguntas;
+        this.respuestas = respuestas;
     }
 
     // Getters y Setters
@@ -111,5 +117,21 @@ public class ActividadDTO {
 
     public void setFechaEntrega(String fechaEntrega) {
         this.fechaEntrega = fechaEntrega;
+    }
+
+    public String getPreguntas() {
+        return preguntas;
+    }
+
+    public void setPreguntas(String preguntas) {
+        this.preguntas = preguntas;
+    }
+
+    public String getRespuestas() {
+        return respuestas;
+    }
+
+    public void setRespuestas(String respuestas) {
+        this.respuestas = respuestas;
     }
 }

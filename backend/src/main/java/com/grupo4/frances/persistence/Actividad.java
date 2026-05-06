@@ -3,6 +3,7 @@ package com.grupo4.frances.persistence;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.grupo4.frances.JSON.Preguntas;
 import jakarta.persistence.*;
 
 @Entity
@@ -35,6 +36,12 @@ public class Actividad implements java.io.Serializable {
     @Column(name="FECHA_ENTREGA", nullable = false)
     private String fechaEntrega;
 
+    @Column(name="PREGUNTAS")
+    private String preguntas;
+
+    @Column(name="RESPUESTAS_CORRECTAS")
+    private String respuestas;
+
     @ManyToMany
     @JoinTable(
         name = "ACTIVIDAD_GRUPO",
@@ -49,9 +56,7 @@ public class Actividad implements java.io.Serializable {
     }
 
 
-    public Actividad(Long idActividad, String nombre, String dificultad, String idProfesor,
-                     String duracion, String fechaInicio, String fechaFin,
-                     String fechaEntrega) {
+    public Actividad(Long idActividad, String nombre, String dificultad, String idProfesor, String duracion, String fechaInicio, String fechaFin, String fechaEntrega, String preguntas, String respuestas, Set<Grupo> grupos) {
         this.idActividad = idActividad;
         this.nombre = nombre;
         this.dificultad = dificultad;
@@ -60,6 +65,9 @@ public class Actividad implements java.io.Serializable {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.fechaEntrega = fechaEntrega;
+        this.preguntas = preguntas;
+        this.respuestas = respuestas;
+        this.grupos = grupos;
     }
 
     // Getters y Setters
@@ -133,7 +141,23 @@ public class Actividad implements java.io.Serializable {
 
     public void setGrupos(Set<Grupo> grupos) {
         this.grupos = grupos;
-    }       
+    }
+
+    public String getPreguntas() {
+        return preguntas;
+    }
+
+    public void setPreguntas(String preguntas) {
+        this.preguntas = preguntas;
+    }
+
+    public String getRespuestas() {
+        return respuestas;
+    }
+
+    public void setRespuestas(String respuestas) {
+        this.respuestas = respuestas;
+    }
 
     public void agregarGrupo(Grupo grupo) {
         this.grupos.add(grupo);

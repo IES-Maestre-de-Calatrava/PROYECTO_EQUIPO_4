@@ -1,6 +1,6 @@
-package com.grupo4.frances.Utilidades;
+package com.grupo4.frances.utilidades;
 
-import static com.grupo4.frances.Utilidades.Numericas.*;
+import static com.grupo4.frances.utilidades.Numericas.*;
 
 public class Seguridad {
     public static String generarClaveGrupo() {
