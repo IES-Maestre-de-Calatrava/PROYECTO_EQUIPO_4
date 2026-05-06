@@ -3,6 +3,9 @@ package com.grupo4.frances.persistence;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.grupo4.frances.JSON.Preguntas;
 import jakarta.persistence.*;
 
@@ -167,6 +170,12 @@ public class Actividad implements java.io.Serializable {
     public void eliminarGrupo(Grupo grupo) {
         this.grupos.remove(grupo);
         grupo.getActividades().remove(this);
+    }
+
+    public Preguntas mapearPreguntas() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        Preguntas p = mapper.readValue(getPreguntas(), Preguntas.class);
+        return p;
     }
 
 }

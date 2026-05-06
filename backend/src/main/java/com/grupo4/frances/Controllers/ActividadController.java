@@ -1,6 +1,7 @@
 package com.grupo4.frances.Controllers;
 
 import com.grupo4.frances.DTO.ActividadDTO;
+import com.grupo4.frances.persistence.Actividad.*;
 import com.grupo4.frances.Exceptions.ActividadNotFoundException;
 import com.grupo4.frances.Mappers.ActividadMapper;
 import com.grupo4.frances.Repositories.ActividadRepository;
