@@ -28,31 +28,139 @@
       --transition:   all .25s ease-in-out;
     }
 
-        /* ── DARK MODE OVERRIDES ── */
-    body.dark-mode {
-      --bg:           #253049;
-      --white:        #354764;
-      --text-main:    #e2e8f0;
-      --text-muted:   #94a3b8;
-      --border:       #334155;
-      --primary-light:#1e3a5f;
-      --gold-light:   #3b2a00;
-      --green-light:  #052e16;
-      --secondary-light:#3b0a09;
-      --shadow-sm:    0 1px 3px rgba(0,0,0,.3);
-      --shadow-md:    0 4px 16px rgba(0,0,0,.4);
-      --shadow-lg:    0 10px 40px rgba(0,0,0,.5);
-    }
+/* ── MODO OSCURO TOTAL (REVISADO v7.0) ── */
 
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body {
-      font-family: var(--font-body);
-      background: var(--bg);
-      color: var(--text-main);
-      min-height: 100vh;
-      overflow-x: hidden;
-      transition: background .3s, color .3s;
-    }
+body.dark-mode {
+    --bg: #0f172a !important; 
+    --white: #1e293b !important; 
+    --text-main: #f8fafc !important; 
+    --text-muted: #cbd5e1 !important; 
+    --border: #334155 !important;
+    --primary-dark: #a5b4fc !important;
+}
+
+/* 1. Fondo base */
+body.dark-mode {
+    background-color: var(--bg) !important;
+    color: var(--text-main) !important;
+}
+
+/* 2. ARREGLO ESPECÍFICO: NOTAS, ICONOS Y STATUS (Nuevos de tus capturas) */
+
+/* Tarjeta de Apuntes/Notas */
+body.dark-mode #activity-notes-wrap,
+body.dark-mode .notes-card {
+    background-color: var(--white) !important;
+    background-image: none !important;
+    border: 1px solid var(--border) !important;
+}
+
+body.dark-mode #activity-notes-wrap textarea,
+body.dark-mode #activity-notes-wrap .notes-content {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    border-color: var(--border) !important;
+}
+
+/* Icono de Actividad (El cuadro morado/azul) */
+body.dark-mode .activity-icon {
+    background-color: rgba(165, 180, 252, 0.2) !important; /* Lavanda suave traslúcido */
+    color: #a5b4fc !important;
+    border: 1px solid rgba(165, 180, 252, 0.3) !important;
+}
+
+/* Status (Pendiente, etc.) */
+body.dark-mode .activity-status,
+body.dark-mode .status-pending {
+    background-color: #334155 !important;
+    color: #fbbf24 !important; /* Amarillo/Naranja para "Pendiente" sea legible */
+    border: 1px solid #475569 !important;
+}
+
+/* 3. MOTIVATIONAL BANNER Y NIVELES */
+body.dark-mode #motivational-banner,
+body.dark-mode .motivational-banner,
+body.dark-mode [class*="nivel-card"] {
+    background-color: var(--white) !important;
+    background-image: none !important;
+    border: 1px solid var(--border) !important;
+}
+
+body.dark-mode #motivational-banner *,
+body.dark-mode .msg-text, 
+body.dark-mode #motivational-msg {
+    color: #ffffff !important;
+}
+
+/* 4. BADGES DE CURSOS */
+body.dark-mode .course-level-badge,
+body.dark-mode .badge {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 5. LOGOS Y COLORES FRANCESES (Inline Styles) */
+body.dark-mode [style*="color:#002654"], 
+body.dark-mode [style*="color: #002654"] { color: #60a5fa !important; }
+body.dark-mode [style*="color:#ED2939"],
+body.dark-mode [style*="color: #ED2939"] { color: #fb7185 !important; }
+
+/* 6. TARJETAS Y ESTRUCTURA */
+body.dark-mode .card,
+body.dark-mode .stat-card,
+body.dark-mode .course-card,
+body.dark-mode .sidebar,
+body.dark-mode .app-navbar,
+body.dark-mode .main-container,
+body.dark-mode header,
+body.dark-mode nav {
+    background-color: var(--white) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+}
+
+/* 7. TÍTULOS Y NÚMEROS */
+body.dark-mode h1, 
+body.dark-mode h2, 
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode .text-primary,
+body.dark-mode .numbers, 
+body.dark-mode [class*="title"],
+body.dark-mode [class*="purple"] {
+    color: #a5b4fc !important;
+}
+
+/* 8. INPUTS Y TABLAS */
+body.dark-mode input, 
+body.dark-mode textarea, 
+body.dark-mode select,
+body.dark-mode .form-control,
+body.dark-mode .table,
+body.dark-mode table,
+body.dark-mode th, 
+body.dark-mode td {
+    background-color: #1e293b !important;
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+}
+
+/* 9. TEXTOS SECUNDARIOS */
+body.dark-mode .text-muted,
+body.dark-mode .text-secondary,
+body.dark-mode p,
+body.dark-mode label,
+body.dark-mode .dash-sub,
+body.dark-mode span:not([style*="color"]) {
+    color: var(--text-muted) !important;
+}
+
+body.dark-mode i:not(.no-dark) {
+    color: #a5b4fc !important;
+}
+
+/* ── FIN MODO OSCURO ── */
 
     /* =============================================
       SCREEN MANAGER
