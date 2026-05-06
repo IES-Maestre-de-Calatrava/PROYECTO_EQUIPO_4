@@ -1323,3 +1323,11 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
     }
   } catch(e) {}
 })();
+function doLogout() {
+    // 1. Borramos los datos del usuario del almacenamiento local
+    localStorage.removeItem('user'); // O sessionStorage.clear(), según uses
+    localStorage.clear(); 
+
+    // 2. Redirigimos al login
+    window.location.href = 'login.html';
+}
