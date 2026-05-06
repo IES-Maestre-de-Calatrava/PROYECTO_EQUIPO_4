@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins="*")
 @RestController
@@ -27,7 +28,7 @@ public class ActividadController {
         return repository.findAll()
                 .stream()
                 .map(ActividadMapper::toDTO)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     /**
