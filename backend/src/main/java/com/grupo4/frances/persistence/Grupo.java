@@ -37,7 +37,7 @@ public class Grupo implements java.io.Serializable{
 
 	@ManyToMany
     @JoinTable(
-        name = "GRUPO_ALUMNO",                         
+        name = "ALUMNO_GRUPO",
         schema = "frances",
         joinColumns = @JoinColumn(name = "ID_GRUPO"),   
         inverseJoinColumns = @JoinColumn(name = "ID_ALUMNO") 

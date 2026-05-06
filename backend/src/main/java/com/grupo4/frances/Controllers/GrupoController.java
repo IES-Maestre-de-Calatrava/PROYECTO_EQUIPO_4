@@ -5,7 +5,7 @@ import com.grupo4.frances.Exceptions.GrupoNotFoundException;
 import com.grupo4.frances.Mappers.GrupoMapper;
 import com.grupo4.frances.Repositories.AlumnoRepository;
 import com.grupo4.frances.Repositories.GrupoRepository;
-import com.grupo4.frances.Utilidades.Seguridad;
+import com.grupo4.frances.utilidades.Seguridad;
 import com.grupo4.frances.persistence.Alumno;
 import com.grupo4.frances.persistence.Grupo;
 import org.springframework.http.ResponseEntity;
