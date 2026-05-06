@@ -165,7 +165,10 @@ function doLogin() {
     try { localStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role })); } catch(e) {}
   }
   document.getElementById('login-error').classList.add('d-none');
-  enterApp();
+  //REDIRIGIR A LA PAGINA INDEX
+
+  console.log("Login correcto, redirigiendo...");
+  window.location.href="./index.html";
 }
 
 function showLoginError(msg) {
