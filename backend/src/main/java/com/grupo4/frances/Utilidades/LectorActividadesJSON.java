@@ -14,6 +14,10 @@ public class LectorActividadesJSON<E> {
 	}
 	
 	public void guardar(ArrayList<E> lista) {
+
+        if(!filename.exists()) {
+            System.out.println("El archivo no existe, se creará uno nuevo.");
+        }
 		
 		try(ObjectOutputStream fich = new ObjectOutputStream
 				(new FileOutputStream(this.filename))){
