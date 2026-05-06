@@ -1,16 +1,17 @@
-/* =========================================================
-   ██████╗  █████╗ ████████╗ █████╗
-   ██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗
-   ██║  ██║███████║   ██║   ███████║
-   ██║  ██║██╔══██║   ██║   ██╔══██║
-   ██████╔╝██║  ██║   ██║   ██║  ██║
-   ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
-   Le Français v2.0 — app.js (inline)
-========================================================= */
+/* =============================================================
+   Le Français v3.0 — JavaScript unificado
+   Cambios vs v2:
+   ✓ Login: sin registro visible, sin hint demo en UI
+   ✓ Leaderboard: podio visual, solo alumnos, profesor excluido
+   ✓ % acierto: añadido al alumno, eliminado del panel profesor
+   ✓ Settings: dark mode toggle + cambio contraseña
+   ✓ Editor ejercicios: 4 tipos (test, fill, match, image)
+   ✓ Rol Director: estructura lista para backend
+   ✓ Generación automática username + contraseña (Director)
+   ✓ Modo oscuro: clase body.dark-mode, persistido en localStorage
+============================================================= */
 
-/* ─────────────────────────────────────────────
-   DATA STRUCTURES
-───────────────────────────────────────────── */
+/* ─── DATA ─── */
 const LEVELS = [
   { id:'basico',     label:'Básico',     min:0,    max:2000,    icon:'🔵', class:'',          desc:'Empezando tu aventura en francés' },
   { id:'intermedio', label:'Intermedio', min:2000, max:8000,    icon:'🟢', class:'intermedio', desc:'Construyendo bases sólidas' },
@@ -26,53 +27,53 @@ const MOTIVATIONAL_MSGS = [
   { icon:'⚡', msg:'¡Racha perfecta! Mantén el ritmo' },
 ];
 
-/* USERS */
+/* Usuarios demo — en código, nunca en la UI */
 const MOCK_USERS = [
-  { email:'alumno@test.com',   password:'1234', name:'Alumno Demo',   role:'alumno' },
-  { email:'profesor@test.com', password:'1234', name:'Profesor Demo', role:'profesor' },
+  { email:'alumno@test.com',   password:'1234',  name:'Alumno Demo',   role:'alumno'   },
+  { email:'profesor@test.com', password:'1234',  name:'Profesor Demo', role:'profesor' },
+  { email:'director@test.com', password:'admin', name:'Director Demo', role:'director' },
 ];
 
-/* STUDENTS (for teacher view) */
+/* Solo alumnos en el leaderboard */
 const MOCK_STUDENTS = [
-  { name:'Ana García',      initials:'AG', color:'#0055A4', points:3400, level:'intermedio', exercises:28, lastSeen:'Hace 2h',   time:'4h 30m', course:'A2' },
-  { name:'Carlos López',    initials:'CL', color:'#059669', points:890,  level:'basico',     exercises:12, lastSeen:'Hace 1 día', time:'1h 15m', course:'A1' },
-  { name:'Marta Ruiz',      initials:'MR', color:'#d97706', points:9200, level:'avanzado',   exercises:76, lastSeen:'Hace 30min', time:'12h',    course:'B1' },
-  { name:'Luis Fernández',  initials:'LF', color:'#7c3aed', points:1750, level:'basico',     exercises:19, lastSeen:'Hace 3 días',time:'2h 45m', course:'A1' },
-  { name:'Sofía Jiménez',   initials:'SJ', color:'#EF4135', points:5100, level:'intermedio', exercises:41, lastSeen:'Ayer',       time:'7h 20m', course:'A2' },
+  { name:'Ana García',     initials:'AG', color:'#0055A4', points:3400, level:'intermedio', exercises:28, lastSeen:'Hace 2h',    time:'4h 30m', course:'A2', role:'alumno' },
+  { name:'Carlos López',   initials:'CL', color:'#059669', points:890,  level:'basico',     exercises:12, lastSeen:'Hace 1 día', time:'1h 15m', course:'A1', role:'alumno' },
+  { name:'Marta Ruiz',     initials:'MR', color:'#d97706', points:9200, level:'avanzado',   exercises:76, lastSeen:'Hace 30min', time:'12h',    course:'B1', role:'alumno' },
+  { name:'Luis Fernández', initials:'LF', color:'#7c3aed', points:1750, level:'basico',     exercises:19, lastSeen:'Hace 3 días',time:'2h 45m', course:'A1', role:'alumno' },
+  { name:'Sofía Jiménez',  initials:'SJ', color:'#EF4135', points:5100, level:'intermedio', exercises:41, lastSeen:'Ayer',       time:'7h 20m', course:'A2', role:'alumno' },
 ];
 
-/* COURSES — mutable so teacher can create */
+/* Lista de todos los usuarios del sistema (para panel director) */
+let SYSTEM_USERS = [
+  ...MOCK_STUDENTS.map(s => ({ ...s, email: s.name.toLowerCase().replace(' ','.')+  '@centro.es', username: s.initials.toLowerCase() })),
+  { name:'Profesor Demo', initials:'PD', color:'#1a70c1', role:'profesor', email:'profesor@test.com', username:'pdemo', points:0, level:'—', exercises:0, lastSeen:'—', time:'—', course:'—' },
+];
+
 let COURSES = [
   {
     id:'a1', title:'Francés A1 Básico', level:'A1', badge:'badge-a1',
     desc:'Vocabulario esencial, saludos y presentaciones',
-    activities: [
-      {
-        id:'a1-act1', title:'Saludos y presentaciones', icon:'bi-hand-wave-fill',
-        subtitle:'Aprende a saludar y presentarte en francés', deadline:'', maxTime:0,
-        exercises: [
+    activities:[
+      { id:'a1-act1', title:'Saludos y presentaciones', icon:'bi-hand-wave-fill', subtitle:'Aprende a saludar y presentarte en francés', deadline:'', maxTime:0,
+        exercises:[
           { type:'test', question:'¿Cómo se dice "Buenos días" en francés?', options:['Bonjour','Bonsoir','Bonne nuit','Au revoir'], correct:0 },
           { type:'fill', question:'Completa: Je m\'appelle _____ (Yo me llamo María)', hint:'prénom féminin', correct:'Maria' },
           { type:'test', question:'¿Qué significa "Comment t\'appelles-tu ?"', options:['¿Cómo estás?','¿Cuántos años tienes?','¿Cómo te llamas?','¿De dónde eres?'], correct:2 },
-          { type:'fill', question:'Traduce al francés: "Encantado de conocerte" → _____ de te rencontrer', hint:'', correct:'Enchanté' },
+          { type:'fill', question:'Traduce: "Encantado de conocerte" → _____ de te rencontrer', hint:'', correct:'Enchanté' },
         ]
       },
-      {
-        id:'a1-act2', title:'Los números del 1 al 20', icon:'bi-123',
-        subtitle:'Domina los primeros números en francés', deadline:'', maxTime:0,
-        exercises: [
+      { id:'a1-act2', title:'Los números del 1 al 20', icon:'bi-123', subtitle:'Domina los primeros números en francés', deadline:'', maxTime:0,
+        exercises:[
           { type:'test', question:'¿Cómo se dice "5" en francés?', options:['Quatre','Cinq','Six','Sept'], correct:1 },
           { type:'fill', question:'Escribe en francés el número 12: _____', hint:'', correct:'Douze' },
           { type:'test', question:'¿Cuánto es "dix + sept" en español?', options:['15','16','17','18'], correct:2 },
         ]
       },
-      {
-        id:'a1-act3', title:'Los colores', icon:'bi-palette-fill',
-        subtitle:'Aprende los colores básicos en francés', deadline:'', maxTime:0,
-        exercises: [
+      { id:'a1-act3', title:'Los colores', icon:'bi-palette-fill', subtitle:'Aprende los colores básicos en francés', deadline:'', maxTime:0,
+        exercises:[
           { type:'test', question:'¿Cómo se dice "rojo" en francés?', options:['Bleu','Vert','Rouge','Jaune'], correct:2 },
           { type:'fill', question:'Traduce "azul" al francés: _____', hint:'couleur du ciel', correct:'Bleu' },
-          { type:'test', question:'"Le chat est _____ (negro)" — ¿qué palabra falta?', options:['Blanc','Noir','Gris','Marron'], correct:1 },
+          { type:'match', question:'Une cada color con su traducción', pairs:[['Rouge','Rojo'],['Bleu','Azul'],['Vert','Verde']] },
         ]
       },
     ]
@@ -80,23 +81,18 @@ let COURSES = [
   {
     id:'a2', title:'Francés A2 Elemental', level:'A2', badge:'badge-a2',
     desc:'Conversación básica, verbos y rutinas diarias',
-    activities: [
-      {
-        id:'a2-act1', title:'Verbos esenciales: être y avoir', icon:'bi-lightning-fill',
-        subtitle:'Los dos verbos más importantes del francés', deadline:'', maxTime:10,
-        exercises: [
+    activities:[
+      { id:'a2-act1', title:'Verbos esenciales: être y avoir', icon:'bi-lightning-fill', subtitle:'Los dos verbos más importantes del francés', deadline:'', maxTime:10,
+        exercises:[
           { type:'test', question:'"Je _____ étudiant" — ¿qué verbo usar?', options:['ai','suis','est','sont'], correct:1 },
-          { type:'fill', question:'Completa: Nous _____ deux chiens (Tenemos dos perros)', hint:'forme de avoir', correct:'avons' },
+          { type:'fill', question:'Completa: Nous _____ deux chiens', hint:'forme de avoir', correct:'avons' },
           { type:'test', question:'¿Cuál es la traducción de "Ils sont français"?', options:['Ellos tienen francés','Ellos son franceses','Ellas están en Francia','Nosotros somos franceses'], correct:1 },
         ]
       },
-      {
-        id:'a2-act2', title:'La vida cotidiana', icon:'bi-house-fill',
-        subtitle:'Vocabulario de actividades diarias', deadline:'', maxTime:0,
-        exercises: [
+      { id:'a2-act2', title:'La vida cotidiana', icon:'bi-house-fill', subtitle:'Vocabulario de actividades diarias', deadline:'', maxTime:0,
+        exercises:[
           { type:'test', question:'¿Qué significa "Je mange à midi"?', options:['Como a medianoche','Ceno a las doce','Como al mediodía','Desayuno a las doce'], correct:2 },
           { type:'fill', question:'Traduce: "Voy al trabajo" → Je vais au _____', hint:'lieu de travail', correct:'travail' },
-          { type:'test', question:'"Il se lève à sept heures" significa:', options:['Se acuesta a las siete','Se levanta a las siete','Trabaja siete horas','Duerme siete horas'], correct:1 },
         ]
       },
     ]
@@ -104,72 +100,44 @@ let COURSES = [
   {
     id:'b1', title:'Francés B1 Intermedio', level:'B1', badge:'badge-b1',
     desc:'Expresión oral, cultura francesa y gramática avanzada',
-    activities: [
-      {
-        id:'b1-act1', title:'El pasado: Passé Composé', icon:'bi-clock-history',
-        subtitle:'Habla de eventos pasados con fluidez', deadline:'', maxTime:15,
-        exercises: [
+    activities:[
+      { id:'b1-act1', title:'El pasado: Passé Composé', icon:'bi-clock-history', subtitle:'Habla de eventos pasados con fluidez', deadline:'', maxTime:15,
+        exercises:[
           { type:'test', question:'"J\'ai mangé une pomme" está en:', options:['Presente','Futuro','Passé composé','Imparfait'], correct:2 },
           { type:'fill', question:'Forma el passé composé de parler (yo): J\'_____ parlé', hint:'auxiliaire avoir', correct:'ai' },
-          { type:'test', question:'¿Cuál es el participio pasado de "finir"?', options:['finissant','fini','finira','finissais'], correct:1 },
+          { type:'match', question:'Une el infinitivo con su participio pasado', pairs:[['parler','parlé'],['finir','fini'],['être','été']] },
         ]
       },
     ]
   },
 ];
 
-/* ─────────────────────────────────────────────
-   STATE
-───────────────────────────────────────────── */
+/* ─── STATE ─── */
 const state = {
-  // auth
-  currentUser: null,
-  selectedRole: 'alumno',
-  isImpersonating: false,
-  savedProfePanel: null,
-
-  // scoring
-  score: 0,
-  exercisesDone: 0,
-  activitiesDone: 0,
-  correctAnswers: 0,
-  totalAnswers: 0,
-  currentLevel: 'basico',
-
-  // navigation
-  currentCourseId: null,
-  currentActivityId: null,
-  currentExerciseIndex: 0,
-  exerciseSessionScore: 0,
-  exerciseAnswered: false,
-  completedActivities: new Set(),
-
-  // activity timer
-  activityTimer: null,
-  activityTimeLeft: 0,
-
-  // session timer
-  sessionStart: null,
-  sessionTimerInterval: null,
-
-  // editor context
-  editorActivityId: null,
-  editorCourseId: null,
-  editingCourseId: null,
-  editingActivityId: null,
-  editingExerciseIndex: null,
-
-  // notes per course
+  currentUser: null, selectedRole: 'alumno',
+  isImpersonating: false, savedProfePanel: null,
+  score: 0, exercisesDone: 0, activitiesDone: 0,
+  correctAnswers: 0, totalAnswers: 0, currentLevel: 'basico',
+  currentCourseId: null, currentActivityId: null,
+  currentExerciseIndex: 0, exerciseSessionScore: 0,
+  exerciseAnswered: false, completedActivities: new Set(),
+  activityTimer: null, activityTimeLeft: 0,
+  sessionStart: null, sessionTimerInterval: null,
+  editorActivityId: null, editorCourseId: null,
+  editingCourseId: null, editingActivityId: null, editingExerciseIndex: null,
   courseNotes: {},
+  /* match exercise state */
+  matchSelected: null,
+  matchPairs: [],
+  matchMatched: new Set(),
 };
 
-/* ─────────────────────────────────────────────
-   AUTH LOGIC
-───────────────────────────────────────────── */
+/* ─── AUTH ─── */
 function selectRole(role) {
   state.selectedRole = role;
-  document.getElementById('role-alumno').classList.toggle('active', role === 'alumno');
-  document.getElementById('role-profesor').classList.toggle('active', role === 'profesor');
+  ['alumno','profesor','director'].forEach(r => {
+    document.getElementById('role-'+r)?.classList.toggle('active', r === role);
+  });
 }
 
 function doLogin() {
@@ -180,28 +148,30 @@ function doLogin() {
   let user = MOCK_USERS.find(u => u.email === email && u.password === pass);
   if (!user) {
     if (email.includes('@') && pass.length >= 4) {
-      user = { email, password: pass, name: email.split('@')[0], role: state.selectedRole };
+      user = { email, password:pass, name:email.split('@')[0], role:state.selectedRole };
     } else {
-      showLoginError('Credenciales incorrectas. Prueba alumno@test.com / 1234');
+      showLoginError('Credenciales incorrectas.');
       return;
     }
   }
-  user = { ...user, role: state.selectedRole };
-  state.currentUser = user;
-
-  // localStorage persistence
-  if (document.getElementById('remember-me').checked) {
-    try { localStorage.setItem('lf_session', JSON.stringify({ email, role: state.selectedRole })); } catch(e) {}
+  /* El role del mock tiene prioridad sobre el selector, excepto para usuarios genéricos */
+  if (MOCK_USERS.find(u => u.email === email)) {
+    state.currentUser = { ...user }; // mantiene role del mock
+  } else {
+    state.currentUser = { ...user, role: state.selectedRole };
   }
 
+  if (document.getElementById('remember-me').checked) {
+    try { localStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role })); } catch(e) {}
+  }
   document.getElementById('login-error').classList.add('d-none');
   enterApp();
 }
 
-function doRegister() {
-  const email = document.getElementById('login-email').value.trim() || 'nuevo@usuario.com';
-  state.currentUser = { email, name: email.split('@')[0], role: state.selectedRole };
-  enterApp();
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.classList.remove('d-none');
 }
 
 function doLogout() {
@@ -210,58 +180,55 @@ function doLogout() {
   try { localStorage.removeItem('lf_session'); } catch(e) {}
   Object.assign(state, {
     currentUser:null, score:0, exercisesDone:0, activitiesDone:0,
-    correctAnswers:0, totalAnswers:0, completedActivities: new Set(),
-    isImpersonating:false, courseNotes:{}
+    correctAnswers:0, totalAnswers:0, completedActivities:new Set(),
+    isImpersonating:false, courseNotes:{},
   });
   showScreen('screen-login');
-  document.getElementById('login-email').value = '';
+  document.getElementById('login-email').value    = '';
   document.getElementById('login-password').value = '';
 }
 
 function enterApp() {
   const user = state.currentUser;
-  document.getElementById('nav-avatar').textContent = user.name.substring(0,2).toUpperCase();
+  document.getElementById('nav-avatar').textContent   = user.name.substring(0,2).toUpperCase();
   document.getElementById('nav-username').textContent = user.name;
   const pill = document.getElementById('nav-role-pill');
-  pill.textContent = user.role === 'profesor' ? 'Profesor' : 'Alumno';
-  pill.className   = 'user-role-pill' + (user.role === 'profesor' ? ' profesor' : '');
 
-  document.getElementById('sidebar-alumno').style.display   = user.role === 'alumno'   ? '' : 'none';
-  document.getElementById('sidebar-profesor').style.display = user.role === 'profesor' ? '' : 'none';
+  ['sidebar-alumno','sidebar-profesor','sidebar-director'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
 
   if (user.role === 'alumno') {
-    buildCourses();
-    updateDashboard();
-    showPanel('dashboard');
-    startSessionTimer();
-  } else {
-    buildProfeDashboard();
-    buildStudents();
-    buildProfeCourses();
-    buildProfeLeaderboard();
-    populateEditorFilter();
-    renderActivityEditor();
-    showPanel('profe-dashboard');
+    pill.textContent = 'Alumno';
+    pill.className   = 'user-role-pill';
+    document.getElementById('sidebar-alumno').style.display = '';
+    buildCourses(); updateDashboard(); showPanel('dashboard'); startSessionTimer();
+  } else if (user.role === 'profesor') {
+    pill.textContent = 'Profesor';
+    pill.className   = 'user-role-pill profesor';
+    document.getElementById('sidebar-profesor').style.display = '';
+    buildProfeDashboard(); buildStudents(); buildProfeCourses(); buildProfeLeaderboard();
+    populateEditorFilter(); renderActivityEditor(); showPanel('profe-dashboard');
+  } else if (user.role === 'director') {
+    pill.textContent = 'Director';
+    pill.className   = 'user-role-pill director';
+    document.getElementById('sidebar-director').style.display = '';
+    buildDirectorUsers(); showPanel('director-dashboard');
   }
   seedChat();
   showScreen('screen-app');
 }
 
-/* ─────────────────────────────────────────────
-   IMPERSONATION
-───────────────────────────────────────────── */
+/* ─── IMPERSONATION ─── */
 function startImpersonation() {
   state.isImpersonating = true;
-  state.savedProfePanel = 'profe-dashboard';
-  const banner = document.getElementById('teacher-impersonation-mode');
-  banner.classList.add('visible');
+  document.getElementById('teacher-impersonation-mode').classList.add('visible');
   document.getElementById('sidebar-profesor').style.display = 'none';
   document.getElementById('sidebar-alumno').style.display   = '';
-  document.getElementById('nav-role-pill').textContent = 'Vista Alumno';
-  document.getElementById('nav-role-pill').className   = 'user-role-pill';
-  buildCourses();
-  updateDashboard();
-  showPanel('dashboard');
+  const pill = document.getElementById('nav-role-pill');
+  pill.textContent = 'Vista Alumno';
+  pill.className   = 'user-role-pill';
+  buildCourses(); updateDashboard(); showPanel('dashboard');
 }
 
 function exitImpersonation() {
@@ -269,14 +236,13 @@ function exitImpersonation() {
   document.getElementById('teacher-impersonation-mode').classList.remove('visible');
   document.getElementById('sidebar-alumno').style.display   = 'none';
   document.getElementById('sidebar-profesor').style.display = '';
-  document.getElementById('nav-role-pill').textContent = 'Profesor';
-  document.getElementById('nav-role-pill').className   = 'user-role-pill profesor';
+  const pill = document.getElementById('nav-role-pill');
+  pill.textContent = 'Profesor';
+  pill.className   = 'user-role-pill profesor';
   showPanel('profe-dashboard');
 }
 
-/* ─────────────────────────────────────────────
-   SCREEN / PANEL NAVIGATION
-───────────────────────────────────────────── */
+/* ─── SCREEN / PANEL NAV ─── */
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -285,31 +251,27 @@ function showScreen(id) {
 function showPanel(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-
-  // Sync sidebar active
   document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
-  const panelToText = {
-    'dashboard':'Inicio', 'courses':'Cursos', 'leaderboard':'Leaderboard',
-    'progress':'Mi progreso', 'messages':'Mensajes',
-    'profe-dashboard':'Inicio', 'profe-students':'Alumnos',
-    'profe-leaderboard':'Leaderboard', 'profe-courses':'Cursos',
+  const map = {
+    'dashboard':'Inicio','courses':'Cursos','leaderboard':'Leaderboard',
+    'progress':'Mi progreso','messages':'Mensajes','settings':'Configuración',
+    'profe-dashboard':'Inicio','profe-students':'Alumnos',
+    'profe-leaderboard':'Leaderboard','profe-courses':'Cursos',
     'activity-editor':'Editor actividades',
+    'director-dashboard':'Panel Director','director-users':'Usuarios',
   };
-  const label = panelToText[id];
+  const label = map[id];
   if (label) {
     document.querySelectorAll('.sidebar-item').forEach(b => {
       if (b.textContent.trim().startsWith(label)) b.classList.add('active');
     });
   }
-
-  // Refresh content when panels open
-  if (id === 'leaderboard') buildLeaderboard('leaderboard-content');
-  if (id === 'profe-leaderboard') buildLeaderboard('profe-leaderboard-content');
+  if (id === 'leaderboard')       buildLeaderboard('leaderboard-content', false);
+  if (id === 'profe-leaderboard') buildLeaderboard('profe-leaderboard-content', true);
+  if (id === 'progress')          buildProgressCourseList();
 }
 
-/* ─────────────────────────────────────────────
-   SESSION TIMER
-───────────────────────────────────────────── */
+/* ─── TIMERS ─── */
 function startSessionTimer() {
   state.sessionStart = Date.now();
   clearInterval(state.sessionTimerInterval);
@@ -320,9 +282,6 @@ function startSessionTimer() {
   }, 10000);
 }
 
-/* ─────────────────────────────────────────────
-   ACTIVITY TIMER
-───────────────────────────────────────────── */
 function startActivityTimer(minutes) {
   clearActivityTimer();
   if (!minutes || minutes <= 0) return;
@@ -338,7 +297,7 @@ function startActivityTimer(minutes) {
     if (state.activityTimeLeft <= 30) display.classList.add('urgent');
     if (state.activityTimeLeft <= 0) {
       clearActivityTimer();
-      showToastAlert('⏰ ¡Tiempo agotado! La actividad se ha cerrado.', 'warning');
+      showToastAlert('⏰ ¡Tiempo agotado!', 'warning');
       setTimeout(() => showPanel('activity-container'), 2000);
     }
   }, 1000);
@@ -346,40 +305,39 @@ function startActivityTimer(minutes) {
 
 function clearActivityTimer() {
   clearInterval(state.activityTimer);
-  const display = document.getElementById('global-timer');
-  display.classList.remove('visible', 'urgent');
+  document.getElementById('global-timer').classList.remove('visible','urgent');
   document.getElementById('timer-val').textContent = '00:00';
 }
 
 function showToastAlert(msg, type) {
   const t = document.getElementById('feedback-toast');
-  t.querySelector('#toast-icon').textContent = type === 'warning' ? '⏰' : 'ℹ️';
-  t.querySelector('#toast-msg').textContent  = msg;
-  t.querySelector('#toast-points').textContent = '';
+  t.querySelector('#toast-icon').textContent    = type === 'warning' ? '⏰' : 'ℹ️';
+  t.querySelector('#toast-msg').textContent     = msg;
+  t.querySelector('#toast-points').textContent  = '';
   t.className = 'feedback-toast show';
   setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-/* ─────────────────────────────────────────────
-   DASHBOARD
-───────────────────────────────────────────── */
+/* ─── DASHBOARD ─── */
 function updateDashboard() {
-  document.getElementById('user-score').textContent          = state.score.toLocaleString();
-  document.getElementById('dash-exercises-done').textContent = state.exercisesDone;
-  document.getElementById('dash-activities-done').textContent= state.activitiesDone;
-  document.getElementById('prog-score').textContent          = state.score.toLocaleString();
-
   const acc = state.totalAnswers > 0
     ? Math.round((state.correctAnswers / state.totalAnswers) * 100) + '%' : '—';
-  document.getElementById('dash-accuracy').textContent = acc;
+
+  document.getElementById('user-score').textContent           = state.score.toLocaleString();
+  document.getElementById('dash-exercises-done').textContent  = state.exercisesDone;
+  document.getElementById('dash-activities-done').textContent = state.activitiesDone;
+  document.getElementById('dash-accuracy').textContent        = acc;
+  document.getElementById('prog-score').textContent           = state.score.toLocaleString();
+  const progAcc = document.getElementById('prog-accuracy');
+  if (progAcc) progAcc.textContent = acc;
 
   const lvl = getLevelData();
   state.currentLevel = lvl.id;
-  document.getElementById('level-indicator').textContent = lvl.label;
-  document.getElementById('prog-level').textContent      = lvl.label;
-  document.getElementById('level-desc').textContent      = lvl.desc;
-  document.getElementById('level-icon').textContent      = lvl.icon;
-  document.getElementById('level-card').className        = 'level-card mb-4 ' + lvl.class;
+  document.getElementById('level-indicator').textContent      = lvl.label;
+  document.getElementById('prog-level').textContent           = lvl.label;
+  document.getElementById('level-desc').textContent           = lvl.desc;
+  document.getElementById('level-icon').textContent           = lvl.icon;
+  document.getElementById('level-card').className             = 'level-card mb-4 ' + lvl.class;
 
   const range = lvl.max === Infinity ? state.score - lvl.min : lvl.max - lvl.min;
   const done  = lvl.max === Infinity ? range : state.score - lvl.min;
@@ -414,9 +372,7 @@ function buildQuickCourses() {
     COURSES.slice(0,3).map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
 }
 
-/* ─────────────────────────────────────────────
-   COURSE LOGIC
-───────────────────────────────────────────── */
+/* ─── COURSES ─── */
 function buildCourses() {
   document.getElementById('courses-container').innerHTML =
     COURSES.map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
@@ -444,13 +400,10 @@ function openCourse(courseId) {
   if (!course) return;
   state.currentCourseId = courseId;
   document.getElementById('activity-course-title').textContent = course.title;
-
-  // Notes
   const notesWrap = document.getElementById('activity-notes-wrap');
   const notesTA   = document.getElementById('activity-notes');
   notesWrap.style.display = '';
   notesTA.value = state.courseNotes[courseId] || '';
-
   buildActivityList(course);
   showPanel('activity-container');
 }
@@ -462,25 +415,19 @@ function saveNotes() {
   }
 }
 
-/* ─────────────────────────────────────────────
-   ACTIVITY LOGIC
-───────────────────────────────────────────── */
+/* ─── ACTIVITIES ─── */
 function buildActivityList(course) {
   const isTeacher = state.currentUser.role === 'profesor' && !state.isImpersonating;
   document.getElementById('activity-list').innerHTML = course.activities.map((act, i) => {
-    const done       = state.completedActivities.has(act.id);
-    const statusCls  = done ? 'status-done' : 'status-pending';
-    const statusTxt  = done ? '✓ Completada' : 'Pendiente';
-    const deadline   = act.deadline ? `<span class="activity-deadline"><i class="bi bi-calendar3 me-1"></i>Límite: ${act.deadline}</span>` : '';
-    const timerBadge = act.maxTime  ? `<span class="activity-timer-badge"><i class="bi bi-stopwatch me-1"></i>${act.maxTime} min</span>` : '';
+    const done      = state.completedActivities.has(act.id);
+    const statusCls = done ? 'status-done' : 'status-pending';
+    const statusTxt = done ? '✓ Completada' : 'Pendiente';
+    const deadline  = act.deadline ? `<span class="activity-deadline"><i class="bi bi-calendar3 me-1"></i>Límite: ${act.deadline}</span>` : '';
+    const timerBadge= act.maxTime  ? `<span class="activity-timer-badge"><i class="bi bi-stopwatch me-1"></i>${act.maxTime} min</span>` : '';
     const teacherBtns = isTeacher ? `
       <div class="activity-teacher-actions ms-2">
-        <button class="btn btn-sm btn-outline-primary" style="border-radius:6px;font-size:.75rem;" onclick="event.stopPropagation();editActivity('${course.id}','${act.id}')">
-          <i class="bi bi-pencil"></i>
-        </button>
-        <button class="btn-danger-custom" style="padding:.3rem .55rem;font-size:.72rem;" onclick="event.stopPropagation();deleteActivity('${course.id}','${act.id}')">
-          <i class="bi bi-trash"></i>
-        </button>
+        <button class="btn btn-sm btn-outline-primary" style="border-radius:6px;font-size:.75rem;" onclick="event.stopPropagation();editActivity('${course.id}','${act.id}')"><i class="bi bi-pencil"></i></button>
+        <button class="btn-danger-custom" style="padding:.3rem .55rem;font-size:.72rem;" onclick="event.stopPropagation();deleteActivity('${course.id}','${act.id}')"><i class="bi bi-trash"></i></button>
       </div>` : '';
     return `<div class="activity-item ${isTeacher ? 'teacher-item' : ''}" onclick="${isTeacher ? '' : `openActivity('${course.id}','${act.id}')`}">
       <div class="activity-icon"><i class="bi ${act.icon || 'bi-book'}"></i></div>
@@ -498,86 +445,163 @@ function buildActivityList(course) {
 function openActivity(courseId, activityId) {
   const course   = COURSES.find(c => c.id === courseId);
   const activity = course.activities.find(a => a.id === activityId);
-  state.currentCourseId   = courseId;
-  state.currentActivityId = activityId;
+  state.currentCourseId      = courseId;
+  state.currentActivityId    = activityId;
   state.exerciseSessionScore = 0;
   state.currentExerciseIndex = 0;
-
-  // Start timer if set
   if (activity.maxTime > 0) startActivityTimer(activity.maxTime);
-
-  document.getElementById('exercise-back-btn').onclick = () => {
-    clearActivityTimer();
-    showPanel('activity-container');
-  };
+  document.getElementById('exercise-back-btn').onclick = () => { clearActivityTimer(); showPanel('activity-container'); };
   loadExercise(activity, 0);
   showPanel('exercise-panel');
 }
 
-/* ─────────────────────────────────────────────
-   SCORING SYSTEM
-───────────────────────────────────────────── */
-function applyPoints(pts, isCorrect) {
+/* ─── SCORING ─── */
+function applyPoints(pts) {
   const prevLevel = getLevelData().id;
   state.score += pts;
   state.exerciseSessionScore += pts;
   state.exercisesDone++;
   document.getElementById('ex-points-live').textContent = state.exerciseSessionScore;
-
-  // Floating point pop
   const pop = document.createElement('div');
   pop.className = 'points-pop';
   pop.textContent = `+${pts}`;
   pop.style.cssText = `top:${Math.random()*30+35}%;left:${Math.random()*30+35}%;`;
   document.body.appendChild(pop);
   setTimeout(() => pop.remove(), 1000);
-
   const newLevel = getLevelData().id;
   if (newLevel !== prevLevel) setTimeout(() => showLevelUp(newLevel), 700);
   updateDashboard();
 }
 
-/* ─────────────────────────────────────────────
-   EXERCISE ENGINE
-───────────────────────────────────────────── */
+/* ─── EXERCISE ENGINE ─── */
 function loadExercise(activity, index) {
   state.exerciseAnswered = false;
   const ex    = activity.exercises[index];
   const total = activity.exercises.length;
   const pct   = Math.round((index / total) * 100);
-
-  document.getElementById('ex-counter').textContent         = `Ejercicio ${index+1}/${total}`;
-  document.getElementById('ex-progress-fill').style.width   = pct + '%';
-
-  const card    = document.getElementById('exercise-list');
-  const typeTxt = ex.type === 'test' ? 'Opción múltiple' : 'Rellena el hueco';
-  const letters = ['A','B','C','D'];
+  document.getElementById('ex-counter').textContent       = `Ejercicio ${index+1}/${total}`;
+  document.getElementById('ex-progress-fill').style.width = pct + '%';
+  const card = document.getElementById('exercise-list');
 
   if (ex.type === 'test') {
+    const letters = ['A','B','C','D'];
     const opts = ex.options.map((o, i) => `
       <button class="option-btn" onclick="checkTest(${i}, ${ex.correct}, '${activity.id}', ${index})">
         <span class="option-letter">${letters[i]}</span>${o}
       </button>`).join('');
-    card.innerHTML = `
-      <span class="exercise-type-badge">${typeTxt}</span>
+    card.innerHTML = `<span class="exercise-type-badge">Opción múltiple</span>
       <div class="exercise-question">${ex.question}</div>
-      <div>${opts}</div>
-      <div id="ex-feedback" class="mt-3"></div>`;
-  } else {
-    card.innerHTML = `
-      <span class="exercise-type-badge">${typeTxt}</span>
+      <div>${opts}</div><div id="ex-feedback" class="mt-3"></div>`;
+
+  } else if (ex.type === 'fill') {
+    card.innerHTML = `<span class="exercise-type-badge">Rellena el hueco</span>
       <div class="exercise-question">${ex.question}</div>
       <div class="fill-blank-wrap mt-2">
         <input class="fill-input" id="fill-input" type="text" placeholder="${ex.hint || 'Tu respuesta…'}" autocomplete="off"/>
         <button class="btn-check" id="fill-btn" onclick="checkFill('${ex.correct}','${activity.id}',${index})">Comprobar →</button>
-      </div>
-      <div id="ex-feedback" class="mt-3"></div>`;
+      </div><div id="ex-feedback" class="mt-3"></div>`;
+    document.getElementById('fill-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('fill-btn').click();
+    });
+
+  } else if (ex.type === 'match') {
+    loadMatchExercise(ex, activity, index);
+
+  } else if (ex.type === 'image') {
+    card.innerHTML = `<span class="exercise-type-badge">Actividad con imagen</span>
+      <div class="exercise-question">${ex.question}</div>
+      <img src="${ex.imageUrl || ''}" alt="Imagen del ejercicio" class="image-exercise-img"/>
+      <div class="fill-blank-wrap mt-2">
+        <input class="fill-input" id="fill-input" type="text" placeholder="${ex.hint || 'Tu respuesta…'}" autocomplete="off"/>
+        <button class="btn-check" id="fill-btn" onclick="checkFill('${ex.correct}','${activity.id}',${index})">Comprobar →</button>
+      </div><div id="ex-feedback" class="mt-3"></div>`;
     document.getElementById('fill-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') document.getElementById('fill-btn').click();
     });
   }
 }
 
+/* ─── MATCH EXERCISE ENGINE ─── */
+function loadMatchExercise(ex, activity, index) {
+  const card = document.getElementById('exercise-list');
+  state.matchPairs   = [...ex.pairs];
+  state.matchMatched = new Set();
+  state.matchSelected = null;
+
+  const shuffledRight = [...ex.pairs.map(p => p[1])].sort(() => Math.random() - .5);
+
+  const leftHTML  = ex.pairs.map((p, i) => `<div class="match-item" id="ml-${i}" onclick="selectMatch('left',${i})">${p[0]}</div>`).join('');
+  const rightHTML = shuffledRight.map((val, i) => {
+    const origIdx = ex.pairs.findIndex(p => p[1] === val);
+    return `<div class="match-item" id="mr-${origIdx}" data-val="${val}" onclick="selectMatch('right',${origIdx})">${val}</div>`;
+  }).join('');
+
+  card.innerHTML = `<span class="exercise-type-badge">Unir elementos</span>
+    <div class="exercise-question">${ex.question}</div>
+    <div class="match-exercise-wrap">
+      <div class="match-col" id="match-left">${leftHTML}</div>
+      <div class="match-col" id="match-right">${rightHTML}</div>
+    </div>
+    <div id="ex-feedback" class="mt-3"></div>`;
+
+  card._matchActivity = activity;
+  card._matchIndex    = index;
+}
+
+function selectMatch(side, idx) {
+  if (state.matchMatched.has(idx)) return;
+  const el = document.getElementById(side === 'left' ? `ml-${idx}` : `mr-${idx}`);
+  if (el.classList.contains('matched')) return;
+
+  if (!state.matchSelected) {
+    state.matchSelected = { side, idx };
+    el.classList.add('selected');
+    return;
+  }
+
+  const prev = state.matchSelected;
+  if (prev.side === side) {
+    // Deselect previous, select new
+    document.getElementById(prev.side === 'left' ? `ml-${prev.idx}` : `mr-${prev.idx}`).classList.remove('selected');
+    state.matchSelected = { side, idx };
+    el.classList.add('selected');
+    return;
+  }
+
+  // Try to match
+  const leftIdx  = prev.side === 'left' ? prev.idx : idx;
+  const rightIdx = prev.side === 'right'? prev.idx : idx;
+  const prevEl   = document.getElementById(prev.side === 'left' ? `ml-${prev.idx}` : `mr-${prev.idx}`);
+  prevEl.classList.remove('selected');
+  state.matchSelected = null;
+
+  const isCorrect = state.matchPairs[leftIdx][1] === state.matchPairs[rightIdx][1];
+  if (isCorrect) {
+    document.getElementById(`ml-${leftIdx}`).classList.add('matched');
+    document.getElementById(`mr-${rightIdx}`).classList.add('matched');
+    state.matchMatched.add(leftIdx);
+    state.totalAnswers++;
+    state.correctAnswers++;
+    applyPoints(100);
+    if (state.matchMatched.size === state.matchPairs.length) {
+      showFeedback(true, 0);
+      const card = document.getElementById('exercise-list');
+      scheduleNextExercise(card._matchActivity.id, card._matchIndex);
+    }
+  } else {
+    document.getElementById(`ml-${leftIdx}`).classList.add('wrong');
+    document.getElementById(`mr-${rightIdx}`).classList.add('wrong');
+    state.totalAnswers++;
+    applyPoints(20);
+    showFeedback(false, 20);
+    setTimeout(() => {
+      document.getElementById(`ml-${leftIdx}`)?.classList.remove('wrong');
+      document.getElementById(`mr-${rightIdx}`)?.classList.remove('wrong');
+    }, 600);
+  }
+}
+
+/* ─── CHECK ANSWERS ─── */
 function checkTest(chosen, correct, actId, exIndex) {
   if (state.exerciseAnswered) return;
   state.exerciseAnswered = true;
@@ -589,7 +613,7 @@ function checkTest(chosen, correct, actId, exIndex) {
   btns[chosen].classList.add(isCorrect ? 'correct' : 'wrong');
   if (!isCorrect) btns[correct].classList.add('correct');
   if (isCorrect) state.correctAnswers++;
-  applyPoints(pts, isCorrect);
+  applyPoints(pts);
   showFeedback(isCorrect, pts);
   scheduleNextExercise(actId, exIndex);
 }
@@ -613,7 +637,7 @@ function checkFill(correct, actId, exIndex) {
     input.parentElement.appendChild(hint);
   }
   if (isCorrect) state.correctAnswers++;
-  applyPoints(pts, isCorrect);
+  applyPoints(pts);
   showFeedback(isCorrect, pts);
   scheduleNextExercise(actId, exIndex);
 }
@@ -624,7 +648,7 @@ function showFeedback(isCorrect, pts) {
     ? ['¡Perfecto! 🔥','¡Excelente! ⭐','¡Correcto! 💪','¡Brillante! ✨']
     : ['¡Casi! Sigue intentándolo 💪','¡Muy cerca! No te rindas 🎯','¡Buen intento! 📚'];
   t.querySelector('#toast-msg').textContent    = msgs[Math.floor(Math.random()*msgs.length)];
-  t.querySelector('#toast-points').textContent = `+${pts} pts`;
+  t.querySelector('#toast-points').textContent = pts > 0 ? `+${pts} pts` : '';
   t.querySelector('#toast-icon').textContent   = isCorrect ? '🎉' : '💡';
   t.className = `feedback-toast show ${isCorrect ? 'toast-correct' : 'toast-wrong'}`;
   setTimeout(() => t.classList.remove('show'), 2500);
@@ -633,8 +657,8 @@ function showFeedback(isCorrect, pts) {
 function scheduleNextExercise(actId, exIndex) {
   const course   = COURSES.find(c => c.id === state.currentCourseId);
   const activity = course.activities.find(a => a.id === actId);
-  const nextIdx  = exIndex + 1;
   setTimeout(() => {
+    const nextIdx = exIndex + 1;
     if (nextIdx < activity.exercises.length) {
       loadExercise(activity, nextIdx);
       state.currentExerciseIndex = nextIdx;
@@ -649,15 +673,21 @@ function finishActivity(activity) {
   state.completedActivities.add(activity.id);
   state.activitiesDone++;
   updateDashboard();
-  document.getElementById('complete-icon').textContent  = '🎉';
-  document.getElementById('complete-points').textContent= `+${state.exerciseSessionScore} puntos`;
-  document.getElementById('complete-sub').textContent   = `Has completado "${activity.title}" con ${state.exerciseSessionScore} puntos 🏆`;
+  document.getElementById('complete-icon').textContent   = '🎉';
+  document.getElementById('complete-points').textContent = `+${state.exerciseSessionScore} puntos`;
+  document.getElementById('complete-sub').textContent    = `Has completado "${activity.title}"`;
+  const accEl = document.getElementById('complete-accuracy');
+  if (state.totalAnswers > 0) {
+    const acc = Math.round((state.correctAnswers / state.totalAnswers) * 100);
+    accEl.textContent = `Acierto en esta actividad: ${acc}%`;
+    accEl.style.display = 'inline-block';
+  } else {
+    accEl.style.display = 'none';
+  }
   showPanel('activity-complete-panel');
 }
 
-/* ─────────────────────────────────────────────
-   LEVEL UP
-───────────────────────────────────────────── */
+/* ─── LEVEL UP ─── */
 function showLevelUp(levelId) {
   const lvl = LEVELS.find(l => l.id === levelId);
   document.getElementById('levelup-icon').textContent  = lvl.icon;
@@ -667,9 +697,7 @@ function showLevelUp(levelId) {
 }
 function closeLevelUp() { document.getElementById('levelup-overlay').style.display = 'none'; }
 
-/* ─────────────────────────────────────────────
-   PROGRESS
-───────────────────────────────────────────── */
+/* ─── PROGRESS ─── */
 function buildProgressCourseList() {
   const el = document.getElementById('progress-course-list');
   if (!el) return;
@@ -686,53 +714,67 @@ function buildProgressCourseList() {
   }).join('');
 }
 
-/* ─────────────────────────────────────────────
-   LEADERBOARD
-───────────────────────────────────────────── */
-function buildLeaderboard(containerId) {
-  const sorted = [...MOCK_STUDENTS].sort((a,b) => b.points - a.points);
+/* ─── LEADERBOARD (PODIO VISUAL) ─────────────────────────────
+   - Solo alumnos (role === 'alumno' implícito en MOCK_STUDENTS)
+   - Si profe en impersonación no debe aparecer (isImpersonating)
+   - 1° = 👑 corona; 2° = 🥈; 3° = 🥉
+   - Resto: lista con tarjetas hover
+─────────────────────────────────────────────────────────────── */
+function buildLeaderboard(containerId, isTeacherView) {
   const levelLabels = { basico:'Básico', intermedio:'Intermedio', avanzado:'Avanzado' };
-  const levelBgCls  = { basico:'lb-level-basico', intermedio:'lb-level-intermedio', avanzado:'lb-level-avanzado' };
+  const levelCls    = { basico:'lb-level-basico', intermedio:'lb-level-intermedio', avanzado:'lb-level-avanzado' };
+  const podiumColors= { rank:['#ffd60a','#94a3b8','#ffb703'] };
 
-  const topHtml = sorted.slice(0,3).map((s, i) => {
-    const rank = i + 1;
-    const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : 'rank-3';
-    const rowClass  = rank === 1 ? 'top-1'  : rank === 2 ? 'top-2'  : 'top-3';
-    const crown     = rank === 1 ? '<span class="lb-crown">👑</span>' : rank === 2 ? '<span class="lb-trophy">🥈</span>' : '<span class="lb-trophy">🥉</span>';
-    return `<div class="lb-row ${rowClass}">
-      <div class="lb-rank ${rankClass}">${rank}</div>
-      <div class="lb-avatar" style="background:${s.color}">${s.initials}</div>
-      <div class="lb-info">
-        <div class="lb-name">${s.name} ${crown}</div>
-        <span class="lb-level-badge ${levelBgCls[s.level]}">${levelLabels[s.level]}</span>
-      </div>
-      <div class="lb-pts">${s.points.toLocaleString()} pts</div>
+  /* Solo alumnos. Si profe está en impersonación, no incluirlo. */
+  let students = [...MOCK_STUDENTS].sort((a,b) => b.points - a.points);
+
+  /* Añadir usuario actual si es alumno real y tiene puntos */
+  const u = state.currentUser;
+  if (u && u.role === 'alumno' && state.score > 0 && !MOCK_STUDENTS.find(s => s.name === u.name)) {
+    students.push({ name:u.name, initials:u.name.substring(0,2).toUpperCase(), color:'#1a70c1', points:state.score, level:state.currentLevel, role:'alumno' });
+    students.sort((a,b) => b.points - a.points);
+  }
+
+  const crownIcons = ['👑','🥈','🥉'];
+  const podiumOrder = [1, 0, 2]; // visual: 2º izq, 1º centro, 3º der
+  const top3 = students.slice(0, 3);
+
+  /* Generar podio en orden visual */
+  const podiumSlots = podiumOrder.map(visIdx => {
+    const s = top3[visIdx];
+    if (!s) return `<div class="lb-podium-slot rank-${visIdx+1}" style="opacity:.3;"></div>`;
+    const rank = visIdx + 1;
+    return `<div class="lb-podium-slot rank-${rank}">
+      <span class="lb-podium-crown">${crownIcons[visIdx]}</span>
+      <div class="lb-podium-avatar" style="background:${s.color}">${s.initials}</div>
+      <div class="lb-podium-name">${s.name}</div>
+      <div class="lb-podium-pts">${s.points.toLocaleString()} pts</div>
+      <span class="lb-list-level ${levelCls[s.level] || 'lb-level-basico'}">${levelLabels[s.level] || s.level}</span>
     </div>`;
-  }).join('');
+  });
 
-  const restHtml = sorted.slice(3).map((s, i) => {
+  /* Lista del resto */
+  const restHTML = students.slice(3).map((s, i) => {
     const rank = i + 4;
-    return `<div class="lb-row">
-      <div class="lb-rank rank-other">${rank}</div>
-      <div class="lb-avatar" style="background:${s.color}">${s.initials}</div>
-      <div class="lb-info">
-        <div class="lb-name">${s.name}</div>
-        <span class="lb-level-badge ${levelBgCls[s.level]}">${levelLabels[s.level]}</span>
-      </div>
-      <div class="lb-pts">${s.points.toLocaleString()} pts</div>
+    return `<div class="lb-list-item">
+      <span class="lb-list-rank">${rank}</span>
+      <div class="lb-list-avatar" style="background:${s.color}">${s.initials}</div>
+      <span class="lb-list-name">${s.name}</span>
+      <span class="lb-list-level ${levelCls[s.level] || 'lb-level-basico'}">${levelLabels[s.level] || s.level}</span>
+      <span class="lb-list-pts">${s.points.toLocaleString()} pts</span>
     </div>`;
   }).join('');
 
   document.getElementById(containerId).innerHTML = `
-    <div class="leaderboard-card">
-      <div class="leaderboard-header"><i class="bi bi-trophy-fill me-2"></i><h6>Ranking de alumnos · ordenado por puntos</h6></div>
-      ${topHtml}${restHtml}
-    </div>`;
+    <div class="lb-podium-wrap">
+      ${podiumSlots[0]}
+      ${podiumSlots[1]}
+      ${podiumSlots[2]}
+    </div>
+    <div class="lb-list-wrap">${restHTML}</div>`;
 }
 
-/* ─────────────────────────────────────────────
-   MESSAGING
-───────────────────────────────────────────── */
+/* ─── MESSAGING ─── */
 function seedChat() {
   const msgs = document.getElementById('chat-messages');
   msgs.innerHTML = '';
@@ -742,7 +784,7 @@ function seedChat() {
     ? [{ sent:false, text:'Profesor, tengo dudas con el passé composé 🙁', time:'10:12' },
        { sent:true,  text:'¡Hola Ana! Claro, repasemos juntos. ¿Qué parte no entiendes?', time:'10:14' }]
     : [{ sent:false, text:'¡Hola! Recuerda practicar los verbos hoy 💪', time:'09:00' },
-       { sent:true,  text:'¡Gracias! Acabo de completar la actividad de "être y avoir" 🎉', time:'09:05' },
+       { sent:true,  text:'¡Gracias! Acabo de completar "être y avoir" 🎉', time:'09:05' },
        { sent:false, text:'Perfecto, ¡vas genial! Sigue así 🔥', time:'09:06' }];
   seed.forEach(m => appendBubble(m.text, m.sent, m.time));
 }
@@ -755,7 +797,7 @@ function sendMessage() {
   const now  = new Date();
   const time = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
   appendBubble(text, true, time);
-  const replies = ['¡Buen punto! 👍','Recuerda practicar todos los días 🔥','¡Excellente! Sigue así ⭐','¿Tienes dudas con algún ejercicio?','¡Ya casi llegas al siguiente nivel! 🚀'];
+  const replies = ['¡Buen punto! 👍','Recuerda practicar todos los días 🔥','¡Excellente! ⭐','¿Tienes dudas con algún ejercicio?','¡Ya casi llegas al siguiente nivel! 🚀'];
   setTimeout(() => appendBubble(replies[Math.floor(Math.random()*replies.length)], false, time), 900);
 }
 
@@ -768,16 +810,42 @@ function appendBubble(text, sent, time) {
   msgs.scrollTop = msgs.scrollHeight;
 }
 
-/* ─────────────────────────────────────────────
-   PROFESOR PANELS
-───────────────────────────────────────────── */
+/* ─── SETTINGS ─── */
+function toggleDarkMode(on) {
+  document.body.classList.toggle('dark-mode', on);
+  try { localStorage.setItem('lf_darkmode', on ? '1' : '0'); } catch(e) {}
+}
+
+function changePassword() {
+  const current  = document.getElementById('settings-pass-current').value.trim();
+  const newPass  = document.getElementById('settings-pass-new').value.trim();
+  const confirm  = document.getElementById('settings-pass-confirm').value.trim();
+  const msgEl    = document.getElementById('settings-pass-msg');
+
+  const showMsg = (txt, ok) => {
+    msgEl.textContent = txt;
+    msgEl.className   = `mb-3 alert py-2 px-3 ${ok ? 'alert-success' : 'alert-danger'}`;
+    msgEl.classList.remove('d-none');
+    setTimeout(() => msgEl.classList.add('d-none'), 4000);
+  };
+
+  if (!current || !newPass || !confirm) return showMsg('Rellena todos los campos.', false);
+  if (newPass.length < 8)               return showMsg('La nueva contraseña debe tener al menos 8 caracteres.', false);
+  if (newPass !== confirm)              return showMsg('Las contraseñas nuevas no coinciden.', false);
+  /* Aquí iría la llamada al backend */
+  showMsg('✓ Contraseña actualizada correctamente (demo local).', true);
+  document.getElementById('settings-pass-current').value = '';
+  document.getElementById('settings-pass-new').value     = '';
+  document.getElementById('settings-pass-confirm').value = '';
+}
+
+/* ─── PROFESOR PANELS ─── */
 function buildProfeDashboard() {
-  // Metrics table
   const tbody = document.getElementById('profe-metrics-table');
   const levelLabels = { basico:'Básico', intermedio:'Intermedio', avanzado:'Avanzado' };
   const sorted = [...MOCK_STUDENTS].sort((a,b) => b.points - a.points);
   tbody.innerHTML = sorted.map(s => {
-    const pct = s.level === 'avanzado' ? 100 : s.level === 'intermedio' ? Math.round((s.points-2000)/60) : Math.round(s.points/20);
+    const pct   = s.level === 'avanzado' ? 100 : s.level === 'intermedio' ? Math.round((s.points-2000)/60) : Math.round(s.points/20);
     const clamp = Math.min(100, Math.max(0, pct));
     return `<tr>
       <td><div style="display:flex;align-items:center;gap:.5rem;">
@@ -788,13 +856,12 @@ function buildProfeDashboard() {
       <td>${s.exercises}</td>
       <td style="color:var(--text-muted);font-size:.82rem;">${s.lastSeen}</td>
       <td style="color:var(--text-muted);font-size:.82rem;">${s.time}</td>
-      <td style="min-width:100px;"><div class="prog-bar-wrap"><div class="prog-bar-fill" style="width:${clamp}%"></div></div><div style="font-size:.7rem;color:var(--text-muted);margin-top:.2rem;">${clamp}%</div></td>
+      <td style="min-width:100px;"><div class="prog-bar-wrap"><div class="prog-bar-fill" style="width:${clamp}%"></div></div>
+        <div style="font-size:.7rem;color:var(--text-muted);margin-top:.2rem;">${clamp}%</div></td>
     </tr>`;
   }).join('');
 
-  // Recent activity feed
-  const el = document.getElementById('profe-recent-activity');
-  el.innerHTML = [
+  document.getElementById('profe-recent-activity').innerHTML = [
     { icon:'🎯', text:'Ana García completó "Saludos y presentaciones"', time:'Hace 2h' },
     { icon:'⭐', text:'Marta Ruiz alcanzó el nivel Avanzado', time:'Hace 3h' },
     { icon:'📚', text:'Carlos López comenzó el curso A1 Básico', time:'Ayer' },
@@ -816,7 +883,7 @@ function buildStudents() {
       <div class="student-avatar" style="background:${s.color}">${s.initials}</div>
       <div>
         <div class="student-name">${s.name}</div>
-        <div class="student-meta">Última conexión: ${s.lastSeen} · Tiempo total: ${s.time} · Ejercicios: ${s.exercises}</div>
+        <div class="student-meta">Última conexión: ${s.lastSeen} · Tiempo: ${s.time} · Ejercicios: ${s.exercises}</div>
       </div>
       <div class="student-stats">
         <div class="student-points">${s.points.toLocaleString()} pts</div>
@@ -838,18 +905,16 @@ function buildProfeCourses() {
         <div class="course-meta mt-1">${c.activities.length} actividades</div>
         <div class="mt-3 d-flex gap-2 flex-wrap">
           <button class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:.8rem;" onclick="editCourse('${c.id}')"><i class="bi bi-pencil me-1"></i>Editar</button>
-          <button class="btn btn-sm btn-outline-secondary" style="border-radius:8px;font-size:.8rem;" onclick="openCourse('${c.id}')"><i class="bi bi-eye me-1"></i>Ver actividades</button>
-          <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;font-size:.8rem;" onclick="deleteCourse('${c.id}')"><i class="bi bi-trash me-1"></i></button>
+          <button class="btn btn-sm btn-outline-secondary" style="border-radius:8px;font-size:.8rem;" onclick="openCourse('${c.id}')"><i class="bi bi-eye me-1"></i>Ver</button>
+          <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;font-size:.8rem;" onclick="deleteCourse('${c.id}')"><i class="bi bi-trash"></i></button>
         </div>
       </div>
     </div>`).join('');
 }
 
-function buildProfeLeaderboard() { buildLeaderboard('profe-leaderboard-content'); }
+function buildProfeLeaderboard() { buildLeaderboard('profe-leaderboard-content', true); }
 
-/* ─────────────────────────────────────────────
-   COURSE MANAGER (professor)
-───────────────────────────────────────────── */
+/* ─── COURSE MANAGER ─── */
 function openCourseModal(courseId) {
   state.editingCourseId = courseId || null;
   if (courseId) {
@@ -866,9 +931,7 @@ function openCourseModal(courseId) {
   }
   openModal('modal-course');
 }
-
 function editCourse(id) { openCourseModal(id); }
-
 function saveCourse() {
   const title = document.getElementById('mc-title').value.trim();
   const level = document.getElementById('mc-level').value;
@@ -879,25 +942,18 @@ function saveCourse() {
     const c = COURSES.find(x => x.id === state.editingCourseId);
     c.title = title; c.level = level; c.desc = desc; c.badge = badgeMap[level];
   } else {
-    COURSES.push({ id:'c'+ Date.now(), title, level, badge: badgeMap[level], desc, activities:[] });
+    COURSES.push({ id:'c'+Date.now(), title, level, badge:badgeMap[level], desc, activities:[] });
   }
   closeModal('modal-course');
-  buildProfeCourses();
-  populateEditorFilter();
-  renderActivityEditor();
+  buildProfeCourses(); populateEditorFilter(); renderActivityEditor();
 }
-
 function deleteCourse(id) {
   if (!confirm('¿Eliminar este curso y todas sus actividades?')) return;
   COURSES = COURSES.filter(c => c.id !== id);
-  buildProfeCourses();
-  populateEditorFilter();
-  renderActivityEditor();
+  buildProfeCourses(); populateEditorFilter(); renderActivityEditor();
 }
 
-/* ─────────────────────────────────────────────
-   ACTIVITY EDITOR
-───────────────────────────────────────────── */
+/* ─── ACTIVITY EDITOR ─── */
 function populateEditorFilter() {
   const sel = document.getElementById('editor-course-filter');
   const val = sel.value;
@@ -907,7 +963,7 @@ function populateEditorFilter() {
 }
 
 function renderActivityEditor() {
-  const filter = document.getElementById('editor-course-filter').value;
+  const filter  = document.getElementById('editor-course-filter').value;
   const courses = filter ? COURSES.filter(c => c.id === filter) : COURSES;
   let html = '';
   courses.forEach(course => {
@@ -917,7 +973,7 @@ function renderActivityEditor() {
         <button class="btn-primary-custom" style="font-size:.78rem;padding:.3rem .7rem;" onclick="openActivityModal('${course.id}')"><i class="bi bi-plus-lg me-1"></i>Actividad</button>
       </div>`;
     if (course.activities.length === 0) {
-      html += `<div style="font-size:.85rem;color:var(--text-muted);padding:.5rem 0;">Sin actividades todavía. Crea la primera.</div>`;
+      html += `<div style="font-size:.85rem;color:var(--text-muted);padding:.5rem 0;">Sin actividades todavía.</div>`;
     } else {
       course.activities.forEach((act, idx) => {
         html += `<div class="exercise-editor-item">
@@ -927,28 +983,20 @@ function renderActivityEditor() {
             <div style="font-size:.75rem;color:var(--text-muted);margin-top:.1rem;">${act.exercises.length} ejercicios${act.maxTime ? ` · ${act.maxTime} min` : ''}${act.deadline ? ` · Límite: ${act.deadline}` : ''}</div>
           </div>
           <div style="margin-left:auto;display:flex;gap:.4rem;align-items:center;">
-            <button class="btn btn-sm btn-outline-primary" style="border-radius:6px;font-size:.72rem;" onclick="openActivityModal('${course.id}','${act.id}')">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-success" style="border-radius:6px;font-size:.72rem;" onclick="openExerciseModal('${course.id}','${act.id}')">
-              <i class="bi bi-plus-lg"></i> Ejercicio
-            </button>
-            <button class="btn btn-sm btn-outline-danger" style="border-radius:6px;font-size:.72rem;" onclick="deleteActivity('${course.id}','${act.id}')">
-              <i class="bi bi-trash"></i>
-            </button>
+            <button class="btn btn-sm btn-outline-primary" style="border-radius:6px;font-size:.72rem;" onclick="openActivityModal('${course.id}','${act.id}')"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-sm btn-outline-success" style="border-radius:6px;font-size:.72rem;" onclick="openExerciseModal('${course.id}','${act.id}')"><i class="bi bi-plus-lg"></i> Ejercicio</button>
+            <button class="btn btn-sm btn-outline-danger" style="border-radius:6px;font-size:.72rem;" onclick="deleteActivity('${course.id}','${act.id}')"><i class="bi bi-trash"></i></button>
           </div>
         </div>`;
-        // List exercises
-        if (act.exercises.length > 0) {
-          act.exercises.forEach((ex, ei) => {
-            html += `<div style="margin-left:1.5rem;margin-bottom:.25rem;background:#f8f9fa;border:1px dashed var(--border);border-radius:6px;padding:.45rem .75rem;display:flex;align-items:center;gap:.75rem;font-size:.8rem;">
-              <span style="color:var(--text-muted);">${ei+1}.</span>
-              <span style="flex:1;color:var(--text-main);">${ex.question.substring(0,60)}${ex.question.length>60?'…':''}</span>
-              <span class="ex-type-tag">${ex.type === 'test' ? 'test' : 'hueco'}</span>
-              <button class="btn btn-sm btn-outline-secondary" style="border-radius:4px;font-size:.7rem;padding:.15rem .4rem;" onclick="deleteExercise('${course.id}','${act.id}',${ei})"><i class="bi bi-x"></i></button>
-            </div>`;
-          });
-        }
+        act.exercises.forEach((ex, ei) => {
+          const typeLabel = { test:'test', fill:'hueco', match:'unir', image:'imagen' };
+          html += `<div style="margin-left:1.5rem;margin-bottom:.25rem;background:var(--bg);border:1px dashed var(--border);border-radius:6px;padding:.45rem .75rem;display:flex;align-items:center;gap:.75rem;font-size:.8rem;">
+            <span style="color:var(--text-muted);">${ei+1}.</span>
+            <span style="flex:1;">${ex.question.substring(0,60)}${ex.question.length>60?'…':''}</span>
+            <span class="ex-type-tag">${typeLabel[ex.type] || ex.type}</span>
+            <button class="btn btn-sm btn-outline-secondary" style="border-radius:4px;font-size:.7rem;padding:.15rem .4rem;" onclick="deleteExercise('${course.id}','${act.id}',${ei})"><i class="bi bi-x"></i></button>
+          </div>`;
+        });
       });
     }
     html += `</div>`;
@@ -956,17 +1004,12 @@ function renderActivityEditor() {
   document.getElementById('activity-editor-list').innerHTML = html || '<p style="color:var(--text-muted);font-size:.88rem;">No hay cursos. Crea uno desde Gestión de Cursos.</p>';
 }
 
-/* ─────────────────────────────────────────────
-   ACTIVITY MODAL
-───────────────────────────────────────────── */
+/* ─── ACTIVITY MODAL ─── */
 function openActivityModal(courseId, actId) {
   state.editingActivityId = actId || null;
   state.editorCourseId    = courseId || null;
-
-  // Populate course selector
   const sel = document.getElementById('ma-course');
   sel.innerHTML = COURSES.map(c => `<option value="${c.id}" ${c.id === courseId ? 'selected':''}>${c.title}</option>`).join('');
-
   if (actId) {
     const course = COURSES.find(c => c.id === courseId);
     const act    = course.activities.find(a => a.id === actId);
@@ -984,7 +1027,6 @@ function openActivityModal(courseId, actId) {
   }
   openModal('modal-activity');
 }
-
 function saveActivity() {
   const courseId = document.getElementById('ma-course').value;
   const title    = document.getElementById('ma-title').value.trim();
@@ -994,74 +1036,99 @@ function saveActivity() {
   if (!title) { alert('Escribe un título para la actividad.'); return; }
   const course = COURSES.find(c => c.id === courseId);
   if (!course) return;
-
   if (state.editingActivityId) {
-    const act    = course.activities.find(a => a.id === state.editingActivityId);
-    act.title    = title; act.subtitle = subtitle;
-    act.deadline = deadline; act.maxTime = maxTime;
+    const act = course.activities.find(a => a.id === state.editingActivityId);
+    act.title=title; act.subtitle=subtitle; act.deadline=deadline; act.maxTime=maxTime;
   } else {
-    course.activities.push({
-      id: 'act-' + Date.now(), title, subtitle,
-      icon:'bi-book-fill', deadline, maxTime, exercises:[]
-    });
+    course.activities.push({ id:'act-'+Date.now(), title, subtitle, icon:'bi-book-fill', deadline, maxTime, exercises:[] });
   }
   closeModal('modal-activity');
-  buildProfeCourses();
-  renderActivityEditor();
+  buildProfeCourses(); renderActivityEditor();
 }
-
 function editActivity(courseId, actId) { openActivityModal(courseId, actId); }
-
 function deleteActivity(courseId, actId) {
   if (!confirm('¿Eliminar esta actividad y todos sus ejercicios?')) return;
   const course = COURSES.find(c => c.id === courseId);
   course.activities = course.activities.filter(a => a.id !== actId);
-  buildProfeCourses();
-  renderActivityEditor();
-  // Refresh if inside activity list
+  buildProfeCourses(); renderActivityEditor();
   if (state.currentCourseId === courseId) buildActivityList(course);
 }
 
-/* ─────────────────────────────────────────────
-   EXERCISE MODAL
-───────────────────────────────────────────── */
+/* ─── EXERCISE MODAL (4 tipos) ─── */
+function setExerciseTab(type) {
+  document.getElementById('me-type').value = type;
+  ['test','fill','match','image'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === type);
+    document.getElementById(`me-${t}-fields`).style.display = t === type ? '' : 'none';
+  });
+}
+
+function addMatchPair() {
+  const container = document.getElementById('me-match-pairs');
+  const row = document.createElement('div');
+  row.className = 'match-pair-row';
+  row.innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Concepto"/><span class="match-arrow">↔</span><input type="text" class="form-control form-control-sm" placeholder="Definición"/>`;
+  container.appendChild(row);
+}
+
+function previewImage() {
+  const url  = document.getElementById('me-image-url').value.trim();
+  const wrap = document.getElementById('me-image-preview-wrap');
+  const img  = document.getElementById('me-image-preview');
+  if (url) { img.src = url; wrap.style.display = ''; }
+  else { wrap.style.display = 'none'; }
+}
+
 function openExerciseModal(courseId, actId, exerciseIndex) {
-  state.editorCourseId      = courseId;
-  state.editorActivityId    = actId;
+  state.editorCourseId       = courseId;
+  state.editorActivityId     = actId;
   state.editingExerciseIndex = exerciseIndex !== undefined ? exerciseIndex : null;
-  toggleExerciseForm();
 
   if (exerciseIndex !== undefined) {
     const course = COURSES.find(c => c.id === courseId);
     const act    = course.activities.find(a => a.id === actId);
     const ex     = act.exercises[exerciseIndex];
-    document.getElementById('me-type').value     = ex.type;
+    setExerciseTab(ex.type);
     document.getElementById('me-question').value = ex.question;
     if (ex.type === 'test') {
-      ex.options.forEach((o,i) => { const el = document.getElementById('me-opt'+i); if(el) el.value = o; });
+      ex.options.forEach((o,i) => { const el = document.getElementById('me-opt'+i); if(el) el.value=o; });
       document.querySelectorAll('input[name="me-correct"]').forEach(r => r.checked = (parseInt(r.value) === ex.correct));
-    } else {
+    } else if (ex.type === 'fill') {
       document.getElementById('me-fill-correct').value = ex.correct;
       document.getElementById('me-fill-hint').value    = ex.hint || '';
+    } else if (ex.type === 'match') {
+      const container = document.getElementById('me-match-pairs');
+      container.innerHTML = '';
+      ex.pairs.forEach(([left, right]) => {
+        const row = document.createElement('div');
+        row.className = 'match-pair-row';
+        row.innerHTML = `<input type="text" class="form-control form-control-sm" value="${left}" placeholder="Concepto"/><span class="match-arrow">↔</span><input type="text" class="form-control form-control-sm" value="${right}" placeholder="Definición"/>`;
+        container.appendChild(row);
+      });
+    } else if (ex.type === 'image') {
+      document.getElementById('me-image-url').value     = ex.imageUrl || '';
+      document.getElementById('me-image-correct').value = ex.correct;
+      document.getElementById('me-image-hint').value    = ex.hint || '';
+      previewImage();
     }
     document.getElementById('modal-exercise-title').textContent = 'Editar Ejercicio';
   } else {
-    document.getElementById('me-type').value     = 'test';
+    setExerciseTab('test');
     document.getElementById('me-question').value = '';
     ['me-opt0','me-opt1','me-opt2','me-opt3'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
     document.querySelector('input[name="me-correct"][value="0"]').checked = true;
     document.getElementById('me-fill-correct').value = '';
     document.getElementById('me-fill-hint').value    = '';
+    document.getElementById('me-image-url').value    = '';
+    document.getElementById('me-image-correct').value= '';
+    document.getElementById('me-image-hint').value   = '';
+    document.getElementById('me-image-preview-wrap').style.display = 'none';
+    document.getElementById('me-match-pairs').innerHTML = `
+      <div class="match-pair-row"><input type="text" class="form-control form-control-sm" placeholder="Concepto"/><span class="match-arrow">↔</span><input type="text" class="form-control form-control-sm" placeholder="Definición"/></div>
+      <div class="match-pair-row"><input type="text" class="form-control form-control-sm" placeholder="Concepto"/><span class="match-arrow">↔</span><input type="text" class="form-control form-control-sm" placeholder="Definición"/></div>`;
     document.getElementById('modal-exercise-title').textContent = 'Nuevo Ejercicio';
   }
-  toggleExerciseForm();
   openModal('modal-exercise');
-}
-
-function toggleExerciseForm() {
-  const type = document.getElementById('me-type').value;
-  document.getElementById('me-test-fields').style.display = type === 'test' ? '' : 'none';
-  document.getElementById('me-fill-fields').style.display = type === 'fill' ? '' : 'none';
 }
 
 function saveExercise() {
@@ -1070,21 +1137,40 @@ function saveExercise() {
   const type     = document.getElementById('me-type').value;
   const question = document.getElementById('me-question').value.trim();
   if (!question) { alert('Escribe la pregunta.'); return; }
-
   const course = COURSES.find(c => c.id === courseId);
   const act    = course.activities.find(a => a.id === actId);
-
   let exercise;
+
   if (type === 'test') {
     const opts    = ['me-opt0','me-opt1','me-opt2','me-opt3'].map(id => document.getElementById(id).value.trim()).filter(Boolean);
     const correct = parseInt(document.querySelector('input[name="me-correct"]:checked').value);
     if (opts.length < 2) { alert('Añade al menos 2 opciones.'); return; }
-    exercise = { type:'test', question, options: opts, correct };
-  } else {
+    exercise = { type:'test', question, options:opts, correct };
+
+  } else if (type === 'fill') {
     const correctAns = document.getElementById('me-fill-correct').value.trim();
     const hint       = document.getElementById('me-fill-hint').value.trim();
     if (!correctAns) { alert('Escribe la respuesta correcta.'); return; }
-    exercise = { type:'fill', question, correct: correctAns, hint };
+    exercise = { type:'fill', question, correct:correctAns, hint };
+
+  } else if (type === 'match') {
+    const rows = document.getElementById('me-match-pairs').querySelectorAll('.match-pair-row');
+    const pairs = [];
+    rows.forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const left   = inputs[0].value.trim();
+      const right  = inputs[1].value.trim();
+      if (left && right) pairs.push([left, right]);
+    });
+    if (pairs.length < 2) { alert('Añade al menos 2 pares completos.'); return; }
+    exercise = { type:'match', question, pairs };
+
+  } else if (type === 'image') {
+    const imageUrl   = document.getElementById('me-image-url').value.trim();
+    const correctAns = document.getElementById('me-image-correct').value.trim();
+    const hint       = document.getElementById('me-image-hint').value.trim();
+    if (!correctAns) { alert('Escribe la respuesta correcta.'); return; }
+    exercise = { type:'image', question, imageUrl, correct:correctAns, hint };
   }
 
   if (state.editingExerciseIndex !== null) {
@@ -1104,21 +1190,97 @@ function deleteExercise(courseId, actId, exIndex) {
   renderActivityEditor();
 }
 
-/* ─────────────────────────────────────────────
-   MODAL HELPERS
-───────────────────────────────────────────── */
+/* ─── DIRECTOR ─── */
+function buildDirectorUsers() {
+  const el = document.getElementById('director-users-list');
+  if (!el) return;
+  el.innerHTML = SYSTEM_USERS.map(u => `
+    <div class="director-user-row">
+      <div class="student-avatar" style="background:${u.color || '#64748b'}">${u.initials || u.name.substring(0,2).toUpperCase()}</div>
+      <div style="flex:1;">
+        <div style="font-weight:600;">${u.name}</div>
+        <div style="font-size:.78rem;color:var(--text-muted);">${u.email} · @${u.username || '—'}</div>
+      </div>
+      <span class="dir-role-badge dir-role-${u.role || 'alumno'}">${u.role === 'profesor' ? 'Profesor' : 'Alumno'}</span>
+      <span style="font-size:.82rem;color:var(--text-muted);margin-left:.75rem;">${(u.points || 0).toLocaleString()} pts</span>
+    </div>`).join('');
+}
+
+function openCreateUserModal() {
+  ['cu-nombre','cu-apellidos','cu-email','cu-username','cu-password'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('cu-rol').value = 'alumno';
+  document.getElementById('cu-msg').classList.add('d-none');
+  generatePassword();
+  openModal('modal-create-user');
+}
+
+function generateUsername() {
+  const nombre    = document.getElementById('cu-nombre').value.trim().toLowerCase().replace(/\s+/g,'');
+  const apellidos = document.getElementById('cu-apellidos').value.trim().toLowerCase().split(' ');
+  if (!nombre && !apellidos[0]) return;
+  let base = nombre + (apellidos[0] || '');
+  base = base.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+  // Comprobar duplicados y añadir número si ya existe
+  let username = base;
+  let counter  = 1;
+  while (SYSTEM_USERS.find(u => u.username === username)) {
+    username = base + counter++;
+  }
+  document.getElementById('cu-username').value = username;
+}
+
+function generatePassword() {
+  const chars   = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789!@#$%';
+  const length  = 10;
+  let password  = '';
+  for (let i = 0; i < length; i++) password += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('cu-password').value = password;
+}
+
+function createUser() {
+  const nombre    = document.getElementById('cu-nombre').value.trim();
+  const apellidos = document.getElementById('cu-apellidos').value.trim();
+  const email     = document.getElementById('cu-email').value.trim();
+  const rol       = document.getElementById('cu-rol').value;
+  const username  = document.getElementById('cu-username').value.trim();
+  const password  = document.getElementById('cu-password').value.trim();
+  const msgEl     = document.getElementById('cu-msg');
+
+  const showMsg = (txt, ok) => {
+    msgEl.textContent = txt;
+    msgEl.className   = `mb-2 alert py-2 px-3 ${ok ? 'alert-success' : 'alert-danger'}`;
+    msgEl.classList.remove('d-none');
+  };
+
+  if (!nombre || !email || !username || !password) return showMsg('Rellena nombre, email y genera username/contraseña.', false);
+  if (!email.includes('@')) return showMsg('Email inválido.', false);
+
+  /* En producción: llamada al backend. Aquí simulamos. */
+  const newUser = {
+    name: `${nombre} ${apellidos}`.trim(),
+    initials: (nombre[0]+(apellidos[0]||'')).toUpperCase(),
+    color: '#1a70c1',
+    role: rol, email, username, password,
+    points:0, level:'basico', exercises:0, lastSeen:'Nunca', time:'0h', course:'—',
+  };
+  SYSTEM_USERS.push(newUser);
+  buildDirectorUsers();
+  showMsg(`✓ Usuario @${username} creado correctamente (demo local).`, true);
+  setTimeout(() => closeModal('modal-create-user'), 2000);
+}
+
+/* ─── MODALES ─── */
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-// Close on overlay click
 document.querySelectorAll('.modal-overlay').forEach(o => {
   o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
 });
 
-/* ─────────────────────────────────────────────
-   INIT — auto-restore session
-───────────────────────────────────────────── */
+/* ─── INIT ─── */
 (function init() {
-  // Rotating motivational messages every 10s
+  // Mensaje motivacional rotativo
   setInterval(() => {
     const el = document.getElementById('motivational-msg');
     if (!el) return;
@@ -1127,7 +1289,7 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
     el.textContent = m.msg;
   }, 10000);
 
-  // Restore localStorage session
+  // Restaurar sesión
   try {
     const saved = localStorage.getItem('lf_session');
     if (saved) {
@@ -1137,120 +1299,11 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
     }
     const savedNotes = localStorage.getItem('lf_notes');
     if (savedNotes) state.courseNotes = JSON.parse(savedNotes);
+    const dark = localStorage.getItem('lf_darkmode');
+    if (dark === '1') {
+      document.body.classList.add('dark-mode');
+      const toggle = document.getElementById('dark-mode-toggle');
+      if (toggle) toggle.checked = true;
+    }
   } catch(e) {}
 })();
-/*
-=================================================================
-  ESQUEMA DE IDs v2.0 — DOCUMENTACIÓN INTERNA
-=================================================================
-
-── SCREENS ───────────────────────────────────────────────────────
-  #screen-login              → Login con recuerdo de sesión (localStorage)
-  #screen-app                → App principal post-login
-
-── BANNERS ───────────────────────────────────────────────────────
-  #teacher-impersonation-mode → Banner rojo visible cuando profesor impersona alumno
-
-── NAVBAR ────────────────────────────────────────────────────────
-  .app-navbar                → Navbar sticky
-  #nav-avatar                → Iniciales del usuario
-  #nav-username              → Nombre del usuario
-  #nav-role-pill             → Badge de rol (Alumno / Profesor / Vista Alumno)
-  #global-timer              → Timer de actividad (.visible/.urgent)
-  #timer-val                 → Valor del timer "MM:SS"
-
-── SIDEBARS ──────────────────────────────────────────────────────
-  #sidebar-alumno            → Sidebar para alumnos (incluye Leaderboard)
-  #sidebar-profesor          → Sidebar para profesor (incluye Vista alumno btn)
-
-── PANELS ALUMNO ─────────────────────────────────────────────────
-  #dashboard                 → Dashboard alumno
-  #courses                   → Galería de cursos
-  #activity-container        → Actividades de un curso (con apuntes)
-  #activity-notes-wrap       → Panel de apuntes editable
-  #activity-notes            → Textarea de apuntes
-  #exercise-panel            → Motor de ejercicios
-  #activity-complete-panel   → Pantalla de actividad completada
-  #leaderboard               → Leaderboard para alumno
-  #progress                  → Progreso del alumno (incluye tiempo sesión)
-  #messages                  → Chat
-
-── PANELS PROFESOR ───────────────────────────────────────────────
-  #profe-dashboard           → Panel profesor con métricas + tabla de progreso
-  #profe-students            → Listado de alumnos
-  #profe-leaderboard         → Leaderboard del aula (panel profesor)
-  #course-manager            → Div interno de #profe-courses
-  #profe-courses             → Gestión de cursos (crear/editar/eliminar)
-  #activity-editor           → Editor completo de actividades y ejercicios
-
-── MODALES ───────────────────────────────────────────────────────
-  #modal-course              → Modal crear/editar curso
-  #modal-activity            → Modal crear/editar actividad (con deadline+timer)
-  #modal-exercise            → Modal crear/editar ejercicio (test o hueco)
-
-── LEADERBOARD ───────────────────────────────────────────────────
-  #leaderboard-content       → Contenedor leaderboard alumno
-  #profe-leaderboard-content → Contenedor leaderboard profesor
-  .lb-row.top-1/2/3          → Filas destacadas top 3
-  .lb-rank.rank-1/2/3        → Medallas con gradiente
-  .lb-level-badge            → Badge de nivel junto al nombre
-
-── ACTIVITY EDITOR ───────────────────────────────────────────────
-  #activity-editor-list      → Lista dinámica de actividades editables
-  #editor-course-filter      → Selector de filtro por curso
-  .exercise-editor-item      → Fila de actividad en el editor
-
-── TIMER ─────────────────────────────────────────────────────────
-  .timer-display             → Div del timer (visible/urgent vía clases)
-  state.activityTimer        → setInterval del timer de actividad
-  state.sessionTimerInterval → setInterval del tiempo de sesión
-
-── USUARIOS DEMO ────────────────────────────────────────────────
-  alumno@test.com   / 1234   → Dashboard alumno
-  profesor@test.com / 1234   → Panel profesor
-  (cualquier email válido + pass ≥4 chars) → alumno genérico
-
-=================================================================
-
-  CAMBIOS REALIZADOS v1 → v2
-=================================================================
-
-PALETA DE COLORES:
-  ✓ Primary:    #1a3a5c / #2563eb  →  #0055A4 (azul Francia)
-  ✓ Secondary:  (sin uso)          →  #EF4135 (rojo Francia)
-  ✓ Background: #f8fafc            →  #f8f9fa
-  ✓ Todos los gradientes, badges y botones actualizados
-
-NUEVAS FUNCIONALIDADES:
-  ✓ Leaderboard mejorado: top 3 destacado, medallas, nivel junto al nombre, orden automático por puntos
-  ✓ Timer funcional por actividad (MM:SS en navbar, pulso rojo últimos 30s)
-  ✓ Fecha límite en actividades (visible en la lista)
-  ✓ Campo de apuntes editable por curso (guardado en localStorage)
-  ✓ Persistencia de sesión (localStorage: recuerda email y rol)
-  ✓ Tiempo de sesión activo simulado en "Mi Progreso"
-  ✓ Editor de actividades completo: crear, editar, eliminar actividades
-  ✓ Editor de ejercicios completo: crear, editar, eliminar ejercicios (test y hueco)
-  ✓ Creación de cursos desde el panel del profesor
-  ✓ Edición y eliminación de cursos
-  ✓ Modo impersonación: profesor ve la app como alumno con banner rojo
-  ✓ Tabla de métricas por alumno: ejercicios, tiempo, última actividad, barra de progreso
-  ✓ Modales propios (sin depender de Bootstrap modal JS)
-
-MEJORAS DE UX:
-  ✓ Banner de impersonación con botón de vuelta
-  ✓ Badge de versión "2.0" en navbar
-  ✓ Botones de editar/eliminar actividades inline (solo para profesor)
-  ✓ Pista de respuesta correcta en ejercicios de hueco cuando falla
-  ✓ Hint de credenciales demo en login
-  ✓ Sidebar con secciones y etiquetas
-
-REFACTOR JS:
-  ✓ auth logic    → doLogin, doRegister, doLogout, enterApp, selectRole
-  ✓ course logic  → buildCourses, courseCardHTML, openCourse, saveCourse, deleteCourse
-  ✓ activity logic→ buildActivityList, openActivity, saveActivity, deleteActivity
-  ✓ exercise logic→ loadExercise, checkTest, checkFill, saveExercise, deleteExercise
-  ✓ scoring system→ applyPoints, showFeedback, scheduleNextExercise, finishActivity
-  ✓ timer system  → startActivityTimer, clearActivityTimer, startSessionTimer
-  ✓ impersonation → startImpersonation, exitImpersonation
-  ✓ modal helpers → openModal, closeModal (con cierre al clicar overlay)
-*/
