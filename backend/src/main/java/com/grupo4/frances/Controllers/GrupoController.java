@@ -56,12 +56,13 @@ public class GrupoController {
     }
 
     // El profesor genera un código de acceso
-    @PostMapping("/genCodigoGrupo")
+    @PostMapping("/{id}/codigo")
     public ResponseEntity<?> generarCodigo(
-            @RequestBody Long idGrupo, Long idProfesor) {
+            @PathVariable Long id,
+            @RequestParam Long idProfesor) {
 
-        Grupo grupo = repository.findById(idGrupo)
-                .orElseThrow(() -> new GrupoNotFoundException(idGrupo));
+        Grupo grupo = repository.findById(id)
+                .orElseThrow(() -> new GrupoNotFoundException(id));
 
         if (!grupo.getProfesor().equals(idProfesor)) {
             return ResponseEntity.status(403)
