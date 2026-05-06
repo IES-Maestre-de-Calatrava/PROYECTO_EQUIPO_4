@@ -19,6 +19,8 @@ public class GrupoDTO{
     @NotNull
     private Long idProfesor;
 
+    private String codigo;
+
     public GrupoDTO() {
     }
 
@@ -61,7 +63,13 @@ public class GrupoDTO{
         this.idProfesor = idProfesor;
     }
 
+    public String getCodigo() {
+        return codigo;
+    }
 
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
 
 
 

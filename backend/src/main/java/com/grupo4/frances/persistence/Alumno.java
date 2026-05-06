@@ -157,4 +157,5 @@ public class Alumno implements java.io.Serializable {
 		public void setGrupos(Set grupos) {
 			this.grupos = grupos;
 		}
+
 }

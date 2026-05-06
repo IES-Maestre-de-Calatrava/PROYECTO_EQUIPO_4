@@ -32,6 +32,9 @@ public class Grupo implements java.io.Serializable{
 	@Column(name="TUTOR")
 	private Long profesor;
 
+	@Column(name="CODIGO")
+	private String codigo;
+
 	@ManyToMany
     @JoinTable(
         name = "GRUPO_ALUMNO",                         
@@ -50,11 +53,12 @@ public class Grupo implements java.io.Serializable{
 
 	}
 
-	public Grupo(Long idGrupo, String nombre, Long centro, Long profesor) {
+	public Grupo(Long idGrupo, String nombre, Long centro, Long profesor, String codigo) {
 		this.idGrupo = idGrupo;
 		this.nombre = nombre;
 		this.centro = centro;
 		this.profesor = profesor;
+		this.codigo = codigo;
 	}
 
 	public Long getIdGrupo() {
@@ -114,6 +118,14 @@ public class Grupo implements java.io.Serializable{
         this.alumnos.remove(alumno);
         alumno.getGrupos().remove(this);
     }
+
+	public String getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(String codigo) {
+		this.codigo = codigo;
+	}
 
 
 	
