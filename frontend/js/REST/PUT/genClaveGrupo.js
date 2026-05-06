@@ -2,7 +2,7 @@ const API = "http://localhost:8085/grupos/";
 
 export async function generarClaveGrupo(id, idProf){
     try {
-        const request = await fetch(`${API}/${id}/codigo?idProfesor=${idProf}`);
+        const request = await fetch(`${API}/${id}/codigo?idProfesor=${idProf}`, {method: 'POST'});
         const response = await request.json();
 
         return response;
