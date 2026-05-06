@@ -49,11 +49,11 @@ public class ProfesorController {
         return ResponseEntity.ok(profesor);
     }
 
-    @PostMapping("/crear-grupo")
+    /*@PostMapping("/crear-grupo")
     public ResponseEntity<Grupo> crearGrupo(@RequestBody Grupo nuevoGrupo) {
         // Aquí se guarda el grupo usando la lógica de JpaRepository
         Grupo grupoGuardado = grupoRepository.save(nuevoGrupo);
         return ResponseEntity.ok(grupoGuardado);
     }
-
+    */
 }

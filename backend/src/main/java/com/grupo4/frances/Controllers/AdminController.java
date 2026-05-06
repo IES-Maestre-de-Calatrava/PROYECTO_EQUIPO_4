@@ -1,3 +1,4 @@
+/*
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
@@ -31,4 +32,4 @@ public class AdminController {
     public void borrarProfesor(@PathVariable Long id) {
         profesorRepository.deleteById(id); // Usa JpaRepository
     }
-}
+}*/
