@@ -1,12 +1,16 @@
 package com.grupo4.frances.Controllers;
 
 import com.grupo4.frances.Repositories.AlumnoRepository;
+import com.grupo4.frances.Repositories.ConexionRepository;
 import com.grupo4.frances.Repositories.ProfesorRepository;
 import com.grupo4.frances.persistence.Alumno;
+import com.grupo4.frances.persistence.Conexion;
 import com.grupo4.frances.persistence.Profesor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,11 +18,16 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     private final AlumnoRepository alumnoRepository;
+    private final ConexionRepository conexionRepository;
     private final ProfesorRepository profesorRepository;
 
-    public AuthController(AlumnoRepository alumnoRepository, ProfesorRepository profesorRepository) {
+    public AuthController(AlumnoRepository alumnoRepository, ConexionRepository conexionRepository,
+                          ProfesorRepository profesorRepository) {
         this.alumnoRepository = alumnoRepository;
+        this.conexionRepository = conexionRepository;
         this.profesorRepository = profesorRepository;
     }
 
@@ -36,6 +45,8 @@ public class AuthController {
         // ✅ Buscar primero en Alumno
         Alumno alumno = alumnoRepository.findByCorreo(correo).orElse(null);
         if (alumno != null && alumno.getContrasena().equals(contrasena)) {
+            registrarConexionAlumno(alumno);
+
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("id",        alumno.getIdAlumno());
             respuesta.put("nombre",    alumno.getNombre());
@@ -63,5 +74,12 @@ public class AuthController {
         // ❌ No encontrado en ninguna tabla
         return ResponseEntity.status(401)
                 .body(Map.of("error", "Correo o contraseña incorrectos"));
+    }
+
+    private void registrarConexionAlumno(Alumno alumno) {
+        Conexion conexion = new Conexion();
+        conexion.setIdAlumno(alumno.getIdAlumno());
+        conexion.setEntrada(LocalDateTime.now().format(FORMATO_FECHA));
+        conexionRepository.save(conexion);
     }
 }
