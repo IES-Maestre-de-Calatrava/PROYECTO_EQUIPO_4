@@ -12,42 +12,6 @@
 <body>
 
 <!-- ====================================================
-     LOGIN — sin registro visible, sin hint de demo en UI
-     Usuarios demo siguen existiendo en el JS para testing
-===================================================== -->
-<div id="screen-login" class="screen active">
-  <div class="login-card">
-    <div class="login-logo">Le <span style="color:#002654">Fr</span><span style="color:#6c757d">anç</span><span style="color:#ED2939">ais</span></div>
-    <div class="login-subtitle">Tu plataforma SaaS para dominar el idioma · v3.0</div>
-
-    <div id="login-error" class="alert alert-danger py-2 px-3 d-none" style="font-size:.85rem;border-radius:8px;"></div>
-
-    <div class="mb-3">
-      <label class="form-label">Correo electrónico</label>
-      <input id="login-email" type="email" class="form-control" placeholder="tu@email.com"/>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Contraseña</label>
-      <input id="login-password" type="password" class="form-control" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
-    </div>
-    <div class="mb-3">
-      <label class="form-label d-block mb-2">Acceder como</label>
-      <div class="d-flex gap-2 flex-wrap">
-        <button class="role-badge active" id="role-alumno"   onclick="selectRole('alumno')"><i class="bi bi-person-fill"></i> Alumno</button>
-        <button class="role-badge"        id="role-profesor" onclick="selectRole('profesor')"><i class="bi bi-person-video3"></i> Profesor</button>
-        <!-- Rol director: badge oculto, se muestra automáticamente si el email coincide -->
-        <button class="role-badge d-none" id="role-director" onclick="selectRole('director')"><i class="bi bi-shield-fill"></i> Director</button>
-      </div>
-    </div>
-    <label class="remember-me mb-3">
-      <input type="checkbox" id="remember-me" checked/> Recordar sesión
-    </label>
-    <button class="btn-login" onclick="doLogin()">Iniciar sesión →</button>
-    <!-- Registro y hint de demo eliminados de la UI -->
-  </div>
-</div>
-
-<!-- ====================================================
      APP SCREEN
 ===================================================== -->
 <div id="screen-app" class="screen">
@@ -63,7 +27,7 @@
 
   <!-- NAVBAR -->
   <nav class="app-navbar">
-    <div class="navbar-logo">Le <span style="color:#002654">Fr</span><span style="color:#6c757d">anç</span><span style="color:#ED2939">ais</span>
+    <div class="navbar-logo">Le <span style="color:#002654">Fr</span><span style="color:#cfcfcf">anç</span><span style="color:#ED2939">ais</span>
       <span style="font-size:.65rem;background:var(--primary-light);color:var(--primary);padding:.1rem .4rem;border-radius:4px;font-family:var(--font-body);font-weight:700;vertical-align:middle;">3.0</span>
     </div>
     <div class="navbar-user">
@@ -304,7 +268,7 @@
 
       <!-- ── PROFESOR: DASHBOARD ── (sin % acierto, movido al alumno) -->
       <div id="profe-dashboard" class="panel">
-        <div class="dash-greeting">Panel del Profesor 👨‍🏫</div>
+        <div class="dash-greeting">Panel del Profesor </div>
         <div class="dash-sub">Visión general de tu aula</div>
         <div class="row g-3 mt-2 mb-4">
           <div class="col-6 col-md-4"><div class="metric-card"><div class="metric-value">5</div><div class="metric-label">Alumnos activos</div><div class="metric-sub">↑ 1 esta semana</div></div></div>
