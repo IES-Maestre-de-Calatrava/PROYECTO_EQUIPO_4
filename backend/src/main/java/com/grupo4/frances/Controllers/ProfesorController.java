@@ -7,6 +7,8 @@ import com.grupo4.frances.Repositories.ProfesorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.grupo4.frances.Repositories.GrupoRepository;
+import com.grupo4.frances.persistence.Grupo;
 
 import java.util.List;
 
@@ -46,4 +48,12 @@ public class ProfesorController {
 
         return ResponseEntity.ok(profesor);
     }
+
+    @PostMapping("/crear-grupo")
+    public ResponseEntity<Grupo> crearGrupo(@RequestBody Grupo nuevoGrupo) {
+        // Aquí se guarda el grupo usando la lógica de JpaRepository
+        Grupo grupoGuardado = grupoRepository.save(nuevoGrupo);
+        return ResponseEntity.ok(grupoGuardado);
+    }
+
 }
