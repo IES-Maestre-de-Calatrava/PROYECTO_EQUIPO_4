@@ -3,11 +3,16 @@ package com.grupo4.frances.Controllers;
 import com.grupo4.frances.DTO.GrupoDTO;
 import com.grupo4.frances.Exceptions.GrupoNotFoundException;
 import com.grupo4.frances.Mappers.GrupoMapper;
+import com.grupo4.frances.Repositories.AlumnoRepository;
 import com.grupo4.frances.Repositories.GrupoRepository;
+import com.grupo4.frances.Utilidades.Seguridad;
+import com.grupo4.frances.persistence.Alumno;
 import com.grupo4.frances.persistence.Grupo;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -15,9 +20,11 @@ import java.util.stream.Collectors;
 public class GrupoController {
 
     private final GrupoRepository repository;
+    private final AlumnoRepository alumnoRepository;
 
-    public GrupoController(GrupoRepository repository) {
+    public GrupoController(GrupoRepository repository, AlumnoRepository alumnoRepository) {
         this.repository = repository;
+        this.alumnoRepository = alumnoRepository;
     }
 
     @GetMapping
@@ -46,5 +53,60 @@ public class GrupoController {
             throw new GrupoNotFoundException(id);
         }
         repository.deleteById(id);
+    }
+
+    // El profesor genera un código de acceso
+    @PostMapping("/{id}/codigo")
+    public ResponseEntity<?> generarCodigo(
+            @PathVariable Long id,
+            @RequestParam Long idProfesor) {
+
+        Grupo grupo = repository.findById(id)
+                .orElseThrow(() -> new GrupoNotFoundException(id));
+
+        if (!grupo.getProfesor().equals(idProfesor)) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("error", "No eres el tutor de este grupo"));
+        }
+
+        String codigo = Seguridad.generarClaveGrupo();
+        grupo.setCodigo(codigo);
+        repository.save(grupo);
+
+        return ResponseEntity.ok(Map.of(
+                "codigo", codigo,
+                "grupo",  grupo.getNombre()
+        ));
+    }
+
+    // El alumno introduce el código para unirse
+    @PostMapping("/unirse")
+    public ResponseEntity<?> unirseAGrupo(
+            @RequestParam String codigo,
+            @RequestParam Long idAlumno) {
+
+        Grupo grupo = repository.findByCodigo(codigo)
+                .orElse(null);
+
+        if (grupo == null) {
+            return ResponseEntity.status(404)
+                    .body(Map.of("error", "Código inválido: " + codigo));
+        }
+
+        Alumno alumno = alumnoRepository.findById(idAlumno)
+                .orElseThrow(() -> new RuntimeException("Alumno no encontrado: " + idAlumno));
+
+        if (grupo.getAlumnos().contains(alumno)) {
+            return ResponseEntity.status(409)
+                    .body(Map.of("error", "Ya perteneces a este grupo"));
+        }
+
+        grupo.agregarAlumno(alumno);
+        repository.save(grupo);
+
+        return ResponseEntity.ok(Map.of(
+                "mensaje", "Te has unido al grupo '" + grupo.getNombre() + "'",
+                "grupo",   grupo.getNombre()
+        ));
     }
 }
