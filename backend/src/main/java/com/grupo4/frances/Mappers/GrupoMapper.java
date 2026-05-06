@@ -12,6 +12,7 @@ public class GrupoMapper{
         dto.setNombre(grupo.getNombre());
         dto.setIdCentro(grupo.getCentro());
         dto.setIdProfesor(grupo.getProfesor());
+        dto.setCodigo(grupo.getCodigo());
 
         return dto;
 
@@ -23,7 +24,8 @@ public class GrupoMapper{
             dto.getIdCentro(),
             dto.getNombre(),
             dto.getIdCentro(),
-            dto.getIdProfesor()
+            dto.getIdProfesor(),
+            dto.getCodigo()
         );
 
         if(null != dto.getIdCentro() && (dto.getIdCentro() != 0)) {
@@ -35,12 +37,12 @@ public class GrupoMapper{
     }
 
     public static Grupo toEntityCreate(GrupoDTO dto){
-       
         Grupo grupo = new Grupo(
             dto.getIdCentro(),
             dto.getNombre(),
             dto.getIdCentro(),
-            dto.getIdProfesor()
+            dto.getIdProfesor(),
+            dto.getCodigo()
         );
 
         return grupo;
