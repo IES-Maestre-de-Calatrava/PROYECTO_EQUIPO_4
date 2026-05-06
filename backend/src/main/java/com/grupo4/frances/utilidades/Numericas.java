@@ -1,4 +1,4 @@
-package com.grupo4.frances.Utilidades;
+package com.grupo4.frances.utilidades;
 
 public class Numericas {
     public static int generarNumAleatorio(int min, int max) {

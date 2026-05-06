@@ -1,7 +1,6 @@
 package com.grupo4.frances.persistence;
 
-import java.time.LocalDateTime;
-
+import static com.grupo4.frances.utilidades.Seguridad.*;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -132,8 +131,8 @@ public class Profesor implements java.io.Serializable{
 			this.director = director;
 		}
 
-		public Grupo crearGrupo(Long idGrupo, String nombre, Long centro) {
-    		return new Grupo(idGrupo, nombre, centro, this.idProfesor);
+		public Grupo crearGrupo(Long idGrupo, String nombre, Long centro, Long profesor) {
+    		return new Grupo(idGrupo, nombre, centro, this.idProfesor, generarClaveGrupo());
 		}
 
 		public Actividad subirActividadAGrupo(Actividad actividad, Grupo grupo) {

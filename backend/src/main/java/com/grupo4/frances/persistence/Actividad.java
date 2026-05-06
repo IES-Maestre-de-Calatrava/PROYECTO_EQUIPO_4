@@ -3,6 +3,7 @@ package com.grupo4.frances.persistence;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.grupo4.frances.JSON.Preguntas;
 import jakarta.persistence.*;
 
 @Entity
@@ -34,6 +35,12 @@ public class Actividad implements java.io.Serializable {
 
     @Column(name="FECHA_ENTREGA", nullable = false)
     private String fechaEntrega;
+
+    @Column(name="PREGUNTAS")
+    private String preguntas;
+
+    @Column(name="RESPUESTAS")
+    private String respuestas;
 
     @ManyToMany
     @JoinTable(
