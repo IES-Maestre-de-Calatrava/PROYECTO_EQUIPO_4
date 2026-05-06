@@ -22,11 +22,14 @@ async function getActividades() {
                         <th>Inicio</th>
                         <th>Fin</th>
                         <th>Entrega</th>
+                        <th>Preguntas</th>
+                        <th>Respuestas</th>
                     </tr>
                 </thead>
                 <tbody>
         `;
         for(let act of actividades) {
+            console.log(act)
             const profe = await getProfesorById(act.idProfesor);
             const nombreProfe = profe ? profe.nombre : "No asignado";
             const apellidosProfe = profe ? profe.apellidos : "No asignado";
@@ -37,9 +40,11 @@ async function getActividades() {
                     <td style="padding: 8px; text-align: center;">${act.dificultad}</td>
                     <td style="padding: 8px; text-align: center;">${nombreProfe} ${apellidosProfe}</td>
                     <td style="padding: 8px; text-align: center;">${act.duracion || '---'}</td>
-                    <td style="padding: 8px;">${formatearFecha(act.fecha_inicio)}</td>
-                    <td style="padding: 8px;">${formatearFecha(act.fecha_fin)}</td>
-                    <td style="padding: 8px; color: red;">${formatearFecha(act.fecha_entrega)}</td>
+                    <td style="padding: 8px;">${formatearFecha(act.fechaInicio)}</td>
+                    <td style="padding: 8px;">${formatearFecha(act.fechaFin)}</td>
+                    <td style="padding: 8px; color: red;">${formatearFecha(act.fechaEntrega)}</td>
+                    <td style="padding: 8px;">${act.preguntas}</td>
+                    <td style="padding: 8px;">${act.respuestas}</td>
                 </tr>
             `;
         };
