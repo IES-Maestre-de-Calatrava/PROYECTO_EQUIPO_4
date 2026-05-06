@@ -14,7 +14,7 @@
 <!-- ====================================================
      APP SCREEN
 ===================================================== -->
-<div id="screen-app" class="screen">
+<div id="screen-app" class="screen active">
 
   <!-- IMPERSONATION BANNER -->
   <div class="impersonation-banner" id="teacher-impersonation-mode">
@@ -54,7 +54,6 @@
         <div class="sidebar-divider"></div>
         <button class="sidebar-item" onclick="showPanel('leaderboard')"><i class="bi bi-trophy-fill"></i> Leaderboard</button>
         <button class="sidebar-item" onclick="showPanel('progress')"><i class="bi bi-bar-chart-fill"></i> Mi progreso</button>
-        <button class="sidebar-item" onclick="showPanel('messages')"><i class="bi bi-chat-fill"></i> Mensajes</button>
         <div class="sidebar-divider"></div>
         <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
       </div>
@@ -69,7 +68,6 @@
         <button class="sidebar-item" onclick="showPanel('profe-courses')"><i class="bi bi-collection-fill"></i> Cursos</button>
         <button class="sidebar-item" onclick="showPanel('activity-editor')"><i class="bi bi-pencil-square"></i> Editor actividades</button>
         <div class="sidebar-divider"></div>
-        <button class="sidebar-item" onclick="showPanel('messages')"><i class="bi bi-chat-fill"></i> Mensajes</button>
         <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
         <div class="sidebar-divider"></div>
         <button class="sidebar-item" style="color:var(--secondary);" onclick="startImpersonation()"><i class="bi bi-eye-fill"></i> Vista alumno</button>
@@ -190,19 +188,6 @@
             <div class="stat-icon">⏱️</div>
             <div class="stat-label">Tiempo en sesión</div>
             <div class="stat-value" id="prog-session-time">0 min</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── MENSAJES ── -->
-      <div id="messages" class="panel">
-        <div class="section-title">Mensajes</div>
-        <div class="chat-container">
-          <div class="chat-header"><i class="bi bi-chat-dots-fill"></i><span id="chat-partner-name">Conversación</span></div>
-          <div class="chat-messages" id="chat-messages"></div>
-          <div class="chat-input-row">
-            <input class="chat-input" id="chat-input" type="text" placeholder="Escribe un mensaje…" onkeydown="if(event.key==='Enter')sendMessage()"/>
-            <button class="btn-send" onclick="sendMessage()"><i class="bi bi-send-fill" style="font-size:.85rem;"></i></button>
           </div>
         </div>
       </div>
