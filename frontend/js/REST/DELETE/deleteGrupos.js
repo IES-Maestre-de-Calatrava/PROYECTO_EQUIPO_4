@@ -1,4 +1,4 @@
-const API = "http://localhost:8085/grupo";
+const API = "http://192.168.150.185:8085/grupo";
 
 export async function deleteAllGrupos(){
     const response = await fetch(`${API}/`, {
