@@ -12,7 +12,7 @@ public class ConexionMapper {
         dto.setSalida(conexion.getSalida());
         dto.setIdAlumno(conexion.getIdAlumno());
         dto.setIdConexion(conexion.getIdConexion());
-        dto.setId_sesion(conexion.getId_sesion());
+        dto.setIdsesion(conexion.getIdsesion());
 
         return dto;
     }
@@ -23,7 +23,7 @@ public class ConexionMapper {
         conexion.setEntrada(dto.getEntrada());
         conexion.setSalida(dto.getSalida());
         conexion.setIdAlumno(dto.getIdAlumno());
-        conexion.setId_sesion(dto.getId_sesion());
+        conexion.setIdsesion(dto.getIdsesion());
 
         if (dto.getIdConexion() != null && dto.getIdConexion() != 0) {
             conexion.setIdConexion(dto.getIdConexion());
@@ -39,7 +39,7 @@ public class ConexionMapper {
         conexion.setSalida(dto.getSalida());
         conexion.setIdAlumno(dto.getIdAlumno());
         dto.setIdConexion(conexion.getIdConexion());
-        dto.setId_sesion(conexion.getId_sesion());
+        dto.setIdsesion(conexion.getIdsesion());
 
         return conexion;
     }

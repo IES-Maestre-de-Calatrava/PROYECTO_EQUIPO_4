@@ -38,7 +38,7 @@ public class AuthController {
 
         String correo    = credenciales.getCorreo();
         String contrasena = credenciales.getContrasena();
-        String id_sesion = credenciales.getId_sesion();
+        String id_sesion = credenciales.getIdsesion();
 
         if (correo == null || contrasena == null || id_sesion == null) {
             return ResponseEntity.badRequest()
@@ -61,7 +61,7 @@ public class AuthController {
             respuesta.put("rol",       "ALUMNO");
             respuesta.put("nivel",     alumno.getNivel());
             respuesta.put("rango",     alumno.getRango());
-            respuesta.put("id_sesion", conexion.getId_sesion());
+            respuesta.put("id_sesion", conexion.getIdsesion());
             return ResponseEntity.ok(respuesta);
         }
 
@@ -80,7 +80,7 @@ public class AuthController {
             respuesta.put("correo",    profesor.getCorreo());
             respuesta.put("rol",       profesor.isDirector() ? "DIRECTOR" : "PROFESOR");
             respuesta.put("instituto", profesor.getInstituto());
-            respuesta.put("id_sesion", conexion.getId_sesion());
+            respuesta.put("id_sesion", conexion.getIdsesion());
             return ResponseEntity.ok(respuesta);
         }
 
@@ -93,7 +93,7 @@ public class AuthController {
         Conexion conexion = new Conexion();
         conexion.setIdAlumno(alumno.getIdAlumno());
         conexion.setEntrada(LocalDateTime.now().format(FORMATO_FECHA));
-        conexion.setId_sesion(generarUUID());
+        conexion.setIdsesion(generarUUID());
         conexionRepository.save(conexion);
     }
 
@@ -101,7 +101,7 @@ public class AuthController {
         Conexion conexion = new Conexion();
         conexion.setIdAlumno(profesor.getIdProfesor());
         conexion.setEntrada(LocalDateTime.now().format(FORMATO_FECHA));
-        conexion.setId_sesion(generarUUID());
+        conexion.setIdsesion(generarUUID());
         conexionRepository.save(conexion);
     }
 }

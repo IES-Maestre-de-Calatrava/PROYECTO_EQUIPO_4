@@ -3,15 +3,15 @@ package com.grupo4.frances.DTO;
 public class LoginRequestDTO {
     String correo;
     String contrasena;
-    String id_sesion;
+    String idsesion;
 
     public LoginRequestDTO() {
     }
 
-    public LoginRequestDTO(String correo, String contrasena, String id_sesion) {
+    public LoginRequestDTO(String correo, String contrasena, String idsesion) {
         this.correo = correo;
         this.contrasena = contrasena;
-        this.id_sesion = id_sesion;
+        this.idsesion = idsesion;
     }
 
     public String getCorreo() {
@@ -30,11 +30,11 @@ public class LoginRequestDTO {
         this.contrasena = contrasena;
     }
 
-    public String getId_sesion() {
-        return id_sesion;
+    public String getIdsesion() {
+        return idsesion;
     }
 
-    public void setId_sesion(String id_sesion) {
-        this.id_sesion = id_sesion;
+    public void setId_sesion(String idsesion) {
+        this.idsesion = idsesion;
     }
 }

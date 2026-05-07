@@ -35,7 +35,7 @@ public class AdminController {
         if (errorPermisos != null) return errorPermisos;
 
         // Forzamos que sea una creación nueva ignorando cualquier ID que venga del front
-        alumno.setId(null); 
+        alumno.setIdAlumno(null);
     
         return ResponseEntity.ok(alumnoRepository.save(alumno));
     }
