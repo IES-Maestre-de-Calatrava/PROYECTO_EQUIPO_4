@@ -953,23 +953,64 @@ function buildProfeDashboard() {
   </div>`).join('');
 }
 
+// En script.js
+
 function buildStudents() {
-  const el = document.getElementById('students-list');
-  const levelLabels = { basico:'Básico', intermedio:'Intermedio', avanzado:'Avanzado' };
-  el.innerHTML = [...MOCK_STUDENTS].sort((a,b) => b.points - a.points).map(s => {
-    const lvlCls = s.level === 'avanzado' ? 'color:var(--gold)' : s.level === 'intermedio' ? 'color:var(--green-mid)' : 'color:var(--primary)';
-    return `<div class="student-row">
-      <div class="student-avatar" style="background:${s.color}">${s.initials}</div>
-      <div>
-        <div class="student-name">${s.name}</div>
-        <div class="student-meta">Última conexión: ${s.lastSeen} · Tiempo: ${s.time} · Ejercicios: ${s.exercises}</div>
+  // Esta función ahora solo llama a la aplicación de filtros inicial
+  applyStudentFilters();
+}
+
+function applyStudentFilters() {
+  const nameQuery = document.getElementById('filter-name').value.toLowerCase();
+  const courseFilter = document.getElementById('filter-course').value;
+  const levelFilter = document.getElementById('filter-level').value;
+  const sortOrder = document.getElementById('filter-sort').value;
+
+  // 1. Filtrar el array MOCK_STUDENTS
+  let filtered = MOCK_STUDENTS.filter(student => {
+    const matchesName = student.name.toLowerCase().includes(nameQuery);
+    const matchesCourse = courseFilter === "" || student.course === courseFilter;
+    const matchesLevel = levelFilter === "" || student.level === levelFilter;
+    return matchesName && matchesCourse && matchesLevel;
+  });
+
+  // 2. Ordenar
+  if (sortOrder === 'asc') {
+    filtered.sort((a, b) => a.points - b.points);
+  } else if (sortOrder === 'desc') {
+    filtered.sort((a, b) => b.points - a.points);
+  } else if (sortOrder === 'name') {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // 3. Renderizar la lista
+  const container = document.getElementById('profe-students-list');
+  if (!container) return;
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="text-center p-5 text-muted">No se encontraron alumnos con esos criterios.</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(s => `
+    <div class="student-row-card">
+      <div class="d-flex align-items-center flex-wrap gap-3">
+        <div class="student-avatar" style="background:${s.color}">${s.initials}</div>
+        <div style="flex:1; min-width:150px;">
+          <div class="student-name">${s.name}</div>
+          <div class="student-meta">Curso: <b>${s.course}</b> · Nivel: <span class="badge-level ${s.level}">${s.level}</span></div>
+        </div>
+        <div class="text-end me-3">
+          <div class="student-points">${s.points.toLocaleString()} pts</div>
+          <div class="student-meta">${s.exercises} ej. hechos</div>
+        </div>
+        <div class="text-end" style="min-width:100px;">
+          <div class="student-meta">Visto: ${s.lastSeen}</div>
+          <button class="btn btn-sm btn-outline-primary mt-1" onclick="impersonateStudent('${s.name}')">Ver como alumno</button>
+        </div>
       </div>
-      <div class="student-stats">
-        <div class="student-points">${s.points.toLocaleString()} pts</div>
-        <div class="student-level" style="${lvlCls};font-weight:600;">${levelLabels[s.level]}</div>
-      </div>
-    </div>`;
-  }).join('');
+    </div>
+  `).join('');
 }
 
 function buildProfeCourses() {

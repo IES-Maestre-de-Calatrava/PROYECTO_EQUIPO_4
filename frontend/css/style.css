@@ -28,7 +28,7 @@
   --transition:    all .28s cubic-bezier(.4,0,.2,1);
 }
 
-/* ── MODO OSCURO TOTAL (REVISADO v7.0) ── */
+/* ── MODO OSCURO TOTAL (REVISADO v12.0) ── */
 
 body.dark-mode {
     --bg: #0f172a !important; 
@@ -39,123 +39,104 @@ body.dark-mode {
     --primary-dark: #a5b4fc !important;
 }
 
-/* 1. Fondo base */
 body.dark-mode {
     background-color: var(--bg) !important;
     color: var(--text-main) !important;
 }
 
-/* 2. ARREGLO ESPECÍFICO: NOTAS, ICONOS Y STATUS (Nuevos de tus capturas) */
-
-/* Tarjeta de Apuntes/Notas */
-body.dark-mode #activity-notes-wrap,
-body.dark-mode .notes-card {
-    background-color: var(--white) !important;
-    background-image: none !important;
-    border: 1px solid var(--border) !important;
+/* 1. ARREGLO ESPECÍFICO: BUSCADOR (bg-light, border-start-0 y bi-search) */
+body.dark-mode .bg-light {
+    background-color: #0f172a !important; /* Fondo más profundo para el input */
+    color: #ffffff !important;
 }
 
-body.dark-mode #activity-notes-wrap textarea,
-body.dark-mode #activity-notes-wrap .notes-content {
-    background-color: #0f172a !important;
+body.dark-mode .form-control {
+    background-color: #1e293b !important;
     color: #ffffff !important;
     border-color: var(--border) !important;
 }
 
-/* Icono de Actividad (El cuadro morado/azul) */
+/* El icono de la lupa */
+body.dark-mode .bi-search,
+body.dark-mode .input-group-text {
+    background-color: #1e293b !important;
+    color: #a5b4fc !important; /* Lavanda para que resalte */
+    border-color: var(--border) !important;
+}
+
+/* Placeholder del buscador */
+body.dark-mode .form-control::placeholder {
+    color: #94a3b8 !important;
+}
+
+/* 2. ARREGLO PARA "row bg-white" y Contenedores */
+body.dark-mode .row.bg-white,
+body.dark-mode .bg-white {
+    background-color: var(--white) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border) !important;
+}
+
+/* 3. TABLAS (Cabeceras y filas) */
+body.dark-mode .table, 
+body.dark-mode table {
+    background-color: var(--white) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+}
+
+body.dark-mode thead, 
+body.dark-mode th {
+    background-color: #1e293b !important;
+    color: #a5b4fc !important;
+    border-bottom: 2px solid var(--border) !important;
+}
+
+/* 4. ACTIVITY ICON, NOTES & STATUS */
 body.dark-mode .activity-icon {
-    background-color: rgba(165, 180, 252, 0.2) !important; /* Lavanda suave traslúcido */
+    background-color: rgba(165, 180, 252, 0.15) !important;
     color: #a5b4fc !important;
     border: 1px solid rgba(165, 180, 252, 0.3) !important;
 }
 
-/* Status (Pendiente, etc.) */
-body.dark-mode .activity-status,
-body.dark-mode .status-pending {
-    background-color: #334155 !important;
-    color: #fbbf24 !important; /* Amarillo/Naranja para "Pendiente" sea legible */
-    border: 1px solid #475569 !important;
+body.dark-mode #activity-notes-wrap,
+body.dark-mode #activity-notes-wrap textarea {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    border: 1px solid var(--border) !important;
 }
 
-/* 3. MOTIVATIONAL BANNER Y NIVELES */
+body.dark-mode .activity-status {
+    background-color: #334155 !important;
+    color: #fbbf24 !important;
+}
+
+/* 5. BANNER MOTIVACIONAL Y OTROS */
 body.dark-mode #motivational-banner,
 body.dark-mode .motivational-banner,
-body.dark-mode [class*="nivel-card"] {
+body.dark-mode .card {
     background-color: var(--white) !important;
     background-image: none !important;
     border: 1px solid var(--border) !important;
 }
 
-body.dark-mode #motivational-banner *,
-body.dark-mode .msg-text, 
-body.dark-mode #motivational-msg {
-    color: #ffffff !important;
-}
+/* 6. LOGOS Y BANDERAS (Inline Styles) */
+body.dark-mode [style*="color:#002654"] { color: #60a5fa !important; }
+body.dark-mode [style*="color:#ED2939"] { color: #fb7185 !important; }
 
-/* 4. BADGES DE CURSOS */
-body.dark-mode .course-level-badge,
-body.dark-mode .badge {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-/* 5. LOGOS Y COLORES FRANCESES (Inline Styles) */
-body.dark-mode [style*="color:#002654"], 
-body.dark-mode [style*="color: #002654"] { color: #60a5fa !important; }
-body.dark-mode [style*="color:#ED2939"],
-body.dark-mode [style*="color: #ED2939"] { color: #fb7185 !important; }
-
-/* 6. TARJETAS Y ESTRUCTURA */
-body.dark-mode .card,
-body.dark-mode .stat-card,
-body.dark-mode .course-card,
-body.dark-mode .sidebar,
-body.dark-mode .app-navbar,
-body.dark-mode .main-container,
-body.dark-mode header,
-body.dark-mode nav {
-    background-color: var(--white) !important;
-    color: var(--text-main) !important;
-    border-color: var(--border) !important;
-}
-
-/* 7. TÍTULOS Y NÚMEROS */
-body.dark-mode h1, 
-body.dark-mode h2, 
-body.dark-mode h3,
-body.dark-mode h4,
-body.dark-mode .text-primary,
-body.dark-mode .numbers, 
-body.dark-mode [class*="title"],
-body.dark-mode [class*="purple"] {
+/* 7. TEXTOS Y TÍTULOS */
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4,
+body.dark-mode .text-primary, body.dark-mode .numbers, 
+body.dark-mode [class*="title"], body.dark-mode [class*="purple"] {
     color: #a5b4fc !important;
 }
 
-/* 8. INPUTS Y TABLAS */
-body.dark-mode input, 
-body.dark-mode textarea, 
-body.dark-mode select,
-body.dark-mode .form-control,
-body.dark-mode .table,
-body.dark-mode table,
-body.dark-mode th, 
-body.dark-mode td {
-    background-color: #1e293b !important;
-    color: var(--text-main) !important;
-    border-color: var(--border) !important;
-}
-
-/* 9. TEXTOS SECUNDARIOS */
-body.dark-mode .text-muted,
-body.dark-mode .text-secondary,
-body.dark-mode p,
-body.dark-mode label,
-body.dark-mode .dash-sub,
-body.dark-mode span:not([style*="color"]) {
+body.dark-mode .text-muted, body.dark-mode .text-secondary,
+body.dark-mode p, body.dark-mode label, body.dark-mode .dash-sub {
     color: var(--text-muted) !important;
 }
 
+/* Iconos generales */
 body.dark-mode i:not(.no-dark) {
     color: #a5b4fc !important;
 }
