@@ -955,87 +955,9 @@ function buildProfeDashboard() {
 
 // En script.js
 
-/* --- FUNCIONES DE FILTRADO PARA PROFESOR --- */
-
 function buildStudents() {
-    const listContainer = document.getElementById('students-list');
-    if (!listContainer) return;
-
-    // Obtenemos los valores de los filtros que sí existen
-    const nameQuery = document.getElementById('filter-name')?.value.toLowerCase() || "";
-    const courseFilter = document.getElementById('filter-course')?.value || "";
-    const sortFilter = document.getElementById('filter-sort')?.value || "desc";
-
-    // Filtramos la lista MOCK_STUDENTS
-    let filtered = MOCK_STUDENTS.filter(s => {
-        const matchName = s.name.toLowerCase().includes(nameQuery);
-        const matchCourse = courseFilter === "" || s.course === courseFilter;
-        // El filtro de nivel ya no se aplica aquí
-        return matchName && matchCourse;
-    });
-
-    // Ordenamos
-    if (sortFilter === 'desc') {
-        filtered.sort((a, b) => b.points - a.points);
-    } else if (sortFilter === 'asc') {
-        filtered.sort((a, b) => a.points - b.points);
-    } else if (sortFilter === 'name') {
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-    }
-
-    // Renderizamos la tabla
-    if (filtered.length === 0) {
-        listContainer.innerHTML = '<div class="p-3 text-center text-muted">No se encontraron alumnos con estos filtros.</div>';
-        return;
-    }
-
-    let html = `
-    <div class="table-responsive card-table">
-        <table class="table align-middle mb-0">
-            <thead>
-                <tr>
-                    <th>Alumno</th>
-                    <th>Curso</th>
-                    <th>Puntos</th>
-                    <th>Ejercicios</th>
-                    <th>Última conexión</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>`;
-
-    filtered.forEach(s => {
-        html += `
-        <tr>
-            <td>
-                <div class="d-flex align-items-center">
-                    <div class="avatar-sm me-2" style="background:${s.color}; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:12px; font-weight:bold;">
-                        ${s.initials}
-                    </div>
-                    <div>
-                        <div class="fw-bold" style="font-size:0.9rem;">${s.name}</div>
-                    </div>
-                </div>
-            </td>
-            <td><span class="badge bg-light text-dark border">${s.course}</span></td>
-            <td><span class="fw-bold text-primary">${s.points.toLocaleString()}</span></td>
-            <td>${s.exercises}</td>
-            <td class="text-muted" style="font-size:0.8rem;">${s.lastSeen}</td>
-            <td>
-                <button class="btn btn-sm btn-outline-secondary" onclick="showToastAlert('Ver perfil de ${s.name}', 'info')">
-                    <i class="bi bi-eye"></i>
-                </button>
-            </td>
-        </tr>`;
-    });
-
-    html += `</tbody></table></div>`;
-    listContainer.innerHTML = html;
-}
-
-// Esta es la función que llaman tus inputs en el HTML (oninput/onchange)
-function applyStudentFilters() {
-    buildStudents();
+  // Esta función ahora solo llama a la aplicación de filtros inicial
+  applyStudentFilters();
 }
 
 function applyStudentFilters() {
