@@ -1,11 +1,35 @@
 const API_GRUPOS = "http://192.168.150.185:8085/api/grupos";
 
+import { getAllAlumnos } from '../GET/getAlumnos.js';
+
 export class PutGestionGrupos {
     async crearGrupo(datosGrupo, usuarioActual = this.#getUsuarioActual()) {
         this.#validarProfesor(usuarioActual);
 
         const grupo = this.#normalizarGrupo(datosGrupo, usuarioActual);
         return await this.#postJson(API_GRUPOS, grupo);
+    }
+
+    async obtenerListaAlumnos() {
+        return await getAllAlumnos();
+    }
+
+    async añadirAlumnoAGrupo(idGrupo, idAlumno, usuarioActual = this.#getUsuarioActual()) {
+        this.#validarProfesor(usuarioActual);
+
+        const url = `${API_GRUPOS}/${idGrupo}/alumnos`;
+        const datos = { idAlumno: Number(idAlumno) };
+
+        return await this.#putJson(url, datos);
+    }
+
+    async enviarInvitacion(idAlumno, idGrupo, usuarioActual = this.#getUsuarioActual()) {
+        this.#validarProfesor(usuarioActual);
+
+        const url = `${API_GRUPOS}/${idGrupo}/alumnos/${idAlumno}/invitacion`;
+        const datos = { idAlumno: Number(idAlumno), idGrupo: Number(idGrupo) };
+
+        return await this.#putJson(url, datos);
     }
 
     esProfesor(usuarioActual = this.#getUsuarioActual()) {
@@ -70,6 +94,30 @@ export class PutGestionGrupos {
 
         const response = await fetch(url, {
             method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(datos)
+        });
+
+        const text = await response.text();
+
+        if (!response.ok) {
+            throw new Error(this.#crearMensajeError(response.status, text));
+        }
+
+        if (!text) {
+            return true;
+        }
+
+        return JSON.parse(text);
+    }
+
+    async #putJson(url, datos) {
+        console.log("Enviando peticion PUT grupo:", url, datos);
+
+        const response = await fetch(url, {
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json"
             },

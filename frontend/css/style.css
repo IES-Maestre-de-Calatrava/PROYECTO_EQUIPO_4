@@ -1064,3 +1064,176 @@ body.dark-mode .lb-last-updated { background: #0f172a; border-color: #334155; }
   .lb-list-item { padding: .65rem .75rem; gap: .6rem; }
   .lb-page-header { flex-direction: column; align-items: flex-start; }
 }
+
+/* =====================================================
+   GESTIÓN DE GRUPOS — ESTILOS DEL PANEL
+===================================================== */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.container h1 {
+  color: #333;
+  border-bottom: 3px solid #0066cc;
+  padding-bottom: 10px;
+}
+
+.container h2 {
+  color: #0066cc;
+  margin-top: 30px;
+}
+
+.section {
+  margin-bottom: 30px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  border-left: 4px solid #0066cc;
+}
+
+.control-group {
+  margin-bottom: 15px;
+}
+
+.section label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+.section input,
+.section select {
+  padding: 8px;
+  margin: 5px 0;
+  width: 300px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.section button {
+  margin: 5px 5px 5px 0;
+  padding: 10px 15px;
+  cursor: pointer;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.section button:hover {
+  background-color: #0052a3;
+}
+
+.section button.danger {
+  background-color: #d32f2f;
+}
+
+.section button.danger:hover {
+  background-color: #b71c1c;
+}
+
+.section button.success {
+  background-color: #388e3c;
+}
+
+.section button.success:hover {
+  background-color: #2e7d32;
+}
+
+.section pre {
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+  padding: 12px;
+  white-space: pre-wrap;
+  border-radius: 4px;
+  overflow-x: auto;
+  max-height: 400px;
+}
+
+.section .error {
+  color: #d32f2f;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.section .ok {
+  color: #388e3c;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #e8f5e9;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.section .info {
+  color: #1976d2;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.grupo-item {
+  padding: 10px;
+  margin: 5px 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.grupo-item:hover {
+  background-color: #e3f2fd;
+  border-color: #0066cc;
+}
+
+.grupo-item.selected {
+  background-color: #0066cc;
+  color: white;
+  border-color: #0066cc;
+}
+
+#listaGrupos {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .section input,
+  .section select {
+    width: 100%;
+  }
+}
+
+.container hr {
+  border: none;
+  border-top: 2px solid #ddd;
+  margin: 20px 0;
+}
