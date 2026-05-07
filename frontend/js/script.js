@@ -956,8 +956,16 @@ function appendBubble(text, sent, time) {
 
 /* ─── SETTINGS ─── */
 function toggleDarkMode(on) {
-  document.body.classList.toggle('dark-mode', on);
-  try { localStorage.setItem('lf_darkmode', on ? '1' : '0'); } catch(e) {}
+  const isDark = (typeof on === 'boolean') ? on : !document.body.classList.contains('dark-mode');
+  document.body.classList.toggle('dark-mode', isDark);
+  try { localStorage.setItem('lf_darkmode', isDark ? '1' : '0'); } catch(e) {}
+  const toggle = document.getElementById('dark-mode-toggle');
+  if (toggle) toggle.checked = isDark;
+  const loginBtn = document.getElementById('login-dark-btn');
+  if (loginBtn) {
+    loginBtn.innerHTML = isDark ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
+    loginBtn.title = isDark ? 'Modo claro' : 'Modo oscuro';
+  }
 }
 
 function changePassword() {
@@ -1511,19 +1519,16 @@ function doLogout() {
     // 2. Redirigimos al login
     window.location.href = 'login.html';
 }
-// 1. Función para cambiar el modo oscuro y GUARDARLO
-function toggleDarkMode() {
-    const isDark = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
-}
-
-// 2. Al cargar la página, comprobar si estaba activado
-(function checkDarkModeOnLoad() {
-    const darkModeStatus = localStorage.getItem('darkMode');
-    if (darkModeStatus === 'enabled') {
-        document.body.classList.add('dark-mode');
-        // Si tienes un checkbox/switch en la UI, márcalo como activo también:
-        const darkModeToggle = document.getElementById('dark-mode-toggle'); 
-        if (darkModeToggle) darkModeToggle.checked = true;
+// Inicializar dark mode al cargar (unificado)
+(function initDarkMode() {
+    const saved = localStorage.getItem('lf_darkmode');
+    const isDark = saved === '1';
+    if (isDark) document.body.classList.add('dark-mode');
+    const toggle = document.getElementById('dark-mode-toggle');
+    if (toggle) toggle.checked = isDark;
+    const loginBtn = document.getElementById('login-dark-btn');
+    if (loginBtn) {
+        loginBtn.innerHTML = isDark ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
+        loginBtn.title = isDark ? 'Modo claro' : 'Modo oscuro';
     }
 })();

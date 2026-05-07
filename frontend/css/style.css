@@ -142,6 +142,32 @@ body.dark-mode i:not(.no-dark) {
     color: #a5b4fc !important;
 }
 
+
+/* ── DARK MODE: LOGIN CARD ── */
+body.dark-mode #screen-login,
+body.dark-mode #screen-register {
+  background: linear-gradient(135deg, #020817 0%, #0f172a 55%, #1e293b 100%) !important;
+}
+body.dark-mode .login-card {
+  background: #1e293b !important;
+  border: 1px solid #334155;
+  box-shadow: 0 10px 40px rgba(0,0,0,.5) !important;
+}
+body.dark-mode .login-subtitle,
+body.dark-mode .remember-me {
+  color: #94a3b8 !important;
+}
+body.dark-mode .form-label { color: #cbd5e1 !important; }
+body.dark-mode .form-control {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+body.dark-mode .form-control::placeholder { color: #475569 !important; }
+body.dark-mode .form-control:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(26,112,193,.25) !important;
+}
 /* ── FIN MODO OSCURO ── */
 
 /* =============================================
