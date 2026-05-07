@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Gestion Grupos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 24px;
+        }
+
+        button {
+            margin: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        input {
+            margin: 4px;
+            padding: 7px;
+            width: 280px;
+        }
+
+        label {
+            display: block;
+            margin-top: 8px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 12px;
+            white-space: pre-wrap;
+        }
+
+        .error {
+            color: #b00020;
+            font-weight: bold;
+        }
+
+        .ok {
+            color: #0a7a22;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Test Gestion Grupos</h1>
+
+    <h2>GET grupos</h2>
+    <button id="btnGrupos">Obtener todos los grupos</button>
+
+    <label for="buscarIdGrupo">ID grupo</label>
+    <input type="number" id="buscarIdGrupo" placeholder="ID grupo">
+    <button id="btnGrupoId">Buscar grupo por ID</button>
+
+    <hr>
+
+    <h2>Crear grupo como profesor</h2>
+
+    <button id="btnSesionProfesor">Simular sesion profesor</button>
+    <button id="btnBorrarSesion">Borrar sesion</button>
+
+    <label for="idGrupo">ID grupo nuevo</label>
+    <input type="number" id="idGrupo">
+
+    <label for="nombreGrupo">Nombre grupo</label>
+    <input type="text" id="nombreGrupo" value="Grupo prueba">
+
+    <label for="idCentro">ID centro</label>
+    <input type="number" id="idCentro" value="1">
+
+    <label for="idProfesor">ID profesor</label>
+    <input type="number" id="idProfesor" value="2">
+
+    <label for="codigo">Codigo opcional</label>
+    <input type="text" id="codigo" placeholder="Opcional">
+
+    <div>
+        <button id="btnCrearGrupo">Crear grupo con API</button>
+    </div>
+
+    <p id="estado"></p>
+    <pre id="resultado">Pulsa un boton para probar la API de grupos.</pre>
+
+    <script type="module">
+        import { getAllGrupos, getGrupoById } from "../../js/REST/GET/getGrupos.js";
+        import { gestionGruposPut } from "../../js/REST/PUT/putGestionGrupos.js";
+
+        const estado = document.getElementById("estado");
+        const resultado = document.getElementById("resultado");
+
+        document.getElementById("idGrupo").value = Math.floor(Date.now() / 1000);
+
+        async function ejecutarPeticion(callback, mensajeCorrecto = "Conexion correcta") {
+            estado.className = "";
+            estado.textContent = "Cargando...";
+            resultado.textContent = "";
+
+            try {
+                const datos = await callback();
+                estado.className = "ok";
+                estado.textContent = mensajeCorrecto;
+                resultado.textContent = JSON.stringify(datos, null, 2);
+            } catch (error) {
+                estado.className = "error";
+                estado.textContent = "Error en la peticion";
+                resultado.textContent = error.message;
+                console.error(error);
+            }
+        }
+
+        function obtenerProfesorActual() {
+            const idProfesor = Number(document.getElementById("idProfesor").value);
+
+            return {
+                id: idProfesor,
+                idProfesor,
+                rol: "PROFESOR",
+                role: "profesor"
+            };
+        }
+
+        document.getElementById("btnGrupos").addEventListener("click", () => {
+            ejecutarPeticion(() => getAllGrupos());
+        });
+
+        document.getElementById("btnGrupoId").addEventListener("click", () => {
+            const id = document.getElementById("buscarIdGrupo").value.trim();
+
+            if (!id) {
+                estado.className = "error";
+                estado.textContent = "Error en la peticion";
+                resultado.textContent = "Introduce un ID de grupo.";
+                return;
+            }
+
+            ejecutarPeticion(() => getGrupoById(id));
+        });
+
+        document.getElementById("btnSesionProfesor").addEventListener("click", () => {
+            const profesor = obtenerProfesorActual();
+
+            localStorage.setItem("usuario", JSON.stringify(profesor));
+            localStorage.setItem("lf_session", JSON.stringify({
+                email: "profesor@test.com",
+                id: profesor.id,
+                idProfesor: profesor.idProfesor,
+                role: "profesor"
+            }));
+
+            estado.className = "ok";
+            estado.textContent = "Sesion de profesor guardada";
+            resultado.textContent = "Ahora puedes crear un grupo.";
+        });
+
+        document.getElementById("btnBorrarSesion").addEventListener("click", () => {
+            localStorage.removeItem("usuario");
+            sessionStorage.removeItem("usuario");
+            localStorage.removeItem("lf_session");
+            sessionStorage.removeItem("lf_session");
+
+            estado.className = "ok";
+            estado.textContent = "Sesion borrada";
+            resultado.textContent = "Si intentas crear un grupo ahora, debe bloquearse por permisos.";
+        });
+
+        document.getElementById("btnCrearGrupo").addEventListener("click", () => {
+            const datosGrupo = {
+                idGrupo: Number(document.getElementById("idGrupo").value),
+                nombre: document.getElementById("nombreGrupo").value.trim(),
+                idCentro: Number(document.getElementById("idCentro").value),
+                idProfesor: Number(document.getElementById("idProfesor").value),
+                codigo: document.getElementById("codigo").value.trim() || null
+            };
+
+            ejecutarPeticion(
+                () => gestionGruposPut.crearGrupo(datosGrupo, obtenerProfesorActual()),
+                "Grupo enviado a la API"
+            );
+        });
+    </script>
+</body>
+
+</html>

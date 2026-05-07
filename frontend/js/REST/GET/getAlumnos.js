@@ -1,14 +1,14 @@
-const API = "http://192.168.150.185:8085/alumno/";
+const API = "http://192.168.150.185:8085/alumno";
 
-export async function getAllalumnoes(){
+export async function getAllAlumnos(){
     const response = await fetch(`${API}/find`);
     const alumnos = await response.json();
 
     return alumnos;
 }
 
-export async function getalumnoById(id){
-    const response = await fetch(`${API}find/${id}`);
+export async function getAlumnoById(id){
+    const response = await fetch(`${API}/find/${id}`);
     const alumno = await response.json();
 
     return alumno;
