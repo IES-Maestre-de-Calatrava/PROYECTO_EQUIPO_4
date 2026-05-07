@@ -18,6 +18,6 @@ public interface ConexionRepository extends JpaRepository<Conexion, Long> {
 
     Optional<Conexion> findByidsesion(String correo);
 
-    @Query("SELECT c FROM Conexion c WHERE c.idalumno = :idalumno")
+    @Query(value = "SELECT * FROM Conexion WHERE id_alumno = :idalumno ORDER BY id_conexion DESC LIMIT 1", nativeQuery = true)
     Optional<Conexion> buscarPorIdAlumno(@Param("idalumno") Long idAlumno);
 }

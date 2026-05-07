@@ -50,7 +50,7 @@ public class AuthController {
         if (alumno != null && alumno.getContrasena().equals(contrasena)) {
             registrarConexion(alumno);
 
-            Conexion conexion = conexionRepository.findByIdAlumno(alumno.getIdAlumno()).orElse(null);
+            Conexion conexion = conexionRepository.buscarPorIdAlumno(alumno.getIdAlumno()).orElse(null);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("id",        alumno.getIdAlumno());
@@ -69,7 +69,7 @@ public class AuthController {
 
         if (profesor != null && profesor.getContrasena().equals(contrasena)) {
             registrarConexion(profesor);
-            Conexion conexion = conexionRepository.findByIdAlumno(profesor.getIdProfesor()).orElse(null);
+            Conexion conexion = conexionRepository.buscarPorIdAlumno(profesor.getIdProfesor()).orElse(null);
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("id",        profesor.getIdProfesor());
