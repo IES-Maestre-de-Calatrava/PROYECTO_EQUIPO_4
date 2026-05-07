@@ -237,6 +237,18 @@ body.dark-mode i:not(.no-dark) {
 .remember-me { display:flex; align-items:center; gap:.5rem; font-size:.83rem; color:var(--text-muted); cursor:pointer; }
 
 /* =============================================
+   REGISTER SCREEN
+============================================= */
+
+#screen-register {
+  min-height:100vh;
+  background:linear-gradient(135deg,#003d7a 0%,#0055A4 55%,#1a7fd4 100%);
+  align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+  display:flex !important;
+}
+
+/* =============================================
    MAIN LAYOUT
 ============================================= */
 #screen-app { min-height:100vh; }
