@@ -280,6 +280,40 @@ body.dark-mode i:not(.no-dark) {
 .user-role-pill.profesor { background:var(--gold-light); color:var(--gold); }
 .user-role-pill.director { background:#ede9fe; color:#6d28d9; }
 
+.notification-btn {
+  position:relative; width:40px; height:40px; border-radius:50%;
+  border:1px solid var(--border); background:var(--white);
+  color:var(--primary); display:flex; align-items:center; justify-content:center;
+  font-size:1.05rem; cursor:pointer; transition:var(--transition);
+}
+.notification-btn:hover { background:var(--primary-light); }
+.notification-badge {
+  position:absolute; top:8px; right:8px; width:8px; height:8px;
+  border-radius:50%; background:var(--secondary); box-shadow:0 0 0 2px var(--white);
+}
+.profile-dropdown {
+  position:relative; display:flex; align-items:center; gap:.65rem;
+  padding:.4rem .6rem; border-radius:999px; cursor:pointer;
+  background:rgba(15,23,42,.03); transition:var(--transition);
+}
+.profile-dropdown:hover { background:rgba(15,23,42,.06); }
+.profile-summary { display:flex; flex-direction:column; align-items:flex-start; min-width:0; }
+.profile-dropdown-caret { font-size:.85rem; color:var(--text-muted); transition:var(--transition); }
+.profile-menu {
+  display:none; position:absolute; right:0; top:calc(100% + 10px);
+  min-width:180px; background:var(--white); border:1px solid var(--border);
+  border-radius:14px; box-shadow:var(--shadow-lg); padding:.45rem 0;
+  z-index:200; flex-direction:column;
+}
+.profile-menu.active { display:flex; }
+.profile-menu button {
+  border:none; background:none; width:100%; text-align:left;
+  padding:.75rem 1rem; font-size:.9rem; color:var(--text-main);
+  cursor:pointer; transition:var(--transition);
+}
+.profile-menu button:hover { background:var(--primary-light); color:var(--primary); }
+.profile-dropdown.active .profile-dropdown-caret { transform:rotate(180deg); }
+
 .app-layout { display:flex; min-height:calc(100vh - 61px); }
 .sidebar {
   width:240px; min-width:240px; background:var(--white);

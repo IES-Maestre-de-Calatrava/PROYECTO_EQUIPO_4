@@ -32,14 +32,22 @@
     </div>
     <div class="navbar-user">
       <div class="timer-display" id="global-timer"><i class="bi bi-stopwatch-fill"></i> <span id="timer-val">00:00</span></div>
-      <div class="user-avatar" id="nav-avatar">--</div>
-      <div>
-        <div class="user-name" id="nav-username">Usuario</div>
-        <div class="user-role-pill" id="nav-role-pill">Alumno</div>
+      <button class="btn-icon notification-btn" id="notification-btn" onclick="showNotifications(event)" aria-label="Notificaciones" title="Notificaciones">
+        <i class="bi bi-bell-fill"></i>
+        <span class="notification-badge" id="notification-badge"></span>
+      </button>
+      <div class="profile-dropdown" id="profile-dropdown" onclick="toggleProfileMenu(event)" tabindex="0" role="button" aria-expanded="false" aria-haspopup="true">
+        <div class="user-avatar" id="nav-avatar">--</div>
+        <div class="profile-summary">
+          <div class="user-name" id="nav-username">Usuario</div>
+          <div class="user-role-pill" id="nav-role-pill">Alumno</div>
+        </div>
+        <i class="bi bi-chevron-down profile-dropdown-caret"></i>
+        <div class="profile-menu" id="profile-menu" onclick="event.stopPropagation()">
+          <button type="button" onclick="openProfileSettings()">Mi perfil</button>
+          <button type="button" onclick="doLogout()">Cerrar sesión</button>
+        </div>
       </div>
-      <button class="btn btn-sm btn-outline-secondary ms-2" onclick="doLogout()" style="border-radius:8px;font-size:.8rem;">
-  <i class="bi bi-box-arrow-right"></i>
-</button>
     </div>
   </nav>
 
@@ -50,7 +58,7 @@
 
       <div id="sidebar-alumno">
         <button class="sidebar-item active" onclick="showPanel('dashboard')"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
-        <button class="sidebar-item" onclick="showPanel('courses')"><i class="bi bi-book-fill"></i> Cursos</button>
+        <button class="sidebar-item" onclick="showPanel('courses')"><i class="bi bi-book-fill"></i>Mis Cursos</button>
         <div class="sidebar-divider"></div>
         <button class="sidebar-item" onclick="showPanel('leaderboard')"><i class="bi bi-trophy-fill"></i> Leaderboard</button>
         <button class="sidebar-item" onclick="showPanel('progress')"><i class="bi bi-bar-chart-fill"></i> Mi progreso</button>
@@ -597,6 +605,33 @@
     <div class="d-flex gap-2 justify-content-end">
       <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-create-user')">Cancelar</button>
       <button class="btn-primary-custom" onclick="createUser()"><i class="bi bi-person-plus-fill me-1"></i>Crear usuario</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-profile">
+  <div class="modal-box">
+    <h5>Mi perfil</h5>
+    <div class="mb-3">
+      <label class="form-label">Nombre completo</label>
+      <input type="text" class="form-control" id="profile-name" placeholder="Tu nombre completo"/>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Correo electrónico</label>
+      <input type="email" class="form-control" id="profile-email" placeholder="tu@ejemplo.com"/>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Contraseña nueva</label>
+      <input type="password" class="form-control" id="profile-password" placeholder="Deja en blanco para mantener la actual"/>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Confirmar contraseña</label>
+      <input type="password" class="form-control" id="profile-password-confirm" placeholder="Repite la contraseña"/>
+    </div>
+    <div id="profile-msg" class="d-none mb-2 alert py-2 px-3" style="font-size:.85rem;border-radius:8px;"></div>
+    <div class="d-flex gap-2 justify-content-end">
+      <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-profile')">Cancelar</button>
+      <button class="btn-primary-custom" onclick="saveProfileChanges()">Guardar cambios</button>
     </div>
   </div>
 </div>
