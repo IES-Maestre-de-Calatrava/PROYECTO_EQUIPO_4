@@ -46,4 +46,11 @@ public class ConexionController {
 
         return ResponseEntity.ok(conexion);
     }
+
+    @GetMapping("/find/{uuid}")
+    public ResponseEntity<ConexionDTO> getConexionByUUID(@PathVariable(value = "id_sesion" String id_sesion)) throws ConexionNotFoundException {
+        ConexionDTO conexion = repository.getConexionByUUID(id_sesion)
+            .map(ConexionMapper::toDTO)
+            .orElseThrow(() -> new ConexionNotFoundException(id_sesion))
+    }
 }

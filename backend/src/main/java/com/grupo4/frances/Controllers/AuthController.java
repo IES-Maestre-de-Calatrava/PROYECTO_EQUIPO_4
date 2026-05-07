@@ -32,12 +32,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credenciales) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String, String> credenciales) {
 
         String correo    = credenciales.get("correo");
         String contrasena = credenciales.get("contrasena");
+        String UUID = credenciales.get("id_sesion");
 
-        if (correo == null || contrasena == null) {
+        if (correo == null || contrasena == null || id_sesion == null) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Correo y contraseña son obligatorios"));
         }
@@ -55,6 +56,7 @@ public class AuthController {
             respuesta.put("rol",       "ALUMNO");
             respuesta.put("nivel",     alumno.getNivel());
             respuesta.put("rango",     alumno.getRango());
+            respuesta.put("id_sesion", conexion.)
             return ResponseEntity.ok(respuesta);
         }
 

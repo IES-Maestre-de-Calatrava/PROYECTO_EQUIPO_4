@@ -21,15 +21,18 @@ public class ConexionDTO{
 	
     private String salida;
 
+	private String id_sesion
+
 	public ConexionDTO(){
 
 	}
 
-    public ConexionDTO(Long idConexion, Long idAlumno, String entrada, String salida){
+    public ConexionDTO(Long idConexion, Long idAlumno, String entrada, String salida, String id_sesion){
 		this.idConexion = idConexion;
         this.idAlumno=idAlumno;
         this.entrada=entrada;
         this.salida=salida;
+		this.id_sesion = id_sesion;
     }
 
 	public Long getIdConexion() {
