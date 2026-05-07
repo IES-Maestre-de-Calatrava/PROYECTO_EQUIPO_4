@@ -12,6 +12,10 @@
     <div class="container">
         <h1>🎓 Gestión de Grupos</h1>
 
+        <div style="text-align: center; margin-bottom: 20px; padding: 10px; background: #e3f2fd; border-radius: 8px;">
+            <p style="margin: 0;"><strong>¿Eres alumno?</strong> <a href="alumnoDashboard.html" style="color: #0066cc; text-decoration: none; font-weight: bold;">Accede a tu Panel de Alumno →</a></p>
+        </div>
+
         <!-- SECCIÓN 1: SESIÓN DE USUARIO -->
         <div class="section">
             <h2>👤 Sesión de Usuario</h2>
@@ -313,8 +317,15 @@
                 return;
             }
 
+            // Obtener información del grupo seleccionado
+            const grupoSeleccionado = Array.from(document.querySelectorAll('.grupo-item.selected')).length > 0 ?
+                document.querySelector('.grupo-item.selected').textContent : null;
+
             ejecutarPeticion(
-                () => putAlumnos.enviarInvitacionAlumno(idGrupo, idAlumno),
+                () => putAlumnos.enviarInvitacionAlumno(idGrupo, idAlumno, {
+                    nombre: grupoSeleccionado ? grupoSeleccionado.split(' - ')[1] : `Grupo ${idGrupo}`,
+                    profesor: "Profesor Test"
+                }),
                 "✅ Invitación enviada"
             );
         });
