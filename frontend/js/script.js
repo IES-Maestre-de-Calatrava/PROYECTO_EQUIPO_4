@@ -320,10 +320,9 @@ function openProfileSettings() {
 function populateProfileModal() {
   const user = state.currentUser;
   if (!user) return;
+  document.getElementById('profile-username').value = user.email ? user.email.split('@')[0] : 'usuario';
   document.getElementById('profile-name').value = user.name || '';
   document.getElementById('profile-email').value = user.email || '';
-  document.getElementById('profile-password').value = '';
-  document.getElementById('profile-password-confirm').value = '';
   const msg = document.getElementById('profile-msg');
   if (msg) msg.classList.add('d-none');
 }
@@ -331,23 +330,9 @@ function populateProfileModal() {
 function saveProfileChanges() {
   const name = document.getElementById('profile-name').value.trim();
   const email = document.getElementById('profile-email').value.trim();
-  const password = document.getElementById('profile-password').value.trim();
-  const confirm = document.getElementById('profile-password-confirm').value.trim();
   const msg = document.getElementById('profile-msg');
   if (!name || !email) {
     msg.textContent = 'Nombre y correo son obligatorios.';
-    msg.className = 'alert alert-danger py-2 px-3';
-    msg.classList.remove('d-none');
-    return;
-  }
-  if (password && password.length < 4) {
-    msg.textContent = 'La contraseña debe tener al menos 4 caracteres.';
-    msg.className = 'alert alert-danger py-2 px-3';
-    msg.classList.remove('d-none');
-    return;
-  }
-  if (password && password !== confirm) {
-    msg.textContent = 'Las contraseñas no coinciden.';
     msg.className = 'alert alert-danger py-2 px-3';
     msg.classList.remove('d-none');
     return;
@@ -356,7 +341,6 @@ function saveProfileChanges() {
   if (!user) return;
   user.name = name;
   user.email = email;
-  if (password) user.password = password;
   document.getElementById('nav-avatar').textContent = name.substring(0,2).toUpperCase();
   document.getElementById('nav-username').textContent = name;
   const dashName = document.getElementById('dash-name');
