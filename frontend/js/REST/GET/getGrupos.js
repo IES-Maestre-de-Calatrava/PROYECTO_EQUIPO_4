@@ -13,3 +13,46 @@ export async function getGrupoById(id) {
 
     return grupo;
 }
+
+//si no va borrar el codigo de aqui para abajo
+
+async function renderGrupos() {
+    try {
+        const grupos = await getAllGrupos();
+        const contenedor = document.getElementById("contenedor-tabla");
+
+        let tabla = `
+        <h2 style="text-align: center; color: #333">GRUPOS</h2>
+            <table border="1" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">
+                <thead style="background-color: #f2f2f2;">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Curso</th>
+                        <th>Centro</th>
+                        <th>Nº Alumnos</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        for (let grupo of grupos) {
+            tabla += `
+                <tr>
+                    <td style="padding: 8px; text-align: center;">${grupo.idGrupo}</td>
+                    <td style="padding: 8px;"><strong>${grupo.nombre}</strong></td>
+                    <td style="padding: 8px;">${grupo.curso || '---'}</td>
+                    <td style="padding: 8px;">${grupo.centro || grupo.idCentro || '---'}</td>
+                    <td style="padding: 8px; text-align: center;">${grupo.numAlumnos ?? '---'}</td>
+                </tr>
+            `;
+        }
+
+        tabla += `</tbody></table>`;
+        contenedor.innerHTML = tabla;
+
+    } catch (error) {
+        console.error("Error al obtener los grupos:", error);
+        document.getElementById("contenedor-tabla").innerHTML = "<p>Error al cargar datos.</p>";
+    }
+}
