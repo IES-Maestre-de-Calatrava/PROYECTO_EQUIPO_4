@@ -92,74 +92,63 @@
 
         const API = "http://192.168.150.185:8085/api/grupos";
 
-        // Manejadores de eventos
-        document.getElementById("btnGrupos").addEventListener("click", async () => {
-            try {
-                const resultado = await getAllGrupos();
-                document.getElementById("estado").innerHTML = '<span class="ok">✓ Carga exitosa</span>';
-                document.getElementById("resultado").textContent = JSON.stringify(resultado, null, 2);
-            } catch (error) {
-                document.getElementById("estado").innerHTML = '<span class="error">✗ Error: ' + error.message + '</span>';
-                document.getElementById("resultado").textContent = error.message;
-            }
-        });
+export async function getAllGrupos(){
+    const response = await fetch(`${API}`);
+    const grupos = await response.json();
 
-        document.getElementById("btnGrupoId").addEventListener("click", async () => {
-            const id = document.getElementById("buscarIdGrupo").value;
-            if (!id) {
-                document.getElementById("estado").innerHTML = '<span class="error">✗ Ingresa un ID</span>';
-                return;
-            }
-            try {
-                const resultado = await getGrupoById(id);
-                document.getElementById("estado").innerHTML = '<span class="ok">✓ Grupo encontrado</span>';
-                document.getElementById("resultado").textContent = JSON.stringify(resultado, null, 2);
-            } catch (error) {
-                document.getElementById("estado").innerHTML = '<span class="error">✗ Error: ' + error.message + '</span>';
-                document.getElementById("resultado").textContent = error.message;
-            }
-        });
+    return grupos;
+}
 
-        document.getElementById("btnSesionProfesor").addEventListener("click", () => {
-            const sesion = {
-                id: document.getElementById("idProfesor").value,
-                nombre: "Profesor Test"
-            };
-            localStorage.setItem("sesionProfesor", JSON.stringify(sesion));
-            document.getElementById("estado").innerHTML = '<span class="ok">✓ Sesión simulada</span>';
-        });
+export async function getGrupoById(id) {
+    const response = await fetch(`${API}/${id}`);
+    const grupo = await response.json();
 
-        document.getElementById("btnBorrarSesion").addEventListener("click", () => {
-            localStorage.removeItem("sesionProfesor");
-            document.getElementById("estado").innerHTML = '<span class="ok">✓ Sesión borrada</span>';
-        });
+    return grupo;
+}
 
-        document.getElementById("btnCrearGrupo").addEventListener("click", async () => {
-            const nombreGrupo = document.getElementById("nombreGrupo").value;
-            const idCentro = document.getElementById("idCentro").value;
-            const idProfesor = document.getElementById("idProfesor").value;
-            const codigo = document.getElementById("codigo").value;
+//si no va borrar el codigo de aqui para abajo
 
-            if (!nombreGrupo || !idCentro || !idProfesor) {
-                document.getElementById("estado").innerHTML = '<span class="error">✗ Completa todos los campos</span>';
-                return;
-            }
+async function renderGrupos() {
+    try {
+        const grupos = await getAllGrupos();
+        const contenedor = document.getElementById("contenedor-tabla");
 
-            try {
-                const datosGrupo = {
-                    nombre: nombreGrupo,
-                    idCentro: parseInt(idCentro),
-                    idProfesor: parseInt(idProfesor),
-                    codigo: codigo || null
-                };
-                const resultado = await gestionGruposPut.crearGrupo(datosGrupo);
-                document.getElementById("estado").innerHTML = '<span class="ok">✓ Grupo creado exitosamente</span>';
-                document.getElementById("resultado").textContent = JSON.stringify(resultado, null, 2);
-            } catch (error) {
-                document.getElementById("estado").innerHTML = '<span class="error">✗ Error: ' + error.message + '</span>';
-                document.getElementById("resultado").textContent = error.message;
-            }
-        });
+        let tabla = `
+        <h2 style="text-align: center; color: #333">GRUPOS</h2>
+            <table border="1" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">
+                <thead style="background-color: #f2f2f2;">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Curso</th>
+                        <th>Centro</th>
+                        <th>Nº Alumnos</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        for (let grupo of grupos) {
+            tabla += `
+                <tr>
+                    <td style="padding: 8px; text-align: center;">${grupo.idGrupo}</td>
+                    <td style="padding: 8px;"><strong>${grupo.nombre}</strong></td>
+                    <td style="padding: 8px;">${grupo.curso || '---'}</td>
+                    <td style="padding: 8px;">${grupo.centro || grupo.idCentro || '---'}</td>
+                    <td style="padding: 8px; text-align: center;">${grupo.numAlumnos ?? '---'}</td>
+                </tr>
+            `;
+        }
+
+        tabla += `</tbody></table>`;
+        contenedor.innerHTML = tabla;
+
+    } catch (error) {
+        console.error("Error al obtener los grupos:", error);
+        document.getElementById("contenedor-tabla").innerHTML = "<p>Error al cargar datos.</p>";
+    }
+}
+
     </script>
 </body>
 
