@@ -1,4 +1,4 @@
-const API = "http://localhost:8085/centro";
+const API = "http://192.168.150.185:8085/centro";
 
 export async function getAllCentros(){
     const response = await fetch(`${API}/`);
