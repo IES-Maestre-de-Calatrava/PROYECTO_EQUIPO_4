@@ -1,29 +1,30 @@
 const API = 'http://192.168.150.185:8085/api/auth';
-import {sha256} from '../../Utilidades.js';
+import { sha256 } from '../../Utilidades.js';
 
-export async function postLogin(){
+export async function postLogin() {
     const clave = await sha256(document.getElementById('login-password').value);
     let datosDevueltos = {};
     const datos = {
-        'correo' : document.getElementById('login-email').value,
-        'contrasena' : clave
+        'correo': document.getElementById('login-email').value,
+        'contrasena': clave
     }
     const datosAdicionales = {
-        headers: {'content-type' : 'application/json; charset=UTF-8'},
+        headers: { 'content-type': 'application/json; charset=UTF-8' },
         body: JSON.stringify(datos),
         method: 'POST',
         mode: 'cors'
+    };
+
+    try {
+        const respuesta = await fetch(`${API}/login`, datosAdicionales);
+        if (!respuesta.ok) {
+            console.error('No se ha podido conectar con la base de datos: ' + respuesta.statusText);
+        }
+
+        const datosDevueltos = await respuesta.json();
+        return datosDevueltos;
+    } catch (e) {
+        alert(e.message);
+        return false;
     }
-    await fetch(`${API}/login`, datosAdicionales).then(function(respuesta) {
-            if(respuesta.ok) {
-                return true;
-            } else {
-                throw new Error('No se ha podido conectar con la base de datos' + respuesta.statusText);
-                return false;
-            }
-        }).then(function(data){
-            datosDevueltos = data;
-        }).catch(function(e){
-            alert(e.message);
-        });
 }
