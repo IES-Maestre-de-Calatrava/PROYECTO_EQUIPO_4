@@ -4,98 +4,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Gestion Grupos</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 24px;
-        }
-
-        button {
-            margin: 4px;
-            padding: 8px 12px;
-            cursor: pointer;
-        }
-
-        input {
-            margin: 4px;
-            padding: 7px;
-            width: 280px;
-        }
-
-        label {
-            display: block;
-            margin-top: 8px;
-        }
-
-        pre {
-            background: #f4f4f4;
-            border: 1px solid #ddd;
-            padding: 12px;
-            white-space: pre-wrap;
-        }
-
-        .error {
-            color: #b00020;
-            font-weight: bold;
-        }
-
-        .ok {
-            color: #0a7a22;
-            font-weight: bold;
-        }
-    </style>
+    <title>Gestión de Grupos</title>
+    <link rel="stylesheet" href="../../css/style.css">
 </head>
 
 <body>
-    <h1>Test Gestion Grupos</h1>
+    <div class="container">
+        <h1>🎓 Gestión de Grupos</h1>
 
-    <h2>GET grupos</h2>
-    <button id="btnGrupos">Obtener todos los grupos</button>
+        <!-- SECCIÓN 1: SESIÓN DE USUARIO -->
+        <div class="section">
+            <h2>👤 Sesión de Usuario</h2>
+            <div class="control-group">
+                <button id="btnSesionProfesor">Simular Sesión de Profesor</button>
+                <button id="btnBorrarSesion" class="danger">Cerrar Sesión</button>
+            </div>
+            <p id="estadoSesion" class="info">No hay sesión activa</p>
+        </div>
 
-    <label for="buscarIdGrupo">ID grupo</label>
-    <input type="number" id="buscarIdGrupo" placeholder="ID grupo">
-    <button id="btnGrupoId">Buscar grupo por ID</button>
+        <!-- SECCIÓN 2: VER GRUPOS EXISTENTES -->
+        <div class="section">
+            <h2>📋 Grupos Existentes</h2>
+            <div class="control-group">
+                <button id="btnCargarGrupos" class="success">Cargar Todos los Grupos</button>
+            </div>
+            <div id="listaGrupos"></div>
+        </div>
 
-    <hr>
+        <!-- SECCIÓN 3: BUSCAR GRUPO POR ID -->
+        <div class="section">
+            <h2>🔍 Buscar Grupo por ID</h2>
+            <div class="control-group">
+                <label for="buscarIdGrupo">ID del grupo a buscar</label>
+                <input type="number" id="buscarIdGrupo" placeholder="Ingresa el ID">
+                <button id="btnGrupoId">Buscar</button>
+            </div>
+        </div>
 
-    <h2>Crear grupo como profesor</h2>
+        <!-- SECCIÓN 4: CREAR NUEVO GRUPO -->
+        <div class="section">
+            <h2>➕ Crear Nuevo Grupo</h2>
+            <div class="grid-2">
+                <div>
+                    <label for="idGrupo">ID del grupo (único)</label>
+                    <input type="number" id="idGrupo">
 
-    <button id="btnSesionProfesor">Simular sesion profesor</button>
-    <button id="btnBorrarSesion">Borrar sesion</button>
+                    <label for="nombreGrupo">Nombre del grupo</label>
+                    <input type="text" id="nombreGrupo" value="Grupo prueba">
 
-    <label for="idGrupo">ID grupo nuevo</label>
-    <input type="number" id="idGrupo">
+                    <label for="idCentro">ID del centro</label>
+                    <input type="number" id="idCentro" value="1">
+                </div>
+                <div>
+                    <label for="idProfesor">ID del profesor</label>
+                    <input type="number" id="idProfesor" value="2">
 
-    <label for="nombreGrupo">Nombre grupo</label>
-    <input type="text" id="nombreGrupo" value="Grupo prueba">
+                    <label for="codigo">Código del grupo (opcional)</label>
+                    <input type="text" id="codigo" placeholder="Código único">
+                </div>
+            </div>
+            <button id="btnCrearGrupo" class="success">Crear Grupo</button>
+        </div>
 
-    <label for="idCentro">ID centro</label>
-    <input type="number" id="idCentro" value="1">
+        <!-- SECCIÓN 5: GESTIONAR ALUMNOS EN GRUPO -->
+        <div class="section">
+            <h2>👥 Gestionar Alumnos en Grupo</h2>
+            <div class="control-group">
+                <label for="idGrupoAniadir">ID del grupo para gestionar</label>
+                <input type="number" id="idGrupoAniadir">
+                <button id="btnMostrarAlumnos">Mostrar Lista de Alumnos</button>
+            </div>
 
-    <label for="idProfesor">ID profesor</label>
-    <input type="number" id="idProfesor" value="2">
+            <div id="listaAlumnos" style="display: none;">
+                <label for="selectAlumno">Selecciona un alumno</label>
+                <select id="selectAlumno" size="8" style="width: 300px;"></select>
+                <div style="margin-top: 10px;">
+                    <button id="btnAniadirAlumno" class="success">Añadir al Grupo</button>
+                    <button id="btnEnviarInvitacion" class="success">Enviar Invitación</button>
+                </div>
+            </div>
+        </div>
 
-    <label for="codigo">Codigo opcional</label>
-    <input type="text" id="codigo" placeholder="Opcional">
-
-    <div>
-        <button id="btnCrearGrupo">Crear grupo con API</button>
+        <!-- RESULTADO Y ESTADO -->
+        <hr>
+        <p id="estado"></p>
+        <pre id="resultado">Selecciona una opción para comenzar...</pre>
     </div>
-
-    <p id="estado"></p>
-    <pre id="resultado">Pulsa un boton para probar la API de grupos.</pre>
 
     <script type="module">
         import { getAllGrupos, getGrupoById } from "../../js/REST/GET/getGrupos.js";
         import { gestionGruposPut } from "../../js/REST/PUT/putGestionGrupos.js";
+        import { putAlumnos } from "../../js/REST/PUT/putAlumnos.js";
 
         const estado = document.getElementById("estado");
         const resultado = document.getElementById("resultado");
+        const estadoSesion = document.getElementById("estadoSesion");
+        let grupoSeleccionado = null;
 
         document.getElementById("idGrupo").value = Math.floor(Date.now() / 1000);
 
-        async function ejecutarPeticion(callback, mensajeCorrecto = "Conexion correcta") {
+        async function ejecutarPeticion(callback, mensajeCorrecto = "Operación completada") {
             estado.className = "";
             estado.textContent = "Cargando...";
             resultado.textContent = "";
@@ -107,7 +115,7 @@
                 resultado.textContent = JSON.stringify(datos, null, 2);
             } catch (error) {
                 estado.className = "error";
-                estado.textContent = "Error en la peticion";
+                estado.textContent = "Error en la petición";
                 resultado.textContent = error.message;
                 console.error(error);
             }
@@ -124,23 +132,74 @@
             };
         }
 
-        document.getElementById("btnGrupos").addEventListener("click", () => {
-            ejecutarPeticion(() => getAllGrupos());
+        function actualizarEstadoSesion() {
+            const usuario = localStorage.getItem("usuario") || sessionStorage.getItem("usuario");
+            if (usuario) {
+                const datos = JSON.parse(usuario);
+                estadoSesion.className = "ok";
+                estadoSesion.textContent = `✅ Sesión activa: Profesor ID ${datos.idProfesor}`;
+            } else {
+                estadoSesion.className = "info";
+                estadoSesion.textContent = "❌ No hay sesión activa";
+            }
+        }
+
+        // EVENTO: Cargar todos los grupos
+        document.getElementById("btnCargarGrupos").addEventListener("click", async () => {
+            try {
+                estado.className = "info";
+                estado.textContent = "Cargando grupos...";
+                const grupos = await getAllGrupos();
+                
+                const listaGrupos = document.getElementById("listaGrupos");
+                listaGrupos.innerHTML = "";
+
+                if (!grupos || grupos.length === 0) {
+                    listaGrupos.innerHTML = "<p style='padding: 10px;'>No hay grupos registrados.</p>";
+                    return;
+                }
+
+                grupos.forEach(grupo => {
+                    const div = document.createElement("div");
+                    div.className = "grupo-item";
+                    div.innerHTML = `
+                        <strong>ID: ${grupo.idGrupo}</strong> - ${grupo.nombre} 
+                        <br><small>Centro: ${grupo.idCentro} | Profesor: ${grupo.idProfesor}</small>
+                    `;
+                    div.addEventListener("click", () => {
+                        document.querySelectorAll(".grupo-item").forEach(el => el.classList.remove("selected"));
+                        div.classList.add("selected");
+                        grupoSeleccionado = grupo.idGrupo;
+                        document.getElementById("idGrupoAniadir").value = grupo.idGrupo;
+                    });
+                    listaGrupos.appendChild(div);
+                });
+
+                estado.className = "ok";
+                estado.textContent = `✅ Se cargaron ${grupos.length} grupos`;
+                resultado.textContent = JSON.stringify(grupos, null, 2);
+            } catch (error) {
+                estado.className = "error";
+                estado.textContent = "Error al cargar grupos";
+                resultado.textContent = error.message;
+            }
         });
 
+        // EVENTO: Buscar grupo por ID
         document.getElementById("btnGrupoId").addEventListener("click", () => {
             const id = document.getElementById("buscarIdGrupo").value.trim();
 
             if (!id) {
                 estado.className = "error";
-                estado.textContent = "Error en la peticion";
-                resultado.textContent = "Introduce un ID de grupo.";
+                estado.textContent = "Introduce un ID válido";
+                resultado.textContent = "El campo ID no puede estar vacío.";
                 return;
             }
 
-            ejecutarPeticion(() => getGrupoById(id));
+            ejecutarPeticion(() => getGrupoById(id), "Grupo encontrado");
         });
 
+        // EVENTO: Simular sesión de profesor
         document.getElementById("btnSesionProfesor").addEventListener("click", () => {
             const profesor = obtenerProfesorActual();
 
@@ -152,22 +211,26 @@
                 role: "profesor"
             }));
 
+            actualizarEstadoSesion();
             estado.className = "ok";
-            estado.textContent = "Sesion de profesor guardada";
-            resultado.textContent = "Ahora puedes crear un grupo.";
+            estado.textContent = "✅ Sesión de profesor iniciada";
+            resultado.textContent = "Ahora puedes crear grupos y gestionar alumnos.";
         });
 
+        // EVENTO: Cerrar sesión
         document.getElementById("btnBorrarSesion").addEventListener("click", () => {
             localStorage.removeItem("usuario");
             sessionStorage.removeItem("usuario");
             localStorage.removeItem("lf_session");
             sessionStorage.removeItem("lf_session");
 
+            actualizarEstadoSesion();
             estado.className = "ok";
-            estado.textContent = "Sesion borrada";
-            resultado.textContent = "Si intentas crear un grupo ahora, debe bloquearse por permisos.";
+            estado.textContent = "✅ Sesión cerrada";
+            resultado.textContent = "Se ha cerrado tu sesión.";
         });
 
+        // EVENTO: Crear grupo
         document.getElementById("btnCrearGrupo").addEventListener("click", () => {
             const datosGrupo = {
                 idGrupo: Number(document.getElementById("idGrupo").value),
@@ -179,9 +242,85 @@
 
             ejecutarPeticion(
                 () => gestionGruposPut.crearGrupo(datosGrupo, obtenerProfesorActual()),
-                "Grupo enviado a la API"
+                "✅ Grupo creado exitosamente"
             );
         });
+
+        // EVENTO: Mostrar lista de alumnos
+        document.getElementById("btnMostrarAlumnos").addEventListener("click", async () => {
+            const idGrupo = document.getElementById("idGrupoAniadir").value.trim();
+
+            if (!idGrupo) {
+                estado.className = "error";
+                estado.textContent = "Introduce un ID de grupo";
+                return;
+            }
+
+            try {
+                estado.className = "info";
+                estado.textContent = "Cargando alumnos...";
+                const alumnos = await gestionGruposPut.obtenerListaAlumnos();
+                const select = document.getElementById("selectAlumno");
+                select.innerHTML = "";
+                
+                if (!alumnos || alumnos.length === 0) {
+                    select.innerHTML = "<option>No hay alumnos disponibles</option>";
+                } else {
+                    alumnos.forEach(alumno => {
+                        const option = document.createElement("option");
+                        option.value = alumno.idAlumno;
+                        option.textContent = `${alumno.nombre} ${alumno.apellidos} (ID: ${alumno.idAlumno})`;
+                        select.appendChild(option);
+                    });
+                }
+                
+                document.getElementById("listaAlumnos").style.display = "block";
+                estado.className = "ok";
+                estado.textContent = `✅ Se cargaron ${alumnos?.length || 0} alumnos`;
+                resultado.textContent = JSON.stringify(alumnos, null, 2);
+            } catch (error) {
+                estado.className = "error";
+                estado.textContent = "Error al cargar alumnos";
+                resultado.textContent = error.message;
+            }
+        });
+
+        // EVENTO: Añadir alumno al grupo
+        document.getElementById("btnAniadirAlumno").addEventListener("click", () => {
+            const idGrupo = document.getElementById("idGrupoAniadir").value.trim();
+            const idAlumno = document.getElementById("selectAlumno").value;
+
+            if (!idGrupo || !idAlumno) {
+                estado.className = "error";
+                estado.textContent = "Selecciona grupo y alumno";
+                return;
+            }
+
+            ejecutarPeticion(
+                () => putAlumnos.añadirAlumnoAlGrupo(idGrupo, idAlumno),
+                "✅ Alumno añadido al grupo"
+            );
+        });
+
+        // EVENTO: Enviar invitación
+        document.getElementById("btnEnviarInvitacion").addEventListener("click", () => {
+            const idGrupo = document.getElementById("idGrupoAniadir").value.trim();
+            const idAlumno = document.getElementById("selectAlumno").value;
+
+            if (!idGrupo || !idAlumno) {
+                estado.className = "error";
+                estado.textContent = "Selecciona grupo y alumno";
+                return;
+            }
+
+            ejecutarPeticion(
+                () => putAlumnos.enviarInvitacionAlumno(idGrupo, idAlumno),
+                "✅ Invitación enviada"
+            );
+        });
+
+        // Inicializar estado de sesión al cargar
+        actualizarEstadoSesion();
     </script>
 </body>
 
