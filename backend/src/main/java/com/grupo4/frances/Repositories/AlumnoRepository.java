@@ -21,6 +21,9 @@ public interface AlumnoRepository extends JpaRepository<Alumno, Long> {
     @Query("SELECT a FROM Alumno a WHERE a.correo = :correo")
     Alumno buscarPorCorreo(@Param("correo") String correo);
 
+    @Query(value = "SELECT * FROM VISTA_ALUMNOS_PUNTOS", nativeQuery = true)
+    List<AlumnoPuntosView> findAlumnosPuntos();
+
     Optional<Alumno> findByCorreo(String correo);
 
 }
