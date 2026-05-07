@@ -3,13 +3,8 @@ package com.grupo4.frances.persistence;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 @Entity
 @Table(name="ALUMNO", schema="frances")
 public class Alumno implements java.io.Serializable {
@@ -48,6 +43,15 @@ public class Alumno implements java.io.Serializable {
 
 		@ManyToMany(mappedBy = "alumnos")
     	private Set<Grupo> grupos = new HashSet<>();
+
+		@ManyToMany
+		@JoinTable(
+			name = "ALUMNO_ACTIVIDAD",
+			schema = "frances",
+			joinColumns = @JoinColumn(name = "ID_ALUMNO"),
+			inverseJoinColumns = @JoinColumn(name = "ID_ACTIVIDAD")
+		)
+	private Set<Actividad> actividades = new HashSet<>();
 
 		public Alumno() {
 		}
@@ -153,6 +157,14 @@ public class Alumno implements java.io.Serializable {
 
 		public void setGrupos(Set grupos) {
 			this.grupos = grupos;
+		}
+
+		public Set getActividades(){
+			return actividades;
+		}
+
+		public void setActividades(Set actividades){
+			this.actividades = actividades;
 		}
 
 }
