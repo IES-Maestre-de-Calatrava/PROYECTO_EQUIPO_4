@@ -20,6 +20,7 @@ public class ActividadMapper {
         dto.setFechaEntrega(actividad.getFechaEntrega());
         dto.setPreguntas(actividad.getPreguntas());
         dto.setRespuestas(actividad.getRespuestas());
+        dto.setPuntos(actividad.getPuntos());
 
         return dto;
     }
@@ -38,6 +39,7 @@ public class ActividadMapper {
         actividad.setFechaEntrega(dto.getFechaEntrega());
         actividad.setPreguntas(dto.getPreguntas());
         actividad.setRespuestas(dto.getRespuestas());
+        actividad.setPuntos(dto.getPuntos());
 
         // Manejo del ID para actualizaciones
         if (dto.getIdActividad() != null && dto.getIdActividad() != 0) {
@@ -61,6 +63,7 @@ public class ActividadMapper {
         actividad.setFechaEntrega(dto.getFechaEntrega());
         actividad.setPreguntas(dto.getPreguntas());
         actividad.setRespuestas(dto.getRespuestas());
+        actividad.setPuntos(dto.getPuntos());
 
         return actividad;
     }

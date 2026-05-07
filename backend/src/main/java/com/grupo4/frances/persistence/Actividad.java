@@ -45,6 +45,9 @@ public class Actividad implements java.io.Serializable {
     @Column(name="RESPUESTAS_CORRECTAS")
     private String respuestas;
 
+    @Column(name="PUNTOS")
+    private int puntos;
+
     @ManyToMany
     @JoinTable(
         name = "ACTIVIDAD_GRUPO",
@@ -59,7 +62,7 @@ public class Actividad implements java.io.Serializable {
     }
 
 
-    public Actividad(Long idActividad, String nombre, String dificultad, String idProfesor, String duracion, String fechaInicio, String fechaFin, String fechaEntrega, String preguntas, String respuestas, Set<Grupo> grupos) {
+    public Actividad(Long idActividad, String nombre, String dificultad, String idProfesor, String duracion, String fechaInicio, String fechaFin, String fechaEntrega, String preguntas, String respuestas, Set<Grupo> grupos, int puntos) {
         this.idActividad = idActividad;
         this.nombre = nombre;
         this.dificultad = dificultad;
@@ -71,6 +74,7 @@ public class Actividad implements java.io.Serializable {
         this.preguntas = preguntas;
         this.respuestas = respuestas;
         this.grupos = grupos;
+        this.puntos = puntos;
     }
 
     // Getters y Setters
@@ -160,6 +164,14 @@ public class Actividad implements java.io.Serializable {
 
     public void setRespuestas(String respuestas) {
         this.respuestas = respuestas;
+    }
+
+    public int getPuntos() {
+        return puntos;
+    }
+
+    public void setPuntos(int puntos) {
+        this.puntos = puntos;
     }
 
     public void agregarGrupo(Grupo grupo) {
