@@ -144,6 +144,22 @@ CREATE TABLE ALUMNO_ACTIVIDAD (
     CONSTRAINT FK_AA_ACTIVIDAD FOREIGN KEY (ID_ACTIVIDAD) 
         REFERENCES ACTIVIDAD(ID_ACTIVIDAD) ON DELETE CASCADE
 ) COMMENT = 'Relación entre actividades y alumnos';
+
+-- ======================================================
+-- 10. NOTIFICACIONES
+-- ======================================================
+CREATE TABLE NOTIFICACIONES (
+    ID_NOTIFICACION INT AUTO_INCREMENT COMMENT 'Identificador único de la notificación',
+    ID_ALUMNO INT NOT NULL COMMENT 'ID del alumno al que se dirige la notificación',
+    TITULO VARCHAR(100) NOT NULL COMMENT 'Título breve de la notificación',
+    MENSAJE TEXT NOT NULL COMMENT 'Contenido detallado de la notificación', 
+    CODIGO VARCHAR(20) COMMENT 'Código relacionado con la notificación (ej: actividad, grupo, etc.)',
+
+    CONSTRAINT PK_NOTIFICACIONES PRIMARY KEY (ID_NOTIFICACION),
+    CONSTRAINT FK_NOTIFICACIONES_ALUMNO FOREIGN KEY (ID_ALUMNO) 
+        REFERENCES ALUMNO(ID_ALUMNO)
+);
+
 -- ======================================================
 -- VISTA _ALUMNOS_PUNTOS
 -- ======================================================
