@@ -300,51 +300,44 @@
 
       <!-- ── PROFESOR: ALUMNOS ── -->
       <div id="profe-students" class="panel">
-        <div class="page-header">
-          <div class="section-title">Alumnos</div>
-          <div style="font-size:.82rem;color:var(--text-muted);">5 alumnos registrados</div>
-        </div>
-        <div class="section-title">Gestión de Alumnos</div>
+  <div class="page-header">
+    <div class="section-title">Alumnos</div>
+    <div style="font-size:.82rem;color:var(--text-muted);">5 alumnos registrados</div>
+  </div>
+  <div class="section-title">Gestión de Alumnos</div>
 
-<div class="row g-2 mb-4 p-3 shadow-sm bg-white" style="border-radius: 12px; border: 1px solid var(--border);">
-  <div class="col-md-3">
-    <label class="form-label small fw-bold">Buscar por nombre</label>
-    <div class="input-group input-group-sm">
-      <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
-      <input type="text" id="filter-name" class="form-control border-start-0 bg-light" placeholder="Ej: Ana García" oninput="applyStudentFilters()">
+  <div class="row g-2 mb-4 p-3 shadow-sm bg-white" style="border-radius: 12px; border: 1px solid var(--border);">
+    <div class="col-md-4">
+      <label class="form-label small fw-bold">Buscar por nombre</label>
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+        <input type="text" id="filter-name" class="form-control border-start-0 bg-light" placeholder="Ej: Ana García" oninput="applyStudentFilters()">
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label small fw-bold">Curso</label>
+      <select id="filter-course" class="form-select form-select-sm bg-light" onchange="applyStudentFilters()">
+        <option value="">Todos</option>
+        <option value="A1">A1</option>
+        <option value="A2">A2</option>
+        <option value="B1">B1</option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label small fw-bold">Ordenar por Puntos</label>
+      <select id="filter-sort" class="form-select form-select-sm bg-light" onchange="applyStudentFilters()">
+        <option value="desc">Mayor puntuación primero</option>
+        <option value="asc">Menor puntuación primero</option>
+        <option value="name">Nombre (A-Z)</option>
+      </select>
     </div>
   </div>
-  <div class="col-md-2">
-    <label class="form-label small fw-bold">Curso</label>
-    <select id="filter-course" class="form-select form-select-sm bg-light" onchange="applyStudentFilters()">
-      <option value="">Todos</option>
-      <option value="A1">A1</option>
-      <option value="A2">A2</option>
-      <option value="B1">B1</option>
-    </select>
-  </div>
-  <div class="col-md-2">
-    <label class="form-label small fw-bold">Nivel</label>
-    <select id="filter-level" class="form-select form-select-sm bg-light" onchange="applyStudentFilters()">
-      <option value="">Todos</option>
-      <option value="basico">Básico</option>
-      <option value="intermedio">Intermedio</option>
-      <option value="avanzado">Avanzado</option>
-    </select>
-  </div>
-  <div class="col-md-3">
-    <label class="form-label small fw-bold">Ordenar por Puntos</label>
-    <select id="filter-sort" class="form-select form-select-sm bg-light" onchange="applyStudentFilters()">
-      <option value="desc">Mayor puntuación primero</option>
-      <option value="asc">Menor puntuación primero</option>
-      <option value="name">Nombre (A-Z)</option>
-    </select>
-  </div>
-</div>
 
-<div id="profe-students-list"></div>
-        <div id="students-list"></div>
-      </div>
+  <div id="profe-students-list"></div>
+  <div id="students-list"></div>
+</div>
 
       <!-- ── PROFESOR: LEADERBOARD ── -->
       <div id="profe-leaderboard" class="panel">
