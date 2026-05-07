@@ -1,6 +1,4 @@
--- Si existe, borramos la base de datos, y luego la creamos
--- Queremos que siempre que importemos este esquema se cree un esquema nuevo
-DROP TABLE IF EXISTS frances;
+DROP SCHEMA IF EXISTS frances;
 CREATE DATABASE IF NOT EXISTS frances;
 USE frances;
 
@@ -118,13 +116,31 @@ CREATE TABLE ACTIVIDAD_GRUPO (
 -- 8. CONEXION
 -- ======================================================
 CREATE TABLE CONEXION (
-    ID_CONEXION INT NOT NULL AUTO_INCREMENT COMMENT 'Identificador unico de cada conexion',
+    ID_CONEXION INT AUTO_INCREMENT NOT NULL COMMENT 'Identificador unico de cada conexion',
     ID_ALUMNO INT NOT NULL COMMENT 'Alumno que inicia la sesión',
     ENTRADA DATETIME NOT NULL COMMENT 'Fecha y hora de inicio de sesión',
     SALIDA DATETIME COMMENT 'Fecha y hora de cierre de sesión',
+    ID_SESION CHAR(36) COMMENT 'UUIDV4 Para la gestion de sesiones',
     
     PRIMARY KEY (ID_CONEXION),
     
     CONSTRAINT FK_CONEXION_ALUMNO FOREIGN KEY (ID_ALUMNO) 
         REFERENCES ALUMNO(ID_ALUMNO) ON DELETE CASCADE
-) COMMENT = 'Registro de accesos de los alumnos al sistema';
+) ENGINE=InnoDB COMMENT = 'Registro de accesos de los alumnos al sistema';
+
+-- ======================================================
+-- 9. ALUMNO_ACTIVIDAD
+-- ======================================================
+CREATE TABLE ALUMNO_ACTIVIDAD (
+    ID_ALUMNO INT NOT NULL COMMENT 'ID del alumno que realiza la actividad',
+    ID_ACTIVIDAD INT NOT NULL COMMENT 'ID de la actividad asignada',
+    PUNTOS INT NOT NULL COMMENT 'Puntos que ha conseguido el alumno en base a la actividad',
+    
+    PRIMARY KEY (ID_ALUMNO, ID_ACTIVIDAD),
+    
+    CONSTRAINT FK_AA_ALUMNO FOREIGN KEY (ID_ALUMNO) 
+        REFERENCES ALUMNO(ID_ALUMNO) ON DELETE CASCADE,
+        
+    CONSTRAINT FK_AA_ACTIVIDAD FOREIGN KEY (ID_ACTIVIDAD) 
+        REFERENCES ACTIVIDAD(ID_ACTIVIDAD) ON DELETE CASCADE
+) COMMENT = 'Relación entre actividades y alumnos';
