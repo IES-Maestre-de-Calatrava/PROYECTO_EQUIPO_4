@@ -16,5 +16,5 @@ public interface ConexionRepository extends JpaRepository<Conexion, Long> {
     @Query("SELECT c FROM Conexion c WHERE c.id_sesion = :id_sesion")
     Conexion buscarPorUUID(@Param("id_sesion") String id_sesion);
 
-    Optional<Conexion> buscarPorUUID(String correo);
+    Optional<Conexion> findByUUID(String correo);
 }
