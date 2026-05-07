@@ -247,6 +247,18 @@ body.dark-mode i:not(.no-dark) {
   position:relative; overflow:hidden;
   display:flex !important;
 }
+#screen-register::before {
+  content:''; position:absolute;
+  width:600px; height:600px; border-radius:50%;
+  background:rgba(255,255,255,.05);
+  top:-200px; right:-200px; pointer-events:none;
+}
+#screen-register::after {
+  content:''; position:absolute;
+  width:400px; height:400px; border-radius:50%;
+  background:rgba(239,65,53,.12);
+  bottom:-150px; left:-100px; pointer-events:none;
+}
 
 /* =============================================
    MAIN LAYOUT

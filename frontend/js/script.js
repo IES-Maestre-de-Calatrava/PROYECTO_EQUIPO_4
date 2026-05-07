@@ -13,9 +13,10 @@
 
 /* ─── DATA ─── */
 const LEVELS = [
-  { id:'basico',     label:'Básico',     min:0,    max:2000,    icon:'🔵', class:'',          desc:'Empezando tu aventura en francés' },
-  { id:'intermedio', label:'Intermedio', min:2000, max:8000,    icon:'🟢', class:'intermedio', desc:'Construyendo bases sólidas' },
-  { id:'avanzado',   label:'Avanzado',   min:8000, max:Infinity,icon:'🏆', class:'avanzado',   desc:'¡Maestro del francés!' },
+  { id:'basico',     label:'A1 — Básico',     min:0,    max:2000,    icon:'🔵', class:''          ,          desc:'Empezando tu aventura en francés' },
+  { id:'elemental',  label:'A2 — Elemental',  min:2000, max:5000,    icon:'🟡', class:'elemental',  desc:'Construyendo bases sólidas' },
+  { id:'intermedio', label:'B1 — Intermedio', min:5000, max:9000,    icon:'🟢', class:'intermedio', desc:'Comunicándote con fluidez' },
+  { id:'avanzado',   label:'B2 — Avanzado',   min:9000, max:Infinity,icon:'🏆', class:'avanzado',   desc:'¡Maestro del francés!' },
 ];
 
 const MOTIVATIONAL_MSGS = [
@@ -36,11 +37,11 @@ const MOCK_USERS = [
 
 /* Solo alumnos en el leaderboard */
 const MOCK_STUDENTS = [
-  { name:'Ana García',     initials:'AG', color:'#0055A4', points:3400, level:'intermedio', exercises:28, lastSeen:'Hace 2h',    time:'4h 30m', course:'A2', role:'alumno' },
+  { name:'Ana García',     initials:'AG', color:'#0055A4', points:3400, level:'elemental',  exercises:28, lastSeen:'Hace 2h',    time:'4h 30m', course:'A2', role:'alumno' },
   { name:'Carlos López',   initials:'CL', color:'#059669', points:890,  level:'basico',     exercises:12, lastSeen:'Hace 1 día', time:'1h 15m', course:'A1', role:'alumno' },
-  { name:'Marta Ruiz',     initials:'MR', color:'#d97706', points:9200, level:'avanzado',   exercises:76, lastSeen:'Hace 30min', time:'12h',    course:'B1', role:'alumno' },
+  { name:'Marta Ruiz',     initials:'MR', color:'#d97706', points:9200, level:'intermedio', exercises:76, lastSeen:'Hace 30min', time:'12h',    course:'B1', role:'alumno' },
   { name:'Luis Fernández', initials:'LF', color:'#7c3aed', points:1750, level:'basico',     exercises:19, lastSeen:'Hace 3 días',time:'2h 45m', course:'A1', role:'alumno' },
-  { name:'Sofía Jiménez',  initials:'SJ', color:'#EF4135', points:5100, level:'intermedio', exercises:41, lastSeen:'Ayer',       time:'7h 20m', course:'A2', role:'alumno' },
+  { name:'Sofía Jiménez',  initials:'SJ', color:'#EF4135', points:5100, level:'elemental',  exercises:41, lastSeen:'Ayer',       time:'7h 20m', course:'A2', role:'alumno' },
 ];
 
 /* Lista de todos los usuarios del sistema (para panel director) */
@@ -169,6 +170,70 @@ function doLogin() {
 
   console.log("Login correcto, redirigiendo...");
   window.location.href="./index.html";
+}
+async function doRegister() {
+    const nombre        = document.getElementById('reg-nombre').value.trim();
+    const apellidos     = document.getElementById('reg-apellidos').value.trim();
+    const correo        = document.getElementById('reg-correo').value.trim();
+    const contrasena    = document.getElementById('reg-contrasena').value.trim();
+    const confirmPass   = document.getElementById('reg-confirmar').value.trim();
+
+    if (!nombre || !apellidos || !correo || !contrasena) {
+        showRegMsg('Por favor, rellena todos los campos.', 'danger');
+        return;
+    }
+    if (contrasena !== confirmPass) {
+        showRegMsg('Las contraseñas no coinciden.', 'danger');
+        return;
+    }
+    if (contrasena.length < 4) {
+        showRegMsg('La contraseña debe tener al menos 4 caracteres.', 'danger');
+        return;
+    }
+
+    try {
+        const response = await fetch('http://192.168.150.185:8085/api/auth/registro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nombre,
+                apellidos,
+                correo,
+                contrasena,
+                nombreUsuario: generarUsernameDesdeNombre(nombre, apellidos),
+                nivel: 'A1',
+                rango: 'Bronce'
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showRegMsg(data.error || 'Error al crear la cuenta.', 'danger');
+            return;
+        }
+
+        showRegMsg('✅ Cuenta creada correctamente. Ya puedes iniciar sesión.', 'success');
+        setTimeout(() => window.location.href = 'login.html', 1500);
+
+    } catch (err) {
+        showRegMsg('No se pudo conectar con el servidor.', 'danger');
+    }
+}
+
+function showRegMsg(msg, tipo) {
+    const div = document.getElementById('reg-error');
+    div.textContent = msg;
+    div.className = `alert alert-${tipo} py-2 px-3`;
+    div.style.fontSize = '.85rem';
+    div.style.borderRadius = '8px';
+    div.classList.remove('d-none');
+}
+
+function generarUsernameDesdeNombre(nombre, apellidos) {
+    const n = nombre.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
+    const a = apellidos.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
+    return n + '.' + a + Math.floor(Math.random() * 99);
 }
 
 function showLoginError(msg) {
@@ -762,8 +827,8 @@ function switchProfeLeaderboard(tipo) {
 
 function buildLeaderboard(containerId, isTeacherView, tipo) {
   tipo = tipo || 'general';
-  const levelLabels = { basico:'Básico', intermedio:'Intermedio', avanzado:'Avanzado' };
-  const levelCls    = { basico:'lb-level-basico', intermedio:'lb-level-intermedio', avanzado:'lb-level-avanzado' };
+  const levelLabels = { basico:'A1 — Básico', elemental:'A2 — Elemental', intermedio:'B1 — Intermedio', avanzado:'B2 — Avanzado' };
+  const levelCls    = { basico:'lb-level-basico', elemental:'lb-level-elemental', intermedio:'lb-level-intermedio', avanzado:'lb-level-avanzado' };
 
   /* Resolver puntos según el tipo */
   function getPts(s) {
@@ -921,10 +986,10 @@ function changePassword() {
 /* ─── PROFESOR PANELS ─── */
 function buildProfeDashboard() {
   const tbody = document.getElementById('profe-metrics-table');
-  const levelLabels = { basico:'Básico', intermedio:'Intermedio', avanzado:'Avanzado' };
+  const levelLabels = { basico:'A1 — Básico', elemental:'A2 — Elemental', intermedio:'B1 — Intermedio', avanzado:'B2 — Avanzado' };
   const sorted = [...MOCK_STUDENTS].sort((a,b) => b.points - a.points);
   tbody.innerHTML = sorted.map(s => {
-    const pct   = s.level === 'avanzado' ? 100 : s.level === 'intermedio' ? Math.round((s.points-2000)/60) : Math.round(s.points/20);
+    const pct   = s.level === 'avanzado' ? 100 : s.level === 'intermedio' ? Math.round((s.points-5000)/40) : s.level === 'elemental' ? Math.round((s.points-2000)/30) : Math.round(s.points/20);
     const clamp = Math.min(100, Math.max(0, pct));
     return `<tr>
       <td><div style="display:flex;align-items:center;gap:.5rem;">
@@ -963,15 +1028,13 @@ function buildStudents() {
 function applyStudentFilters() {
   const nameQuery = document.getElementById('filter-name').value.toLowerCase();
   const courseFilter = document.getElementById('filter-course').value;
-  const levelFilter = document.getElementById('filter-level').value;
   const sortOrder = document.getElementById('filter-sort').value;
 
   // 1. Filtrar el array MOCK_STUDENTS
   let filtered = MOCK_STUDENTS.filter(student => {
     const matchesName = student.name.toLowerCase().includes(nameQuery);
     const matchesCourse = courseFilter === "" || student.course === courseFilter;
-    const matchesLevel = levelFilter === "" || student.level === levelFilter;
-    return matchesName && matchesCourse && matchesLevel;
+    return matchesName && matchesCourse;
   });
 
   // 2. Ordenar
