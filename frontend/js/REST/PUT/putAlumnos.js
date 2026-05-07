@@ -1,6 +1,9 @@
 const API_ALUMNOS = "http://192.168.150.185:8085/alumno";
 const API_GRUPOS = "http://192.168.150.185:8085/api/grupos";
 
+import { postNotificaciones } from '../POST/postNotificaciones.js';
+import { getNotificaciones } from '../GET/getNotificaciones.js';
+
 export class PutAlumnos {
     /**
      * Añade un alumno a un grupo
@@ -23,9 +26,10 @@ export class PutAlumnos {
      * Envía una invitación a un alumno para unirse a un grupo
      * @param {number} idGrupo - ID del grupo
      * @param {number} idAlumno - ID del alumno a invitar
+     * @param {object} infoGrupo - Información del grupo (opcional)
      * @returns {Promise<any>} Respuesta del servidor
      */
-    async enviarInvitacionAlumno(idGrupo, idAlumno) {
+    async enviarInvitacionAlumno(idGrupo, idAlumno, infoGrupo = {}) {
         if (!idGrupo || !idAlumno) {
             throw new Error("idGrupo e idAlumno son requeridos");
         }
@@ -37,7 +41,28 @@ export class PutAlumnos {
             estado: "pendiente"
         };
 
-        return await this.#putJson(url, datos, "Invitación enviada al alumno");
+        // Primero enviar la invitación
+        const resultadoInvitacion = await this.#putJson(url, datos, "Invitación enviada");
+
+        // Luego crear la notificación
+        try {
+            const nombreGrupo = infoGrupo.nombre || `Grupo ${idGrupo}`;
+            const nombreProfesor = infoGrupo.profesor || "Un profesor";
+
+            await postNotificaciones.notificarInvitacionGrupo(
+                idAlumno,
+                idGrupo,
+                nombreGrupo,
+                nombreProfesor
+            );
+
+            console.log("✅ Notificación de invitación creada");
+        } catch (error) {
+            console.warn("⚠️ No se pudo crear la notificación:", error.message);
+            // No fallar la invitación si la notificación falla
+        }
+
+        return resultadoInvitacion;
     }
 
     /**
@@ -80,9 +105,10 @@ export class PutAlumnos {
      * Acepta la invitación de un alumno a un grupo
      * @param {number} idGrupo - ID del grupo
      * @param {number} idAlumno - ID del alumno
+     * @param {object} infoNotificacion - Información de la notificación (opcional)
      * @returns {Promise<any>} Respuesta del servidor
      */
-    async aceptarInvitacion(idGrupo, idAlumno) {
+    async aceptarInvitacion(idGrupo, idAlumno, infoNotificacion = {}) {
         if (!idGrupo || !idAlumno) {
             throw new Error("idGrupo e idAlumno son requeridos");
         }
@@ -94,16 +120,49 @@ export class PutAlumnos {
             estado: "aceptada"
         };
 
-        return await this.#putJson(url, datos, "Invitación aceptada");
+        // Primero aceptar la invitación
+        const resultado = await this.#putJson(url, datos, "Invitación aceptada");
+
+        // Marcar notificación como leída si tenemos el ID
+        if (infoNotificacion.idNotificacion) {
+            try {
+                await getNotificaciones.marcarNotificacionLeida(infoNotificacion.idNotificacion);
+                console.log("✅ Notificación marcada como leída");
+            } catch (error) {
+                console.warn("⚠️ No se pudo marcar la notificación como leída:", error.message);
+            }
+        }
+
+        // Crear notificación para el profesor
+        try {
+            const nombreAlumno = infoNotificacion.nombreAlumno || `Alumno ${idAlumno}`;
+            const nombreGrupo = infoNotificacion.nombreGrupo || `Grupo ${idGrupo}`;
+            const idProfesor = infoNotificacion.idProfesor;
+
+            if (idProfesor) {
+                await postNotificaciones.notificarInvitacionAceptada(
+                    idProfesor,
+                    idAlumno,
+                    nombreAlumno,
+                    nombreGrupo
+                );
+                console.log("✅ Notificación enviada al profesor");
+            }
+        } catch (error) {
+            console.warn("⚠️ No se pudo notificar al profesor:", error.message);
+        }
+
+        return resultado;
     }
 
     /**
      * Rechaza la invitación de un alumno a un grupo
      * @param {number} idGrupo - ID del grupo
      * @param {number} idAlumno - ID del alumno
+     * @param {object} infoNotificacion - Información de la notificación (opcional)
      * @returns {Promise<any>} Respuesta del servidor
      */
-    async rechazarInvitacion(idGrupo, idAlumno) {
+    async rechazarInvitacion(idGrupo, idAlumno, infoNotificacion = {}) {
         if (!idGrupo || !idAlumno) {
             throw new Error("idGrupo e idAlumno son requeridos");
         }
@@ -115,7 +174,20 @@ export class PutAlumnos {
             estado: "rechazada"
         };
 
-        return await this.#putJson(url, datos, "Invitación rechazada");
+        // Primero rechazar la invitación
+        const resultado = await this.#putJson(url, datos, "Invitación rechazada");
+
+        // Marcar notificación como leída si tenemos el ID
+        if (infoNotificacion.idNotificacion) {
+            try {
+                await getNotificaciones.marcarNotificacionLeida(infoNotificacion.idNotificacion);
+                console.log("✅ Notificación marcada como leída");
+            } catch (error) {
+                console.warn("⚠️ No se pudo marcar la notificación como leída:", error.message);
+            }
+        }
+
+        return resultado;
     }
 
     // ═══════════════════════════════════════════════════════════════
