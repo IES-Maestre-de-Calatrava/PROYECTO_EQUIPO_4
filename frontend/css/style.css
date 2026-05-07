@@ -141,7 +141,23 @@ body.dark-mode [style*="color:#ED2939"] { color: #fb7185 !important; }
 body.dark-mode i:not(.no-dark) {
     color: #a5b4fc !important;
 }
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #94a3b8 !important; /* Un gris azulado claro (Slate 400) */
+    opacity: 1; /* Firefox requiere esto */
+}
 
+/* Internet Explorer 10-11 */
+body.dark-mode input:-ms-input-placeholder,
+body.dark-mode textarea:-ms-input-placeholder {
+    color: #94a3b8 !important;
+}
+
+/* Microsoft Edge */
+body.dark-mode input::-ms-input-placeholder,
+body.dark-mode textarea::-ms-input-placeholder {
+    color: #94a3b8 !important;
+}
 /* ── FIN MODO OSCURO ── */
 
 /* =============================================
