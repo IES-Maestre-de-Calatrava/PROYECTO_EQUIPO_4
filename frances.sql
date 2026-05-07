@@ -144,3 +144,23 @@ CREATE TABLE ALUMNO_ACTIVIDAD (
     CONSTRAINT FK_AA_ACTIVIDAD FOREIGN KEY (ID_ACTIVIDAD) 
         REFERENCES ACTIVIDAD(ID_ACTIVIDAD) ON DELETE CASCADE
 ) COMMENT = 'Relación entre actividades y alumnos';
+-- ======================================================
+-- VISTA _ALUMNOS_PUNTOS
+-- ======================================================
+CREATE VIEW VISTA_ALUMNOS_PUNTOS AS
+SELECT 
+    A.ID_ALUMNO,
+    A.NOMBRE,
+    A.APELLIDOS,
+    A.NIVEL,
+    A.RANGO,
+    COALESCE(SUM(AA.PUNTOS), 0) AS PUNTOS
+FROM ALUMNO A
+LEFT JOIN ALUMNO_ACTIVIDAD AA
+    ON A.ID_ALUMNO = AA.ID_ALUMNO
+GROUP BY 
+    A.ID_ALUMNO,
+    A.NOMBRE,
+    A.APELLIDOS,
+    A.NIVEL,
+    A.RANGO;
