@@ -36,8 +36,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credenciales) {
 
-        String correo    = credenciales.getCorreo();
-        String contrasena = credenciales.getContrasena();
+        String correo    = credenciales.get("correo");
+        String contrasena = credenciales.get("contrasena");
 
         if (correo == null || contrasena == null) {
             return ResponseEntity.badRequest()
@@ -69,7 +69,6 @@ public class AuthController {
 
         if (profesor != null && profesor.getContrasena().equals(contrasena)) {
             registrarConexion(profesor);
-
             Conexion conexion = conexionRepository.findById(profesor.getIdProfesor()).orElse(null);
 
             Map<String, Object> respuesta = new HashMap<>();
