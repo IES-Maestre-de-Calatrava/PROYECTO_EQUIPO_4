@@ -28,7 +28,7 @@
   --transition:    all .28s cubic-bezier(.4,0,.2,1);
 }
 
-/* ── MODO OSCURO TOTAL (REVISADO v7.0) ── */
+/* ── MODO OSCURO TOTAL (REVISADO v14.0) ── */
 
 body.dark-mode {
     --bg: #0f172a !important; 
@@ -39,122 +39,104 @@ body.dark-mode {
     --primary-dark: #a5b4fc !important;
 }
 
-/* 1. Fondo base */
 body.dark-mode {
     background-color: var(--bg) !important;
     color: var(--text-main) !important;
 }
 
-/* 2. ARREGLO ESPECÍFICO: NOTAS, ICONOS Y STATUS (Nuevos de tus capturas) */
-
-/* Tarjeta de Apuntes/Notas */
-body.dark-mode #activity-notes-wrap,
-body.dark-mode .notes-card {
+/* 1. ARREGLO DEFINITIVO DE TABLAS (Incluyendo .table-hover) */
+body.dark-mode table,
+body.dark-mode .table,
+body.dark-mode #profe-metrics-table table {
     background-color: var(--white) !important;
-    background-image: none !important;
-    border: 1px solid var(--border) !important;
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
 }
 
-body.dark-mode #activity-notes-wrap textarea,
-body.dark-mode #activity-notes-wrap .notes-content {
+/* Forzar el fondo oscuro en los encabezados para que no se vean blancos */
+body.dark-mode .table thead,
+body.dark-mode .table th,
+body.dark-mode table thead,
+body.dark-mode table th,
+body.dark-mode #profe-metrics-table thead th {
+    background-color: #1e293b !important; /* Azul grisáceo oscuro */
+    color: #a5b4fc !important;           /* Texto lavanda */
+    border-bottom: 2px solid var(--border) !important;
+}
+
+/* Evitar que las filas hover vuelvan a ponerse blancas */
+body.dark-mode .table-hover tbody tr:hover td,
+body.dark-mode .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode td {
+    background-color: transparent !important;
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+}
+
+/* 2. ARREGLO DE BUSCADOR E ICONO LUPA */
+body.dark-mode .bg-light,
+body.dark-mode .form-control.bg-light {
     background-color: #0f172a !important;
     color: #ffffff !important;
     border-color: var(--border) !important;
 }
 
-/* Icono de Actividad (El cuadro morado/azul) */
+body.dark-mode .bi-search,
+body.dark-mode .input-group-text {
+    background-color: #1e293b !important;
+    color: #a5b4fc !important;
+    border-color: var(--border) !important;
+}
+
+/* 3. ACTIVITY ICON, NOTES & STATUS */
 body.dark-mode .activity-icon {
-    background-color: rgba(165, 180, 252, 0.2) !important; /* Lavanda suave traslúcido */
+    background-color: rgba(165, 180, 252, 0.15) !important;
     color: #a5b4fc !important;
     border: 1px solid rgba(165, 180, 252, 0.3) !important;
 }
 
-/* Status (Pendiente, etc.) */
-body.dark-mode .activity-status,
-body.dark-mode .status-pending {
-    background-color: #334155 !important;
-    color: #fbbf24 !important; /* Amarillo/Naranja para "Pendiente" sea legible */
-    border: 1px solid #475569 !important;
-}
-
-/* 3. MOTIVATIONAL BANNER Y NIVELES */
-body.dark-mode #motivational-banner,
-body.dark-mode .motivational-banner,
-body.dark-mode [class*="nivel-card"] {
-    background-color: var(--white) !important;
-    background-image: none !important;
+body.dark-mode #activity-notes-wrap,
+body.dark-mode #activity-notes-wrap textarea {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
     border: 1px solid var(--border) !important;
 }
 
-body.dark-mode #motivational-banner *,
-body.dark-mode .msg-text, 
-body.dark-mode #motivational-msg {
-    color: #ffffff !important;
+body.dark-mode .activity-status {
+    background-color: #334155 !important;
+    color: #fbbf24 !important;
 }
 
-/* 4. BADGES DE CURSOS */
-body.dark-mode .course-level-badge,
-body.dark-mode .badge {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-/* 5. LOGOS Y COLORES FRANCESES (Inline Styles) */
-body.dark-mode [style*="color:#002654"], 
-body.dark-mode [style*="color: #002654"] { color: #60a5fa !important; }
-body.dark-mode [style*="color:#ED2939"],
-body.dark-mode [style*="color: #ED2939"] { color: #fb7185 !important; }
-
-/* 6. TARJETAS Y ESTRUCTURA */
+/* 4. CONTENEDORES BOOTSTRAP (bg-white, row) */
+body.dark-mode .row.bg-white,
+body.dark-mode .bg-white,
 body.dark-mode .card,
-body.dark-mode .stat-card,
-body.dark-mode .course-card,
-body.dark-mode .sidebar,
-body.dark-mode .app-navbar,
-body.dark-mode .main-container,
-body.dark-mode header,
-body.dark-mode nav {
+body.dark-mode .stat-card {
     background-color: var(--white) !important;
     color: var(--text-main) !important;
-    border-color: var(--border) !important;
+    border: 1px solid var(--border) !important;
+    background-image: none !important;
 }
 
-/* 7. TÍTULOS Y NÚMEROS */
-body.dark-mode h1, 
-body.dark-mode h2, 
-body.dark-mode h3,
-body.dark-mode h4,
-body.dark-mode .text-primary,
-body.dark-mode .numbers, 
-body.dark-mode [class*="title"],
-body.dark-mode [class*="purple"] {
+/* 5. TÍTULOS Y TEXTOS */
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4,
+body.dark-mode .text-primary, body.dark-mode .numbers, 
+body.dark-mode [class*="title"], body.dark-mode [class*="purple"] {
     color: #a5b4fc !important;
 }
 
-/* 8. INPUTS Y TABLAS */
-body.dark-mode input, 
-body.dark-mode textarea, 
-body.dark-mode select,
-body.dark-mode .form-control,
-body.dark-mode .table,
-body.dark-mode table,
-body.dark-mode th, 
-body.dark-mode td {
-    background-color: #1e293b !important;
-    color: var(--text-main) !important;
-    border-color: var(--border) !important;
-}
-
-/* 9. TEXTOS SECUNDARIOS */
-body.dark-mode .text-muted,
-body.dark-mode .text-secondary,
-body.dark-mode p,
-body.dark-mode label,
-body.dark-mode .dash-sub,
-body.dark-mode span:not([style*="color"]) {
+body.dark-mode .text-muted, body.dark-mode .text-secondary,
+body.dark-mode p, body.dark-mode label, body.dark-mode .dash-sub {
     color: var(--text-muted) !important;
 }
+
+/* 6. LOGOS Y ELEMENTOS INLINE */
+body.dark-mode [style*="color:#002654"] { color: #60a5fa !important; }
+body.dark-mode [style*="color:#ED2939"] { color: #fb7185 !important; }
 
 body.dark-mode i:not(.no-dark) {
     color: #a5b4fc !important;
@@ -783,4 +765,290 @@ body.dark-mode i:not(.no-dark) {
   .dash-greeting { font-size:1.35rem; }
   .lb-podium-wrap { gap:8px; }
   .lb-podium-slot { width:120px; padding:14px 10px; }
+}
+/* ═══════════════════════════════════════════════════════════════
+   LEADERBOARD MULTI-TAB — General / Diaria / Semanal
+   Diseño moderno con tabs pill, podio mejorado y lista animada
+═══════════════════════════════════════════════════════════════ */
+
+/* ─ Page Header ─ */
+.lb-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.lb-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.lb-title-icon {
+  font-size: 2.2rem;
+  color: var(--gold);
+  filter: drop-shadow(0 2px 6px rgba(251,191,36,.45));
+  flex-shrink: 0;
+}
+.lb-main-title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.1;
+}
+.lb-main-sub {
+  margin: 0;
+  font-size: .82rem;
+  color: var(--text-muted);
+}
+.lb-last-updated {
+  font-size: .75rem;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: .3rem .8rem;
+  white-space: nowrap;
+}
+
+/* ─ Tab Selector ─ */
+.lb-tab-container {
+  display: flex;
+  gap: .5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: .4rem;
+  margin-bottom: 1.5rem;
+  width: fit-content;
+  max-width: 100%;
+}
+.lb-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .15rem;
+  padding: .55rem 1.4rem;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  transition: all .22s ease;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  min-width: 90px;
+}
+.lb-tab i { font-size: 1.1rem; }
+.lb-tab span { font-weight: 700; font-size: .88rem; }
+.lb-tab small { font-size: .68rem; opacity: .75; }
+.lb-tab:hover {
+  background: var(--white);
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0,85,164,.1);
+}
+.lb-tab.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0,85,164,.35);
+}
+.lb-tab.active small { opacity: .85; }
+
+/* ─ Meta bar ─ */
+.lb-meta-bar {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .6rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  font-size: .83rem;
+}
+.lb-meta-icon { font-size: 1.1rem; }
+.lb-meta-label { font-weight: 600; color: var(--text); flex: 1; }
+.lb-meta-count { color: var(--text-muted); font-size: .78rem; }
+
+/* ─ Podio mejorado ─ */
+.lb-podium-wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 0 .5rem;
+}
+.lb-podium-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.25rem .9rem 1rem;
+  border-radius: 18px;
+  width: 150px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: transform .25s ease, box-shadow .25s ease;
+  animation: podiumRise .5s ease both;
+  cursor: default;
+}
+.lb-podium-slot:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-md);
+}
+.lb-podium-slot.rank-1 {
+  width: 170px;
+  padding-top: 1.6rem;
+  padding-bottom: 1.2rem;
+  background: linear-gradient(160deg, #fffbe7, #fff8d0);
+  border-color: #fbbf24;
+  box-shadow: 0 6px 24px rgba(251,191,36,.25);
+  order: 2;
+}
+.lb-podium-slot.rank-2 {
+  background: linear-gradient(160deg, #f8fafc, #f1f5f9);
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 16px rgba(148,163,184,.2);
+  order: 1;
+}
+.lb-podium-slot.rank-3 {
+  background: linear-gradient(160deg, #fff8f0, #fff3e0);
+  border-color: #fdba74;
+  box-shadow: 0 4px 16px rgba(251,146,60,.15);
+  order: 3;
+}
+.lb-podium-crown { font-size: 2rem; display: block; margin-bottom: .4rem; line-height: 1; }
+.lb-podium-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.1rem; color: #fff;
+  margin: 0 auto .6rem;
+  border: 3px solid rgba(255,255,255,.8);
+  box-shadow: 0 2px 10px rgba(0,0,0,.15);
+}
+.rank-1 .lb-podium-avatar { width: 64px; height: 64px; font-size: 1.25rem; }
+.lb-podium-name { font-weight: 800; font-size: .92rem; color: var(--text); margin-bottom: .25rem; }
+.lb-podium-pts {
+  font-size: 1.2rem; font-weight: 900;
+  color: var(--text);
+  font-family: var(--font-display);
+}
+.rank-1 .lb-podium-pts { font-size: 1.4rem; color: #b45309; }
+.lb-podium-pts-label { font-size: .65rem; color: var(--text-muted); margin-bottom: .35rem; }
+.lb-podium-group {
+  font-size: .72rem; color: var(--text-muted); margin-top: .3rem;
+  display: flex; align-items: center; gap: .25rem; justify-content: center;
+}
+
+/* ─ Lista (posiciones 4+) mejorada ─ */
+.lb-list-wrap { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: .5rem; }
+.lb-list-item {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  padding: .85rem 1.1rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: transform .2s ease, box-shadow .2s ease;
+  animation: fadeSlideIn .35s ease both;
+}
+.lb-list-item:hover {
+  transform: translateY(-3px) scale(1.005);
+  box-shadow: 0 6px 20px rgba(0,85,164,.1);
+  border-color: var(--primary-light);
+}
+.lb-list-item--me {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, #f0f7ff, var(--white));
+}
+.lb-list-rank {
+  font-weight: 800; color: var(--text-muted);
+  font-size: 1rem; min-width: 28px; text-align: center;
+}
+.lb-list-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: .88rem; color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,.12);
+}
+.lb-list-info { display: flex; flex-direction: column; gap: .1rem; flex: 1; min-width: 0; }
+.lb-list-name {
+  font-weight: 700; font-size: .9rem; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lb-list-group {
+  font-size: .72rem; color: var(--text-muted);
+  display: flex; align-items: center; gap: .2rem;
+}
+.lb-list-pts-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: .05rem; }
+.lb-list-pts { font-weight: 800; font-size: 1rem; color: var(--gold); white-space: nowrap; }
+.lb-list-pts-label { font-size: .65rem; color: var(--text-muted); white-space: nowrap; }
+.lb-you-badge {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  font-size: .62rem;
+  font-weight: 700;
+  padding: .05rem .35rem;
+  border-radius: 50px;
+  margin-left: .35rem;
+  vertical-align: middle;
+}
+
+/* ─ Badgets de nivel ─ */
+.lb-list-level { font-size: .7rem; font-weight: 700; padding: .15rem .45rem; border-radius: 50px; flex-shrink: 0; }
+.lb-level-basico     { background: var(--primary-light); color: var(--primary); }
+.lb-level-intermedio { background: var(--green-light); color: var(--green-mid); }
+.lb-level-avanzado   { background: var(--gold-light); color: var(--gold); }
+
+/* ─ Empty state ─ */
+.lb-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: .9rem;
+}
+.lb-empty i { font-size: 2rem; display: block; margin-bottom: .5rem; }
+
+/* ─ Animaciones ─ */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─ Dark mode ─ */
+body.dark-mode .lb-tab { color: #94a3b8; }
+body.dark-mode .lb-tab:hover { background: rgba(255,255,255,.07); color: #93c5fd; }
+body.dark-mode .lb-tab.active { background: var(--primary); color: #fff; }
+body.dark-mode .lb-podium-slot { background: #1e293b; border-color: #334155; }
+body.dark-mode .lb-podium-slot.rank-1 { background: linear-gradient(160deg, #2d2200, #1e1800); border-color: #fbbf24; }
+body.dark-mode .lb-podium-slot.rank-2 { background: linear-gradient(160deg, #1e293b, #0f172a); border-color: #475569; }
+body.dark-mode .lb-podium-slot.rank-3 { background: linear-gradient(160deg, #2d1800, #1e1200); border-color: #f97316; }
+body.dark-mode .lb-podium-name { color: #f1f5f9; }
+body.dark-mode .lb-list-item { background: #1e293b; border-color: #334155; }
+body.dark-mode .lb-list-item:hover { border-color: var(--primary); }
+body.dark-mode .lb-list-item--me { background: linear-gradient(135deg, #0f2040, #1e293b); }
+body.dark-mode .lb-list-name { color: #f1f5f9; }
+body.dark-mode .lb-meta-bar { background: #0f172a; border-color: #334155; }
+body.dark-mode .lb-last-updated { background: #0f172a; border-color: #334155; }
+
+/* ─ Responsive ─ */
+@media (max-width: 600px) {
+  .lb-tab-container { width: 100%; }
+  .lb-tab { min-width: 0; flex: 1; padding: .5rem .5rem; }
+  .lb-tab span { font-size: .78rem; }
+  .lb-podium-slot { width: 28vw; padding: 10px 6px; }
+  .lb-podium-avatar { width: 40px; height: 40px; font-size: .85rem; }
+  .rank-1 .lb-podium-avatar { width: 48px; height: 48px; }
+  .lb-podium-pts { font-size: .95rem; }
+  .rank-1 .lb-podium-pts { font-size: 1.05rem; }
+  .lb-list-item { padding: .65rem .75rem; gap: .6rem; }
+  .lb-page-header { flex-direction: column; align-items: flex-start; }
 }

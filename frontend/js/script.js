@@ -269,8 +269,8 @@ function showPanel(id) {
       if (b.textContent.trim().startsWith(label)) b.classList.add('active');
     });
   }
-  if (id === 'leaderboard')       buildLeaderboard('leaderboard-content', false);
-  if (id === 'profe-leaderboard') buildLeaderboard('profe-leaderboard-content', true);
+  if (id === 'leaderboard')       buildLeaderboard('leaderboard-content', false, _lbTabAlumno);
+  if (id === 'profe-leaderboard') buildLeaderboard('profe-leaderboard-content', true, _lbTabProfe);
   if (id === 'progress')          buildProgressCourseList();
 }
 
@@ -717,64 +717,140 @@ function buildProgressCourseList() {
   }).join('');
 }
 
-/* ─── LEADERBOARD (PODIO VISUAL) ─────────────────────────────
-   - Solo alumnos (role === 'alumno' implícito en MOCK_STUDENTS)
-   - Si profe en impersonación no debe aparecer (isImpersonating)
-   - 1° = 👑 corona; 2° = 🥈; 3° = 🥉
-   - Resto: lista con tarjetas hover
+/* ─── LEADERBOARD MULTI-TAB ──────────────────────────────────
+   Tipos: 'general' | 'diaria' | 'semanal'
+   Datos mock con puntos diarios/semanales para simulación.
 ─────────────────────────────────────────────────────────────── */
-function buildLeaderboard(containerId, isTeacherView) {
+
+/* Mock: puntos por período. En producción vendrían del backend. */
+const MOCK_DAILY_POINTS = {
+  'Ana García':     120,
+  'Carlos López':   45,
+  'Marta Ruiz':     310,
+  'Luis Fernández': 80,
+  'Sofía Jiménez':  195,
+};
+const MOCK_WEEKLY_POINTS = {
+  'Ana García':     780,
+  'Carlos López':   230,
+  'Marta Ruiz':     1450,
+  'Luis Fernández': 410,
+  'Sofía Jiménez':  920,
+};
+
+/* Estado de tab activo */
+let _lbTabAlumno = 'general';
+let _lbTabProfe  = 'general';
+
+function switchLeaderboard(tipo) {
+  _lbTabAlumno = tipo;
+  ['general','diaria','semanal'].forEach(t => {
+    const btn = document.getElementById('tab-' + t);
+    if (btn) btn.classList.toggle('active', t === tipo);
+  });
+  buildLeaderboard('leaderboard-content', false, tipo);
+}
+
+function switchProfeLeaderboard(tipo) {
+  _lbTabProfe = tipo;
+  ['general','diaria','semanal'].forEach(t => {
+    const btn = document.getElementById('profe-tab-' + t);
+    if (btn) btn.classList.toggle('active', t === tipo);
+  });
+  buildLeaderboard('profe-leaderboard-content', true, tipo);
+}
+
+function buildLeaderboard(containerId, isTeacherView, tipo) {
+  tipo = tipo || 'general';
   const levelLabels = { basico:'Básico', intermedio:'Intermedio', avanzado:'Avanzado' };
   const levelCls    = { basico:'lb-level-basico', intermedio:'lb-level-intermedio', avanzado:'lb-level-avanzado' };
-  const podiumColors= { rank:['#ffd60a','#94a3b8','#ffb703'] };
 
-  /* Solo alumnos. Si profe está en impersonación, no incluirlo. */
-  let students = [...MOCK_STUDENTS].sort((a,b) => b.points - a.points);
-
-  /* Añadir usuario actual si es alumno real y tiene puntos */
-  const u = state.currentUser;
-  if (u && u.role === 'alumno' && state.score > 0 && !MOCK_STUDENTS.find(s => s.name === u.name)) {
-    students.push({ name:u.name, initials:u.name.substring(0,2).toUpperCase(), color:'#1a70c1', points:state.score, level:state.currentLevel, role:'alumno' });
-    students.sort((a,b) => b.points - a.points);
+  /* Resolver puntos según el tipo */
+  function getPts(s) {
+    if (tipo === 'diaria')  return MOCK_DAILY_POINTS[s.name]  || 0;
+    if (tipo === 'semanal') return MOCK_WEEKLY_POINTS[s.name] || 0;
+    return s.points;
   }
 
-  const crownIcons = ['👑','🥈','🥉'];
-  const podiumOrder = [1, 0, 2]; // visual: 2º izq, 1º centro, 3º der
+  /* Construir lista con puntos del período */
+  let students = MOCK_STUDENTS.map(s => ({ ...s, displayPts: getPts(s) }));
+
+  /* Añadir usuario actual si es alumno real */
+  const u = state.currentUser;
+  if (u && u.role === 'alumno' && state.score > 0 && !MOCK_STUDENTS.find(s => s.name === u.name)) {
+    const dp = tipo === 'diaria' ? Math.round(state.score * 0.15) : tipo === 'semanal' ? Math.round(state.score * 0.6) : state.score;
+    students.push({ name:u.name, initials:u.name.substring(0,2).toUpperCase(), color:'#1a70c1', points:state.score, displayPts:dp, level:state.currentLevel, course:'—', role:'alumno' });
+  }
+
+  students.sort((a, b) => b.displayPts - a.displayPts);
+
+  /* Etiqueta de período */
+  const periodoLabel = tipo === 'diaria' ? 'pts hoy' : tipo === 'semanal' ? 'pts esta semana' : 'pts totales';
+
+  /* Info meta */
+  const metaInfo = {
+    general: { icon:'bi-globe2', label:'Clasificación histórica', color:'#0055A4' },
+    diaria:  { icon:'bi-sun-fill', label:'Puntos obtenidos hoy', color:'#f59e0b' },
+    semanal: { icon:'bi-calendar-week-fill', label:'Puntos obtenidos esta semana', color:'#10b981' },
+  }[tipo];
+
+  /* ─ PODIO top 3 (orden visual: 2º izq, 1º centro, 3º der) ─ */
+  const crownIcons  = ['👑','🥈','🥉'];
+  const podiumOrder = [1, 0, 2];
   const top3 = students.slice(0, 3);
 
-  /* Generar podio en orden visual */
   const podiumSlots = podiumOrder.map(visIdx => {
-    const s = top3[visIdx];
-    if (!s) return `<div class="lb-podium-slot rank-${visIdx+1}" style="opacity:.3;"></div>`;
+    const s    = top3[visIdx];
     const rank = visIdx + 1;
-    return `<div class="lb-podium-slot rank-${rank}">
+    if (!s) return `<div class="lb-podium-slot rank-${rank}" style="opacity:.25;min-height:140px;"></div>`;
+    return `<div class="lb-podium-slot rank-${rank}" style="animation-delay:${visIdx * 0.12}s">
       <span class="lb-podium-crown">${crownIcons[visIdx]}</span>
       <div class="lb-podium-avatar" style="background:${s.color}">${s.initials}</div>
       <div class="lb-podium-name">${s.name}</div>
-      <div class="lb-podium-pts">${s.points.toLocaleString()} pts</div>
+      <div class="lb-podium-pts">${s.displayPts.toLocaleString()}</div>
+      <div class="lb-podium-pts-label">${periodoLabel}</div>
       <span class="lb-list-level ${levelCls[s.level] || 'lb-level-basico'}">${levelLabels[s.level] || s.level}</span>
+      <div class="lb-podium-group"><i class="bi bi-mortarboard-fill"></i> ${s.course || '—'}</div>
     </div>`;
   });
 
-  /* Lista del resto */
+  /* ─ Lista resto ─ */
   const restHTML = students.slice(3).map((s, i) => {
     const rank = i + 4;
-    return `<div class="lb-list-item">
+    const isCurrentUser = u && s.name === u.name;
+    return `<div class="lb-list-item ${isCurrentUser ? 'lb-list-item--me' : ''}" style="animation-delay:${(i + 3) * 0.06}s">
       <span class="lb-list-rank">${rank}</span>
       <div class="lb-list-avatar" style="background:${s.color}">${s.initials}</div>
-      <span class="lb-list-name">${s.name}</span>
+      <div class="lb-list-info">
+        <span class="lb-list-name">${s.name}${isCurrentUser ? ' <span class="lb-you-badge">Tú</span>' : ''}</span>
+        <span class="lb-list-group"><i class="bi bi-mortarboard-fill"></i> ${s.course || '—'}</span>
+      </div>
       <span class="lb-list-level ${levelCls[s.level] || 'lb-level-basico'}">${levelLabels[s.level] || s.level}</span>
-      <span class="lb-list-pts">${s.points.toLocaleString()} pts</span>
+      <div class="lb-list-pts-wrap">
+        <span class="lb-list-pts">${s.displayPts.toLocaleString()}</span>
+        <span class="lb-list-pts-label">${periodoLabel}</span>
+      </div>
     </div>`;
   }).join('');
 
+  /* Timestamp actualización */
+  const now = new Date();
+  const tsId = containerId === 'leaderboard-content' ? 'lb-last-updated' : 'profe-lb-last-updated';
+  const tsEl = document.getElementById(tsId);
+  if (tsEl) tsEl.innerHTML = `<i class="bi bi-clock me-1"></i>Actualizado: ${now.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'})}`;
+
   document.getElementById(containerId).innerHTML = `
+    <div class="lb-meta-bar">
+      <span class="lb-meta-icon" style="color:${metaInfo.color}"><i class="bi ${metaInfo.icon}"></i></span>
+      <span class="lb-meta-label">${metaInfo.label}</span>
+      <span class="lb-meta-count"><i class="bi bi-people-fill me-1"></i>${students.length} participantes</span>
+    </div>
     <div class="lb-podium-wrap">
       ${podiumSlots[0]}
       ${podiumSlots[1]}
       ${podiumSlots[2]}
     </div>
-    <div class="lb-list-wrap">${restHTML}</div>`;
+    <div class="lb-list-wrap">${restHTML || '<div class="lb-empty"><i class="bi bi-emoji-smile"></i><p>Solo hay 3 participantes o menos</p></div>'}</div>`;
 }
 
 /* ─── MESSAGING ─── */
@@ -877,23 +953,64 @@ function buildProfeDashboard() {
   </div>`).join('');
 }
 
+// En script.js
+
 function buildStudents() {
-  const el = document.getElementById('students-list');
-  const levelLabels = { basico:'Básico', intermedio:'Intermedio', avanzado:'Avanzado' };
-  el.innerHTML = [...MOCK_STUDENTS].sort((a,b) => b.points - a.points).map(s => {
-    const lvlCls = s.level === 'avanzado' ? 'color:var(--gold)' : s.level === 'intermedio' ? 'color:var(--green-mid)' : 'color:var(--primary)';
-    return `<div class="student-row">
-      <div class="student-avatar" style="background:${s.color}">${s.initials}</div>
-      <div>
-        <div class="student-name">${s.name}</div>
-        <div class="student-meta">Última conexión: ${s.lastSeen} · Tiempo: ${s.time} · Ejercicios: ${s.exercises}</div>
+  // Esta función ahora solo llama a la aplicación de filtros inicial
+  applyStudentFilters();
+}
+
+function applyStudentFilters() {
+  const nameQuery = document.getElementById('filter-name').value.toLowerCase();
+  const courseFilter = document.getElementById('filter-course').value;
+  const levelFilter = document.getElementById('filter-level').value;
+  const sortOrder = document.getElementById('filter-sort').value;
+
+  // 1. Filtrar el array MOCK_STUDENTS
+  let filtered = MOCK_STUDENTS.filter(student => {
+    const matchesName = student.name.toLowerCase().includes(nameQuery);
+    const matchesCourse = courseFilter === "" || student.course === courseFilter;
+    const matchesLevel = levelFilter === "" || student.level === levelFilter;
+    return matchesName && matchesCourse && matchesLevel;
+  });
+
+  // 2. Ordenar
+  if (sortOrder === 'asc') {
+    filtered.sort((a, b) => a.points - b.points);
+  } else if (sortOrder === 'desc') {
+    filtered.sort((a, b) => b.points - a.points);
+  } else if (sortOrder === 'name') {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // 3. Renderizar la lista
+  const container = document.getElementById('profe-students-list');
+  if (!container) return;
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="text-center p-5 text-muted">No se encontraron alumnos con esos criterios.</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(s => `
+    <div class="student-row-card">
+      <div class="d-flex align-items-center flex-wrap gap-3">
+        <div class="student-avatar" style="background:${s.color}">${s.initials}</div>
+        <div style="flex:1; min-width:150px;">
+          <div class="student-name">${s.name}</div>
+          <div class="student-meta">Curso: <b>${s.course}</b> · Nivel: <span class="badge-level ${s.level}">${s.level}</span></div>
+        </div>
+        <div class="text-end me-3">
+          <div class="student-points">${s.points.toLocaleString()} pts</div>
+          <div class="student-meta">${s.exercises} ej. hechos</div>
+        </div>
+        <div class="text-end" style="min-width:100px;">
+          <div class="student-meta">Visto: ${s.lastSeen}</div>
+          <button class="btn btn-sm btn-outline-primary mt-1" onclick="impersonateStudent('${s.name}')">Ver como alumno</button>
+        </div>
       </div>
-      <div class="student-stats">
-        <div class="student-points">${s.points.toLocaleString()} pts</div>
-        <div class="student-level" style="${lvlCls};font-weight:600;">${levelLabels[s.level]}</div>
-      </div>
-    </div>`;
-  }).join('');
+    </div>
+  `).join('');
 }
 
 function buildProfeCourses() {
@@ -915,7 +1032,7 @@ function buildProfeCourses() {
     </div>`).join('');
 }
 
-function buildProfeLeaderboard() { buildLeaderboard('profe-leaderboard-content', true); }
+function buildProfeLeaderboard() { buildLeaderboard('profe-leaderboard-content', true, _lbTabProfe); }
 
 /* ─── COURSE MANAGER ─── */
 function openCourseModal(courseId) {
