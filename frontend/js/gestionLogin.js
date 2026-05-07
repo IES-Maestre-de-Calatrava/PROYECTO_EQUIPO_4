@@ -9,14 +9,16 @@ async function ejecutarLogin() {
 
 async function doLogin() {
     const response = await postLogin();
-    if (response != false) {
+    if (response && response !== false) {
+        alert(JSON.stringify(response));
         if (document.getElementById('remember-me').checked) {
-            localStorage.setItem('usuario', JSON.stringify(response.nombre));
-            entrarApp();
+            // localStorage.setItem('usuario', JSON.stringify(response.idsesion));
         } else {
-            sessionStorage.setItem('usuario', JSON.stringify(response.nombre));
-            entrarApp();
+            // sessionStorage.setItem('usuario', JSON.stringify(response.nombre));
         }
+        entrarApp();
+    } else {
+        
     }
 }
 
