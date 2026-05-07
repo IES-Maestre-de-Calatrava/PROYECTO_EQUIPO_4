@@ -1,7 +1,7 @@
 import {formatearFecha} from  '../../Utilidades.js';
 import {getProfesorById} from './getProfesores.js';
 
-const API = "http://localhost:8085/actividad/";
+const API = "http://192.168.150.185:8085/actividad/";
 
 async function getActividades() {
     try {
