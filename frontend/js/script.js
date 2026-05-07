@@ -305,6 +305,92 @@ function enterApp() {
   showScreen('screen-app');
 }
 
+function showNotifications(event) {
+  if (event) event.stopPropagation();
+  showToastAlert('No tienes notificaciones nuevas.', 'info');
+}
+
+function toggleProfileMenu(event) {
+  event.stopPropagation();
+  const menu = document.getElementById('profile-menu');
+  const dropdown = document.getElementById('profile-dropdown');
+  if (!menu) return;
+  const isOpen = menu.classList.toggle('active');
+  if (dropdown) dropdown.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+
+function closeProfileMenu() {
+  const menu = document.getElementById('profile-menu');
+  const dropdown = document.getElementById('profile-dropdown');
+  if (!menu) return;
+  menu.classList.remove('active');
+  if (dropdown) dropdown.setAttribute('aria-expanded', 'false');
+}
+
+document.addEventListener('click', closeProfileMenu);
+
+function openProfileSettings() {
+  closeProfileMenu();
+  populateProfileModal();
+  openModal('modal-profile');
+}
+
+function populateProfileModal() {
+  const user = state.currentUser;
+  if (!user) return;
+  document.getElementById('profile-name').value = user.name || '';
+  document.getElementById('profile-email').value = user.email || '';
+  document.getElementById('profile-password').value = '';
+  document.getElementById('profile-password-confirm').value = '';
+  const msg = document.getElementById('profile-msg');
+  if (msg) msg.classList.add('d-none');
+}
+
+function saveProfileChanges() {
+  const name = document.getElementById('profile-name').value.trim();
+  const email = document.getElementById('profile-email').value.trim();
+  const password = document.getElementById('profile-password').value.trim();
+  const confirm = document.getElementById('profile-password-confirm').value.trim();
+  const msg = document.getElementById('profile-msg');
+  if (!name || !email) {
+    msg.textContent = 'Nombre y correo son obligatorios.';
+    msg.className = 'alert alert-danger py-2 px-3';
+    msg.classList.remove('d-none');
+    return;
+  }
+  if (password && password.length < 4) {
+    msg.textContent = 'La contraseña debe tener al menos 4 caracteres.';
+    msg.className = 'alert alert-danger py-2 px-3';
+    msg.classList.remove('d-none');
+    return;
+  }
+  if (password && password !== confirm) {
+    msg.textContent = 'Las contraseñas no coinciden.';
+    msg.className = 'alert alert-danger py-2 px-3';
+    msg.classList.remove('d-none');
+    return;
+  }
+  const user = state.currentUser;
+  if (!user) return;
+  user.name = name;
+  user.email = email;
+  if (password) user.password = password;
+  document.getElementById('nav-avatar').textContent = name.substring(0,2).toUpperCase();
+  document.getElementById('nav-username').textContent = name;
+  const dashName = document.getElementById('dash-name');
+  if (dashName) dashName.textContent = name.split(' ')[0];
+  try {
+    const saved = localStorage.getItem('lf_session');
+    if (saved) {
+      const session = JSON.parse(saved);
+      session.email = email;
+      localStorage.setItem('lf_session', JSON.stringify(session));
+    }
+  } catch(e) {}
+  showToastAlert('Perfil actualizado.', 'info');
+  closeModal('modal-profile');
+}
+
 /* ─── IMPERSONATION ─── */
 function startImpersonation() {
   state.isImpersonating = true;
