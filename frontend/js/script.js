@@ -1448,3 +1448,19 @@ function doLogout() {
     // 2. Redirigimos al login
     window.location.href = 'login.html';
 }
+// 1. Función para cambiar el modo oscuro y GUARDARLO
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+}
+
+// 2. Al cargar la página, comprobar si estaba activado
+(function checkDarkModeOnLoad() {
+    const darkModeStatus = localStorage.getItem('darkMode');
+    if (darkModeStatus === 'enabled') {
+        document.body.classList.add('dark-mode');
+        // Si tienes un checkbox/switch en la UI, márcalo como activo también:
+        const darkModeToggle = document.getElementById('dark-mode-toggle'); 
+        if (darkModeToggle) darkModeToggle.checked = true;
+    }
+})();
