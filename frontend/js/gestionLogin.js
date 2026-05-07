@@ -9,7 +9,7 @@ async function ejecutarLogin() {
 
 async function doLogin() {
     const response = await postLogin();
-    if (response != {}) {
+    if (response != false) {
         if (document.getElementById('remember-me').checked) {
             localStorage.setItem('usuario', JSON.stringify(response.nombre));
             entrarApp();
