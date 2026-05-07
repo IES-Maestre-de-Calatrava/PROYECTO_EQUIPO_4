@@ -4,6 +4,10 @@ export function formatearFecha(fechaStr) {
     return fecha.toLocaleString();
 }
 
+
+/*
+Funcion que encripta un String en SHA-256
+*/
 export async function sha256(message) {
     const msgBuffer = new TextEncoder().encode(message);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);

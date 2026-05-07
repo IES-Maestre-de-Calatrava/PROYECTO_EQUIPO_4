@@ -30,8 +30,7 @@
     <div class="mb-3">
       <label class="form-label">Contraseña</label>
       <input id="login-password" type="password" class="form-control" placeholder="••••••••"
-             autocomplete="current-password"
-             onkeydown="if(event.key==='Enter') doLogin()"/>
+             autocomplete="current-password"/>
     </div>
 
     <label class="remember-me mb-3">
@@ -39,7 +38,7 @@
     </label>
     <!-- Este elemento ya existe en tu código de source: 2 -->
 <div id="login-error" class="alert alert-danger py-2 px-3 d-none" style="font-size:.85rem;border-radius:8px;"></div>
-    <button class="btn-login" onclick="doLogin()">Iniciar sesión →</button>
+    <button class="btn-login">Iniciar sesión →</button>
 
     <div style="text-align:center;margin-top:.85rem;font-size:.83rem;color:var(--text-muted);">
       ¿No tienes cuenta?
@@ -49,9 +48,7 @@
   </div>
 </div>
 
-<script src="../js/api.js"></script>
-<script src="../js/Login.js"></script>
-<script src="../js/script.js"></script>
+<script type="module" src="../js/gestionLogin.js"></script>
 
 </body>
 </html>
