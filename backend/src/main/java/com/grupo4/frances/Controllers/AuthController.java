@@ -1,12 +1,15 @@
 package com.grupo4.frances.Controllers;
 
-import com.grupo4.frances.DTO.LoginRequestDTO;
+import com.grupo4.frances.Mappers.GrupoMapper;
 import com.grupo4.frances.Repositories.AlumnoRepository;
 import com.grupo4.frances.Repositories.ConexionRepository;
 import com.grupo4.frances.Repositories.ProfesorRepository;
 import com.grupo4.frances.persistence.Alumno;
 import com.grupo4.frances.persistence.Conexion;
 import com.grupo4.frances.persistence.Profesor;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import static com.grupo4.frances.utilidades.Seguridad.*;

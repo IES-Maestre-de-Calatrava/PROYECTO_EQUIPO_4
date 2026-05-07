@@ -80,4 +80,5 @@ public class Conexion implements java.io.Serializable{
 	public void setIdsesion(String idsesion) {
 		this.idsesion = idsesion;
 	}
+
 }
