@@ -34,13 +34,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO credenciales) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credenciales) {
 
         String correo    = credenciales.getCorreo();
         String contrasena = credenciales.getContrasena();
-        String id_sesion = credenciales.getIdsesion();
 
-        if (correo == null || contrasena == null || id_sesion == null) {
+        if (correo == null || contrasena == null) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Correo y contraseña son obligatorios"));
         }
