@@ -157,11 +157,6 @@ function enterApp(usuario) {
 
 // ── UTILIDAD ──────────────────────────────────
 
-function generarUsernameDesdeNombre(nombre, apellidos) {
-    const n = nombre.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
-    const a = apellidos.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
-    return n + '.' + a + Math.floor(Math.random() * 99);
-}
 
 // Recuperar sesión al cargar la página
 (function recuperarSesion() {
