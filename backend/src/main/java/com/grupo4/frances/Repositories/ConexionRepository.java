@@ -7,11 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ConexionRepository extends JpaRepository<Conexion, Long> {
     @Query("SELECT c FROM Conexion c WHERE c.entrada = :entrada")
     List<Conexion> buscarPorEntrada(@Param("entrada") String entrada);
 
     @Query("SELECT c FROM Conexion c WHERE c.id_sesion = :id_sesion")
-    List<conexion> buscarPorUUID(@Param("id_sesion" String id_sesion))
+    Conexion buscarPorUUID(@Param("id_sesion") String id_sesion);
+
+    Optional<Conexion> buscarPorUUID(String correo);
 }

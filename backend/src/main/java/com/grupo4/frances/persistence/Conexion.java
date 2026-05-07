@@ -22,15 +22,19 @@ public class Conexion implements java.io.Serializable{
 	@Column(name="SALIDA")
 	private String salida;
 
+	@Column(name="ID_SESION")
+	private String id_sesion;
+
 	public Conexion(){
 
 	}
 
-	public Conexion(Long idConexion, Long idAlumno,String entrada,String salida) {
+	public Conexion(Long idConexion, Long idAlumno,String entrada,String salida, String id_sesion) {
 		this.idConexion = idConexion;
 		this.idAlumno = idAlumno;
 		this.entrada = entrada;
 		this.salida = salida;
+		this.id_sesion = id_sesion;
 	}
 
 	public Long getIdConexion() {
@@ -63,5 +67,17 @@ public class Conexion implements java.io.Serializable{
 
 	public void setSalida(String salida) {
 		this.salida = salida;
+	}
+
+	public void setIdConexion(Long idConexion) {
+		this.idConexion = idConexion;
+	}
+
+	public String getId_sesion() {
+		return id_sesion;
+	}
+
+	public void setId_sesion(String id_sesion) {
+		this.id_sesion = id_sesion;
 	}
 }

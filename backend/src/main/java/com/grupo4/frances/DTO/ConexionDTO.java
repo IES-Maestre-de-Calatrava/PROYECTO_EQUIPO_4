@@ -21,7 +21,7 @@ public class ConexionDTO{
 	
     private String salida;
 
-	private String id_sesion
+	private String id_sesion;
 
 	public ConexionDTO(){
 
@@ -67,4 +67,15 @@ public class ConexionDTO{
 		this.salida = salida;
 	}
 
+	public void setIdConexion(Long idConexion) {
+		this.idConexion = idConexion;
+	}
+
+	public String getId_sesion() {
+		return id_sesion;
+	}
+
+	public void setId_sesion(String id_sesion) {
+		this.id_sesion = id_sesion;
+	}
 }

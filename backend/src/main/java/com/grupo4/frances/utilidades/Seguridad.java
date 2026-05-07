@@ -1,5 +1,7 @@
 package com.grupo4.frances.utilidades;
 
+import java.util.UUID;
+
 import static com.grupo4.frances.utilidades.Numericas.*;
 
 public class Seguridad {
@@ -14,5 +16,9 @@ public class Seguridad {
         }
 
         return clave.toString();
+    }
+
+    public static String generarUUID(){
+        return UUID.randomUUID().toString();
     }
 }
