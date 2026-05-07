@@ -17,4 +17,7 @@ public interface ConexionRepository extends JpaRepository<Conexion, Long> {
     Optional<Conexion> buscarPoridsesion(@Param("idsesion") String idsesion);
 
     Optional<Conexion> findByidsesion(String correo);
+
+    @Query("SELECT c FROM Conexion c WHERE c.idalumno = :idalumno")
+    Optional<Conexion> buscarPorIdAlumno(@Param("idalumno") Long idAlumno);
 }
