@@ -410,7 +410,7 @@ function showPanel(id) {
   document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
   const map = {
     'dashboard':'Inicio','courses':'Cursos','leaderboard':'Leaderboard',
-    'progress':'Mi progreso','messages':'Mensajes','settings':'Configuración',
+    'progress':'Mi progreso','messages':'Mensajes','tutor':'Tutor IA','settings':'Configuración',
     'profe-dashboard':'Inicio','profe-students':'Alumnos',
     'profe-leaderboard':'Leaderboard','profe-courses':'Cursos',
     'activity-editor':'Editor actividades',
