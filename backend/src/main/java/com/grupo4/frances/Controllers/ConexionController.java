@@ -32,7 +32,7 @@ public class ConexionController {
 
     /**
      * Obtener actividad por ID
-     * @param conexionID
+     * @param alumnoID
      * @return ConexionDTO
      * @throws ConexionNotFoundException
      */
@@ -48,9 +48,9 @@ public class ConexionController {
     }
 
     @GetMapping("/find/{uuid}")
-    public ResponseEntity<ConexionDTO> getConexionByUUID(@PathVariable(value = "id_sesion" String id_sesion)) throws ConexionNotFoundException {
-        ConexionDTO conexion = repository.getConexionByUUID(id_sesion)
+    public ResponseEntity<ConexionDTO> getConexionByUUID(@PathVariable(value = "id_sesion") String id_sesion) throws ConexionNotFoundException {
+        ConexionDTO conexion = repository.buscarPorUUID(id_sesion)
             .map(ConexionMapper::toDTO)
-            .orElseThrow(() -> new ConexionNotFoundException(id_sesion))
+            .orElseThrow(() -> new ConexionNotFoundException((long) 0));
     }
 }
