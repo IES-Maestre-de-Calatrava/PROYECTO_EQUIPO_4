@@ -32,10 +32,11 @@ public class AdminController {
     @PostMapping("/alumnos")
     public ResponseEntity<?> crearAlumno(@RequestParam Long idDirector, @RequestBody Alumno alumno) {
         ResponseEntity<?> errorPermisos = validarDirector(idDirector);
-        if (errorPermisos != null) {
-            return errorPermisos;
-        }
+        if (errorPermisos != null) return errorPermisos;
 
+        // Forzamos que sea una creación nueva ignorando cualquier ID que venga del front
+        alumno.setId(null); 
+    
         return ResponseEntity.ok(alumnoRepository.save(alumno));
     }
 
