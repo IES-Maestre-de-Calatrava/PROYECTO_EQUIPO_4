@@ -1,17 +1,3 @@
-/* =============================================================
-   Le Français v3.0 — JavaScript unificado
-   Cambios vs v2:
-   ✓ Login: sin registro visible, sin hint demo en UI
-   ✓ Leaderboard: podio visual, solo alumnos, profesor excluido
-   ✓ % acierto: añadido al alumno, eliminado del panel profesor
-   ✓ Settings: dark mode toggle + cambio contraseña
-   ✓ Editor ejercicios: 4 tipos (test, fill, match, image)
-   ✓ Rol Director: estructura lista para backend
-   ✓ Generación automática username + contraseña (Director)
-   ✓ Modo oscuro: clase body.dark-mode, persistido en localStorage
-============================================================= */
-
-/* ─── DATA ─── */
 const LEVELS = [
   { id:'basico',     label:'Básico',     min:0,    max:2000,    icon:'🔵', class:'',          desc:'Empezando tu aventura en francés' },
   { id:'intermedio', label:'Intermedio', min:2000, max:8000,    icon:'🟢', class:'intermedio', desc:'Construyendo bases sólidas' },

@@ -1,11 +1,5 @@
 const API_BASE = 'http://192.168.150.185:8085/api';
 
-// =============================================
-//  auth.js — Login y registro de alumno
-// =============================================
-
-// ── LOGIN ─────────────────────────────────────
-
 async function doLogin() {
     const email    = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value.trim();
