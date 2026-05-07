@@ -34,6 +34,9 @@ public class ActividadDTO {
 
     private String respuestas;
 
+    @NotBlank
+    private int puntos;
+
     // Constructor vacío
     public ActividadDTO() {
     }
@@ -41,7 +44,7 @@ public class ActividadDTO {
     // Constructor completo
 
 
-    public ActividadDTO(Long idActividad, String nombre, String dificultad, String idProfesor, String duracion, String fechaInicio, String fechaFin, String fechaEntrega, String preguntas, String respuestas) {
+    public ActividadDTO(Long idActividad, String nombre, String dificultad, String idProfesor, String duracion, String fechaInicio, String fechaFin, String fechaEntrega, String preguntas, String respuestas, int puntos) {
         this.idActividad = idActividad;
         this.nombre = nombre;
         this.dificultad = dificultad;
@@ -52,6 +55,7 @@ public class ActividadDTO {
         this.fechaEntrega = fechaEntrega;
         this.preguntas = preguntas;
         this.respuestas = respuestas;
+        this.puntos = puntos;
     }
 
     // Getters y Setters
@@ -133,5 +137,13 @@ public class ActividadDTO {
 
     public void setRespuestas(String respuestas) {
         this.respuestas = respuestas;
+    }
+
+    public int getPuntos() {
+        return puntos;
+    }
+
+    public void setPuntos(int puntos) {
+        this.puntos = puntos;
     }
 }
