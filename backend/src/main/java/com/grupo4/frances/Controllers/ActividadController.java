@@ -21,7 +21,7 @@ public class ActividadController {
     private ActividadRepository repository;
 
     /**
-     * Obtener todas las actividades
+     * Obtener todas las actividades.
      * @return List de ActividadDTO
      */
     @GetMapping("/find")
