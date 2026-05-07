@@ -91,6 +91,7 @@ CREATE TABLE ACTIVIDAD (
     FECHA_ENTREGA DATETIME NOT NULL COMMENT 'Fecha límite de entrega de la actividad',
     PREGUNTAS JSON COMMENT 'Contiene las preguntas que tendrá el ejercicio',
     RESPUESTAS_CORRECTAS JSON COMMENT 'Contiene las respuestas correctas a las preguntas',
+    PUNTOS INT NOT NULL COMMENT 'Puntos que otorga al usuario la actividad',
     
     CONSTRAINT FK_ACTIVIDAD_PROFESOR FOREIGN KEY (ID_PROFESOR) 
         REFERENCES PROFESOR(ID_PROFESOR)
@@ -134,7 +135,6 @@ CREATE TABLE CONEXION (
 CREATE TABLE ALUMNO_ACTIVIDAD (
     ID_ALUMNO INT NOT NULL COMMENT 'ID del alumno que realiza la actividad',
     ID_ACTIVIDAD INT NOT NULL COMMENT 'ID de la actividad asignada',
-    PUNTOS INT NOT NULL COMMENT 'Puntos que ha conseguido el alumno en base a la actividad',
     
     PRIMARY KEY (ID_ALUMNO, ID_ACTIVIDAD),
     
