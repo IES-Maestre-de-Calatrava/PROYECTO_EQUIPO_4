@@ -16,18 +16,14 @@ export async function postLogin(){
     }
     await fetch(`${API}/login`, datosAdicionales).then(function(respuesta) {
             if(respuesta.ok) {
-                return respuesta.json();
+                return true;
             } else {
                 throw new Error('No se ha podido conectar con la base de datos' + respuesta.statusText);
+                return false;
             }
         }).then(function(data){
             datosDevueltos = data;
         }).catch(function(e){
             alert(e.message);
         });
-    if(datosDevueltos != null){
-        return datosDevueltos
-    } else {
-        return false;
-    }
 }
