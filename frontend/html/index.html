@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Plataforma SaaS Educativa</title>
+  <title>Le Français 2.0 — Plataforma SaaS Educativa</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
@@ -78,7 +78,6 @@
         <div class="sidebar-divider"></div>
         <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
       </div>
-
     </aside>
 
     <!-- MAIN -->
@@ -159,12 +158,40 @@
         </div>
       </div>
 
-      <!-- ── LEADERBOARD ALUMNO ──
-           Diseño podio: 👑 1º, coronas plata/bronce 2º y 3º
-           Solo alumnos. Profesor en impersonación no aparece.
-      -->
+      <!-- ── LEADERBOARD ALUMNO (3 tabs: General / Diaria / Semanal) ── -->
       <div id="leaderboard" class="panel">
-        <div class="section-title">🏆 Salón de la Gloria</div>
+        <!-- Header -->
+        <div class="lb-page-header">
+          <div class="lb-title-wrap">
+            <i class="bi bi-trophy-fill lb-title-icon"></i>
+            <div>
+              <h2 class="lb-main-title">Leaderboard</h2>
+              <p class="lb-main-sub">Compite y sube al top de la clase</p>
+            </div>
+          </div>
+          <div class="lb-last-updated" id="lb-last-updated"></div>
+        </div>
+
+        <!-- Tab Selector -->
+        <div class="lb-tab-container">
+          <button class="lb-tab active" id="tab-general" onclick="switchLeaderboard('general')">
+            <i class="bi bi-globe2"></i>
+            <span>General</span>
+            <small>Histórico</small>
+          </button>
+          <button class="lb-tab" id="tab-diaria" onclick="switchLeaderboard('diaria')">
+            <i class="bi bi-sun-fill"></i>
+            <span>Diaria</span>
+            <small>Hoy</small>
+          </button>
+          <button class="lb-tab" id="tab-semanal" onclick="switchLeaderboard('semanal')">
+            <i class="bi bi-calendar-week-fill"></i>
+            <span>Semanal</span>
+            <small>Esta semana</small>
+          </button>
+        </div>
+
+        <!-- Content area -->
         <div id="leaderboard-content"></div>
       </div>
 
@@ -321,7 +348,37 @@
 
       <!-- ── PROFESOR: LEADERBOARD ── -->
       <div id="profe-leaderboard" class="panel">
-        <div class="section-title">🏆 Leaderboard del Aula</div>
+        <!-- Header -->
+        <div class="lb-page-header">
+          <div class="lb-title-wrap">
+            <i class="bi bi-trophy-fill lb-title-icon"></i>
+            <div>
+              <h2 class="lb-main-title">Leaderboard del Aula</h2>
+              <p class="lb-main-sub">Progreso competitivo de tus alumnos</p>
+            </div>
+          </div>
+          <div class="lb-last-updated" id="profe-lb-last-updated"></div>
+        </div>
+
+        <!-- Tab Selector -->
+        <div class="lb-tab-container">
+          <button class="lb-tab active" id="profe-tab-general" onclick="switchProfeLeaderboard('general')">
+            <i class="bi bi-globe2"></i>
+            <span>General</span>
+            <small>Histórico</small>
+          </button>
+          <button class="lb-tab" id="profe-tab-diaria" onclick="switchProfeLeaderboard('diaria')">
+            <i class="bi bi-sun-fill"></i>
+            <span>Diaria</span>
+            <small>Hoy</small>
+          </button>
+          <button class="lb-tab" id="profe-tab-semanal" onclick="switchProfeLeaderboard('semanal')">
+            <i class="bi bi-calendar-week-fill"></i>
+            <span>Semanal</span>
+            <small>Esta semana</small>
+          </button>
+        </div>
+
         <div id="profe-leaderboard-content"></div>
       </div>
 
@@ -628,5 +685,41 @@ PALETA DE COLORES:
   ✓ Secondary:  (sin uso)          →  #EF4135 (rojo Francia)
   ✓ Background: #f8fafc            →  #f8f9fa
   ✓ Todos los gradientes, badges y botones actualizados
+
+NUEVAS FUNCIONALIDADES:
+  ✓ Leaderboard mejorado: top 3 destacado, medallas, nivel junto al nombre, orden automático por puntos
+  ✓ Timer funcional por actividad (MM:SS en navbar, pulso rojo últimos 30s)
+  ✓ Fecha límite en actividades (visible en la lista)
+  ✓ Campo de apuntes editable por curso (guardado en localStorage)
+  ✓ Persistencia de sesión (localStorage: recuerda email y rol)
+  ✓ Tiempo de sesión activo simulado en "Mi Progreso"
+  ✓ Editor de actividades completo: crear, editar, eliminar actividades
+  ✓ Editor de ejercicios completo: crear, editar, eliminar ejercicios (test y hueco)
+  ✓ Creación de cursos desde el panel del profesor
+  ✓ Edición y eliminación de cursos
+  ✓ Modo impersonación: profesor ve la app como alumno con banner rojo
+  ✓ Tabla de métricas por alumno: ejercicios, tiempo, última actividad, barra de progreso
+  ✓ Modales propios (sin depender de Bootstrap modal JS)
+
+MEJORAS DE UX:
+  ✓ Banner de impersonación con botón de vuelta
+  ✓ Badge de versión "2.0" en navbar
+  ✓ Botones de editar/eliminar actividades inline (solo para profesor)
+  ✓ Pista de respuesta correcta en ejercicios de hueco cuando falla
+  ✓ Hint de credenciales demo en login
+  ✓ Sidebar con secciones y etiquetas
+
+REFACTOR JS:
+  ✓ auth logic    → doLogin, doRegister, doLogout, enterApp, selectRole
+  ✓ course logic  → buildCourses, courseCardHTML, openCourse, saveCourse, deleteCourse
+  ✓ activity logic→ buildActivityList, openActivity, saveActivity, deleteActivity
+  ✓ exercise logic→ loadExercise, checkTest, checkFill, saveExercise, deleteExercise
+  ✓ scoring system→ applyPoints, showFeedback, scheduleNextExercise, finishActivity
+  ✓ timer system  → startActivityTimer, clearActivityTimer, startSessionTimer
+  ✓ impersonation → startImpersonation, exitImpersonation
+  ✓ modal helpers → openModal, closeModal (con cierre al clicar overlay)
+
+=================================================================
+-->
 </body>
 </html>
