@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Gestion Usuarios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 24px;
+        }
+
+        button {
+            margin: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        input,
+        select {
+            margin: 4px;
+            padding: 7px;
+        }
+
+        label {
+            display: block;
+            margin-top: 8px;
+        }
+
+        .campo {
+            width: 280px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 12px;
+            white-space: pre-wrap;
+        }
+
+        .error {
+            color: #b00020;
+            font-weight: bold;
+        }
+
+        .ok {
+            color: #0a7a22;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Test Gestion Usuarios</h1>
+
+    <h2>GET usuarios</h2>
+
+    <div>
+        <button id="btnUsuarios">Obtener todos los usuarios</button>
+        <button id="btnAlumnos">Obtener alumnos</button>
+        <button id="btnProfesores">Obtener profesores</button>
+    </div>
+
+    <div>
+        <input type="number" id="idUsuario" placeholder="ID usuario">
+        <button id="btnAlumnoId">Buscar alumno por ID</button>
+        <button id="btnProfesorId">Buscar profesor por ID</button>
+    </div>
+
+    <hr>
+
+    <h2>Crear usuarios API admin</h2>
+
+    <div>
+        <button id="btnSesionDirector">Simular sesion director</button>
+        <button id="btnBorrarSesion">Borrar sesion</button>
+    </div>
+
+    <label for="tipoUsuario">Tipo de usuario</label>
+    <select id="tipoUsuario" class="campo">
+        <option value="alumno">Alumno</option>
+        <option value="profesor">Profesor</option>
+    </select>
+
+    <label for="idDirector">ID director</label>
+    <input type="number" id="idDirector" class="campo" value="1">
+
+    <label for="nombre">Nombre</label>
+    <input type="text" id="nombre" class="campo" value="Usuario">
+
+    <label for="apellidos">Apellidos</label>
+    <input type="text" id="apellidos" class="campo" value="Prueba">
+
+    <label for="correo">Correo</label>
+    <input type="email" id="correo" class="campo" value="usuario.prueba@test.com">
+
+    <label for="nombreUsuario">Nombre de usuario</label>
+    <input type="text" id="nombreUsuario" class="campo" value="usuarioprueba">
+
+    <label for="contrasena">Contrasena</label>
+    <input type="text" id="contrasena" class="campo" value="1234">
+
+    <label for="instituto">Instituto</label>
+    <input type="text" id="instituto" class="campo" value="IES Maestre de Calatrava">
+
+    <label for="telefono">Telefono</label>
+    <input type="number" id="telefono" class="campo" value="600000001">
+
+    <div id="camposAlumno">
+        <label for="nivel">Nivel alumno</label>
+        <select id="nivel" class="campo">
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+            <option value="C1">C1</option>
+        </select>
+
+        <label for="rango">Rango alumno</label>
+        <input type="text" id="rango" class="campo" value="Novato">
+    </div>
+
+    <div id="camposProfesor" style="display:none">
+        <label>
+            <input type="checkbox" id="directorProfesor">
+            Crear profesor como director
+        </label>
+    </div>
+
+    <div>
+        <button id="btnCrearUsuario">Crear usuario con API</button>
+    </div>
+
+    <hr>
+
+    <h2>Crear grupo API</h2>
+
+    <div>
+        <button id="btnSesionProfesor">Simular sesion profesor</button>
+    </div>
+
+    <label for="idGrupo">ID grupo</label>
+    <input type="number" id="idGrupo" class="campo" value="999">
+
+    <label for="nombreGrupo">Nombre grupo</label>
+    <input type="text" id="nombreGrupo" class="campo" value="Grupo prueba">
+
+    <label for="idCentroGrupo">ID centro</label>
+    <input type="number" id="idCentroGrupo" class="campo" value="1">
+
+    <label for="idProfesorGrupo">ID profesor</label>
+    <input type="number" id="idProfesorGrupo" class="campo" value="2">
+
+    <label for="codigoGrupo">Codigo grupo opcional</label>
+    <input type="text" id="codigoGrupo" class="campo" value="">
+
+    <div>
+        <button id="btnCrearGrupo">Crear grupo con API</button>
+    </div>
+
+    <p id="estado"></p>
+    <pre id="resultado">Pulsa un boton para probar la conexion con la API.</pre>
+
+    <script type="module">
+        import { gestionUsuariosGet } from "../../js/REST/GET/getGestionUsuarios.js";
+        import { gestionUsuariosPut } from "../../js/REST/PUT/putGestionUsuarios.js";
+        import { gestionGruposPut } from "../../js/REST/PUT/putGestionGrupos.js";
+
+        const estado = document.getElementById("estado");
+        const resultado = document.getElementById("resultado");
+        const idUsuario = document.getElementById("idUsuario");
+        const sufijo = Date.now();
+
+        document.getElementById("correo").value = `usuario.prueba.${sufijo}@test.com`;
+        document.getElementById("nombreUsuario").value = `usuarioprueba${sufijo}`;
+
+        function actualizarCamposPorTipo() {
+            const tipoUsuario = document.getElementById("tipoUsuario").value;
+            const esAlumno = tipoUsuario === "alumno";
+
+            document.getElementById("camposAlumno").style.display = esAlumno ? "block" : "none";
+            document.getElementById("camposProfesor").style.display = esAlumno ? "none" : "block";
+            document.getElementById("telefono").value = esAlumno ? "600000001" : "610000001";
+        }
+
+        function obtenerDatosComunes() {
+            return {
+                nombre: document.getElementById("nombre").value.trim(),
+                apellidos: document.getElementById("apellidos").value.trim(),
+                correo: document.getElementById("correo").value.trim(),
+                nombreUsuario: document.getElementById("nombreUsuario").value.trim(),
+                contrasena: document.getElementById("contrasena").value.trim(),
+                instituto: document.getElementById("instituto").value.trim(),
+                telefono: Number(document.getElementById("telefono").value)
+            };
+        }
+
+        function obtenerDatosAlumno() {
+            return {
+                ...obtenerDatosComunes(),
+                nivel: document.getElementById("nivel").value,
+                rango: document.getElementById("rango").value.trim()
+            };
+        }
+
+        function obtenerDatosProfesor() {
+            return {
+                ...obtenerDatosComunes(),
+                director: document.getElementById("directorProfesor").checked
+            };
+        }
+
+        async function ejecutarPeticion(callback, mensajeCorrecto = "Conexion correcta") {
+            estado.className = "";
+            estado.textContent = "Cargando...";
+            resultado.textContent = "";
+
+            try {
+                const datos = await callback();
+                estado.className = "ok";
+                estado.textContent = mensajeCorrecto;
+                resultado.textContent = JSON.stringify(datos, null, 2);
+            } catch (error) {
+                estado.className = "error";
+                estado.textContent = "Error en la peticion";
+                resultado.textContent = error.message;
+                console.error(error);
+            }
+        }
+
+        function obtenerId() {
+            const id = idUsuario.value.trim();
+
+            if (!id) {
+                throw new Error("Introduce un ID antes de buscar.");
+            }
+
+            return id;
+        }
+
+        document.getElementById("btnUsuarios").addEventListener("click", () => {
+            ejecutarPeticion(() => gestionUsuariosGet.getUsuarios());
+        });
+
+        document.getElementById("btnAlumnos").addEventListener("click", () => {
+            ejecutarPeticion(() => gestionUsuariosGet.getAlumnos());
+        });
+
+        document.getElementById("btnProfesores").addEventListener("click", () => {
+            ejecutarPeticion(() => gestionUsuariosGet.getProfesores());
+        });
+
+        document.getElementById("tipoUsuario").addEventListener("change", actualizarCamposPorTipo);
+
+        document.getElementById("btnAlumnoId").addEventListener("click", () => {
+            ejecutarPeticion(() => gestionUsuariosGet.getAlumnoById(obtenerId()));
+        });
+
+        document.getElementById("btnProfesorId").addEventListener("click", () => {
+            ejecutarPeticion(() => gestionUsuariosGet.getProfesorById(obtenerId()));
+        });
+
+        document.getElementById("btnSesionDirector").addEventListener("click", () => {
+            const idDirector = Number(document.getElementById("idDirector").value);
+            const director = {
+                nombre: "Director",
+                apellidos: "Prueba",
+                id: idDirector,
+                idDirector,
+                idProfesor: idDirector,
+                rol: "DIRECTOR",
+                role: "director"
+            };
+
+            localStorage.setItem("usuario", JSON.stringify(director));
+            localStorage.setItem("lf_session", JSON.stringify({
+                email: "director@test.com",
+                id: idDirector,
+                idDirector,
+                idProfesor: idDirector,
+                role: "director"
+            }));
+
+            estado.className = "ok";
+            estado.textContent = "Sesion de director guardada";
+            resultado.textContent = "Ahora puedes probar Crear usuario con API. Revisa tambien la consola del navegador para ver el log del fetch.";
+        });
+
+        document.getElementById("btnBorrarSesion").addEventListener("click", () => {
+            localStorage.removeItem("usuario");
+            sessionStorage.removeItem("usuario");
+            localStorage.removeItem("lf_session");
+            sessionStorage.removeItem("lf_session");
+
+            estado.className = "ok";
+            estado.textContent = "Sesion borrada";
+            resultado.textContent = "Si intentas crear un usuario ahora, debe bloquearse por permisos antes de llamar a la API.";
+        });
+
+        document.getElementById("btnSesionProfesor").addEventListener("click", () => {
+            const idProfesor = Number(document.getElementById("idProfesorGrupo").value);
+            const profesor = {
+                nombre: "Profesor",
+                apellidos: "Prueba",
+                id: idProfesor,
+                idProfesor,
+                rol: "PROFESOR",
+                role: "profesor"
+            };
+
+            localStorage.setItem("usuario", JSON.stringify(profesor));
+            localStorage.setItem("lf_session", JSON.stringify({
+                email: "profesor@test.com",
+                id: idProfesor,
+                idProfesor,
+                role: "profesor"
+            }));
+
+            estado.className = "ok";
+            estado.textContent = "Sesion de profesor guardada";
+            resultado.textContent = "Ahora puedes probar Crear grupo con API.";
+        });
+
+        document.getElementById("btnCrearUsuario").addEventListener("click", () => {
+            const tipoUsuario = document.getElementById("tipoUsuario").value;
+            const idDirector = Number(document.getElementById("idDirector").value);
+            const usuarioDirector = {
+                id: idDirector,
+                idDirector,
+                idProfesor: idDirector,
+                rol: "DIRECTOR",
+                role: "director"
+            };
+            const datosUsuario = tipoUsuario === "alumno" ? obtenerDatosAlumno() : obtenerDatosProfesor();
+
+            ejecutarPeticion(
+                () => gestionUsuariosPut.crearUsuario(datosUsuario, tipoUsuario, usuarioDirector),
+                "Usuario enviado a la API"
+            );
+        });
+
+        document.getElementById("btnCrearGrupo").addEventListener("click", () => {
+            const idProfesor = Number(document.getElementById("idProfesorGrupo").value);
+            const usuarioProfesor = {
+                id: idProfesor,
+                idProfesor,
+                rol: "PROFESOR",
+                role: "profesor"
+            };
+            const datosGrupo = {
+                idGrupo: Number(document.getElementById("idGrupo").value),
+                nombre: document.getElementById("nombreGrupo").value.trim(),
+                idCentro: Number(document.getElementById("idCentroGrupo").value),
+                idProfesor,
+                codigo: document.getElementById("codigoGrupo").value.trim() || null
+            };
+
+            ejecutarPeticion(
+                () => gestionGruposPut.crearGrupo(datosGrupo, usuarioProfesor),
+                "Grupo enviado a la API"
+            );
+        });
+
+        actualizarCamposPorTipo();
+    </script>
+</body>
+
+</html>

@@ -28,7 +28,7 @@
   --transition:    all .28s cubic-bezier(.4,0,.2,1);
 }
 
-/* ── MODO OSCURO TOTAL (REVISADO v12.0) ── */
+/* ── MODO OSCURO TOTAL (REVISADO v14.0) ── */
 
 body.dark-mode {
     --bg: #0f172a !important; 
@@ -44,55 +44,55 @@ body.dark-mode {
     color: var(--text-main) !important;
 }
 
-/* 1. ARREGLO ESPECÍFICO: BUSCADOR (bg-light, border-start-0 y bi-search) */
-body.dark-mode .bg-light {
-    background-color: #0f172a !important; /* Fondo más profundo para el input */
-    color: #ffffff !important;
-}
-
-body.dark-mode .form-control {
-    background-color: #1e293b !important;
-    color: #ffffff !important;
-    border-color: var(--border) !important;
-}
-
-/* El icono de la lupa */
-body.dark-mode .bi-search,
-body.dark-mode .input-group-text {
-    background-color: #1e293b !important;
-    color: #a5b4fc !important; /* Lavanda para que resalte */
-    border-color: var(--border) !important;
-}
-
-/* Placeholder del buscador */
-body.dark-mode .form-control::placeholder {
-    color: #94a3b8 !important;
-}
-
-/* 2. ARREGLO PARA "row bg-white" y Contenedores */
-body.dark-mode .row.bg-white,
-body.dark-mode .bg-white {
-    background-color: var(--white) !important;
-    color: var(--text-main) !important;
-    border: 1px solid var(--border) !important;
-}
-
-/* 3. TABLAS (Cabeceras y filas) */
-body.dark-mode .table, 
-body.dark-mode table {
+/* 1. ARREGLO DEFINITIVO DE TABLAS (Incluyendo .table-hover) */
+body.dark-mode table,
+body.dark-mode .table,
+body.dark-mode #profe-metrics-table table {
     background-color: var(--white) !important;
     color: var(--text-main) !important;
     border-color: var(--border) !important;
 }
 
-body.dark-mode thead, 
-body.dark-mode th {
-    background-color: #1e293b !important;
-    color: #a5b4fc !important;
+/* Forzar el fondo oscuro en los encabezados para que no se vean blancos */
+body.dark-mode .table thead,
+body.dark-mode .table th,
+body.dark-mode table thead,
+body.dark-mode table th,
+body.dark-mode #profe-metrics-table thead th {
+    background-color: #1e293b !important; /* Azul grisáceo oscuro */
+    color: #a5b4fc !important;           /* Texto lavanda */
     border-bottom: 2px solid var(--border) !important;
 }
 
-/* 4. ACTIVITY ICON, NOTES & STATUS */
+/* Evitar que las filas hover vuelvan a ponerse blancas */
+body.dark-mode .table-hover tbody tr:hover td,
+body.dark-mode .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode td {
+    background-color: transparent !important;
+    color: var(--text-main) !important;
+    border-color: var(--border) !important;
+}
+
+/* 2. ARREGLO DE BUSCADOR E ICONO LUPA */
+body.dark-mode .bg-light,
+body.dark-mode .form-control.bg-light {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    border-color: var(--border) !important;
+}
+
+body.dark-mode .bi-search,
+body.dark-mode .input-group-text {
+    background-color: #1e293b !important;
+    color: #a5b4fc !important;
+    border-color: var(--border) !important;
+}
+
+/* 3. ACTIVITY ICON, NOTES & STATUS */
 body.dark-mode .activity-icon {
     background-color: rgba(165, 180, 252, 0.15) !important;
     color: #a5b4fc !important;
@@ -111,20 +111,18 @@ body.dark-mode .activity-status {
     color: #fbbf24 !important;
 }
 
-/* 5. BANNER MOTIVACIONAL Y OTROS */
-body.dark-mode #motivational-banner,
-body.dark-mode .motivational-banner,
-body.dark-mode .card {
+/* 4. CONTENEDORES BOOTSTRAP (bg-white, row) */
+body.dark-mode .row.bg-white,
+body.dark-mode .bg-white,
+body.dark-mode .card,
+body.dark-mode .stat-card {
     background-color: var(--white) !important;
-    background-image: none !important;
+    color: var(--text-main) !important;
     border: 1px solid var(--border) !important;
+    background-image: none !important;
 }
 
-/* 6. LOGOS Y BANDERAS (Inline Styles) */
-body.dark-mode [style*="color:#002654"] { color: #60a5fa !important; }
-body.dark-mode [style*="color:#ED2939"] { color: #fb7185 !important; }
-
-/* 7. TEXTOS Y TÍTULOS */
+/* 5. TÍTULOS Y TEXTOS */
 body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4,
 body.dark-mode .text-primary, body.dark-mode .numbers, 
 body.dark-mode [class*="title"], body.dark-mode [class*="purple"] {
@@ -136,7 +134,10 @@ body.dark-mode p, body.dark-mode label, body.dark-mode .dash-sub {
     color: var(--text-muted) !important;
 }
 
-/* Iconos generales */
+/* 6. LOGOS Y ELEMENTOS INLINE */
+body.dark-mode [style*="color:#002654"] { color: #60a5fa !important; }
+body.dark-mode [style*="color:#ED2939"] { color: #fb7185 !important; }
+
 body.dark-mode i:not(.no-dark) {
     color: #a5b4fc !important;
 }
