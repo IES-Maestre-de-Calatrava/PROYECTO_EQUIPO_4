@@ -170,6 +170,70 @@ function doLogin() {
   console.log("Login correcto, redirigiendo...");
   window.location.href="./index.html";
 }
+async function doRegister() {
+    const nombre        = document.getElementById('reg-nombre').value.trim();
+    const apellidos     = document.getElementById('reg-apellidos').value.trim();
+    const correo        = document.getElementById('reg-correo').value.trim();
+    const contrasena    = document.getElementById('reg-contrasena').value.trim();
+    const confirmPass   = document.getElementById('reg-confirmar').value.trim();
+
+    if (!nombre || !apellidos || !correo || !contrasena) {
+        showRegMsg('Por favor, rellena todos los campos.', 'danger');
+        return;
+    }
+    if (contrasena !== confirmPass) {
+        showRegMsg('Las contraseñas no coinciden.', 'danger');
+        return;
+    }
+    if (contrasena.length < 4) {
+        showRegMsg('La contraseña debe tener al menos 4 caracteres.', 'danger');
+        return;
+    }
+
+    try {
+        const response = await fetch('http://192.168.150.185:8085/api/auth/registro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nombre,
+                apellidos,
+                correo,
+                contrasena,
+                nombreUsuario: generarUsernameDesdeNombre(nombre, apellidos),
+                nivel: 'A1',
+                rango: 'Bronce'
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showRegMsg(data.error || 'Error al crear la cuenta.', 'danger');
+            return;
+        }
+
+        showRegMsg('✅ Cuenta creada correctamente. Ya puedes iniciar sesión.', 'success');
+        setTimeout(() => window.location.href = 'login.html', 1500);
+
+    } catch (err) {
+        showRegMsg('No se pudo conectar con el servidor.', 'danger');
+    }
+}
+
+function showRegMsg(msg, tipo) {
+    const div = document.getElementById('reg-error');
+    div.textContent = msg;
+    div.className = `alert alert-${tipo} py-2 px-3`;
+    div.style.fontSize = '.85rem';
+    div.style.borderRadius = '8px';
+    div.classList.remove('d-none');
+}
+
+function generarUsernameDesdeNombre(nombre, apellidos) {
+    const n = nombre.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
+    const a = apellidos.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
+    return n + '.' + a + Math.floor(Math.random() * 99);
+}
 
 function showLoginError(msg) {
   const el = document.getElementById('login-error');
