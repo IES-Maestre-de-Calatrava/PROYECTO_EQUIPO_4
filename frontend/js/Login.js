@@ -71,7 +71,7 @@ async function doRegister() {
     }
 
     try {
-        await api.post('/alumnos/registro', {
+        await api.post('/auth/registro', {
             nombre,
             apellidos,
             correo,
