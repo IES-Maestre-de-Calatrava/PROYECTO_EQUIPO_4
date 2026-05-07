@@ -1,16 +1,19 @@
 package com.grupo4.frances.Controllers;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.grupo4.frances.DTO.ProfesorDTO;
 import com.grupo4.frances.Exceptions.ProfesorNotFoundException;
 import com.grupo4.frances.Mappers.ProfesorMapper;
 import com.grupo4.frances.Repositories.ProfesorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import com.grupo4.frances.Repositories.GrupoRepository;
-import com.grupo4.frances.persistence.Grupo;
-
-import java.util.List;
 
 @CrossOrigin(origins="*")
 @RestController
@@ -49,11 +52,4 @@ public class ProfesorController {
         return ResponseEntity.ok(profesor);
     }
 
-    /*@PostMapping("/crear-grupo")
-    public ResponseEntity<Grupo> crearGrupo(@RequestBody Grupo nuevoGrupo) {
-        // Aquí se guarda el grupo usando la lógica de JpaRepository
-        Grupo grupoGuardado = grupoRepository.save(nuevoGrupo);
-        return ResponseEntity.ok(grupoGuardado);
-    }
-    */
 }
