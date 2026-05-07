@@ -1,24 +1,11 @@
-export function parserPreguntas(stringJson) {
+export function Parser(stringJson) {
     try {
-        const datos = JSON.parse(stringJson).preguntas;
-        let preguntas = [];
+        const datos = JSON.parse(stringJson).keys[0];
+        let datosLimpios = [];
         datos.forEach((p, index) => {
-            preguntas.push(p);
+            datosLimpios.push(p);
         });
-        return preguntas;
-    } catch (e) {
-        console.log(`Se ha producido un error al parsear el json, stack: ${e}`);
-    } 
-}
-
-export function parserRespuestas(stringJson) {
-    try {
-        const datos = JSON.parse(stringJson).respuestas;
-        let respuestas = [];
-        datos.forEach((p, index) => {
-            respuestas.push(p);
-        });
-        return respuestas;
+        return datosLimpios;
     } catch (e) {
         console.log(`Se ha producido un error al parsear el json, stack: ${e}`);
     } 
