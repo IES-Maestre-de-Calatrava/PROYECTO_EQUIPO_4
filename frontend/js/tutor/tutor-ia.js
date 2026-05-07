@@ -10,8 +10,8 @@
 ═══════════════════════════════════════════════════════════════ */
 
 const TUTOR_CONFIG = {
-  GEMINI_API_KEY: '', // ← Deja vacío para usar respuestas mock (funciona sin API)
-  GEMINI_MODEL: 'text-bison-001',
+  GEMINI_API_KEY: 'AIzaSyD5rTdqXKSbU6gKyuqC9UiuO2CcWtXp9ak', // ← Deja vacío para usar respuestas mock (funciona sin API)
+  GEMINI_MODEL: 'gemini-2.5-pro',
   SYSTEM_PROMPT: `Eres Lumi, un tutor de francés amable, paciente y motivador. Debes seguir estas reglas SIEMPRE:
 
 1. IDIOMA: Habla 70% en francés y 30% en español (con traducciones entre paréntesis). Adapta según el nivel del alumno.
@@ -114,17 +114,16 @@ async function callGeminiAPI(userMessage) {
   promptText += `Usuario: ${userMessage}\nAsistente:`;
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta2/models/${TUTOR_CONFIG.GEMINI_MODEL}:generateText?key=${TUTOR_CONFIG.GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1/models/${TUTOR_CONFIG.GEMINI_MODEL}:generateContent?key=${TUTOR_CONFIG.GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: { text: promptText },
-        maxOutputTokens: 500,
-        temperature: 0.7,
-        topP: 0.95
+        contents: [{
+          parts: [{ text: promptText }]
+        }]
       })
     }
   );
@@ -299,6 +298,18 @@ function scrollTutorChatToBottom() {
 }
 
 function parseMarkdown(text) {
+  // Asegurar que el texto sea una cadena válida
+  if (text === null || text === undefined) {
+    return '';
+  }
+  if (typeof text !== 'string') {
+    if (typeof text === 'object' && text.content !== undefined) {
+      text = String(text.content);
+    } else {
+      text = String(text);
+    }
+  }
+
   // Convertir markdown simple a HTML
   text = text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
