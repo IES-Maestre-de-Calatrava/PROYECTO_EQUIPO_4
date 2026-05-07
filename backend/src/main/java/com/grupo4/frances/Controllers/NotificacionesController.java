@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.grupo4.frances.DTO.NotificacionesDTO;
+import com.grupo4.frances.Exceptions.NotificacionesNotFoundException;
 import com.grupo4.frances.Mappers.NotificacionesMapper;
 import com.grupo4.frances.Repositories.NotificacionesRepository;
 
@@ -42,13 +43,15 @@ public class NotificacionesController {
      * Obtener notificación por ID
      * @param notificacionId
      * @return NotificacionesDTO
+     * @throws NotificacionesNotFoundException
      */
     @GetMapping("/find/{id}")
-    public ResponseEntity<NotificacionesDTO> getNotificacionByID(@PathVariable(value = "id") Long notificacionId) {
+    public ResponseEntity<NotificacionesDTO> getNotificacionByID(@PathVariable(value = "id") Long notificacionId)
+            throws NotificacionesNotFoundException {
 
         NotificacionesDTO notificacion = repository.findById(notificacionId)
                 .map(NotificacionesMapper::toDTO)
-                .orElse(null);
+                .orElseThrow(() -> new NotificacionesNotFoundException(notificacionId));
 
         return ResponseEntity.ok(notificacion);
     }
@@ -83,17 +86,16 @@ public class NotificacionesController {
      * @param notificacionId
      * @param notificacionDTO
      * @return NotificacionesDTO actualizado
+     * @throws NotificacionesNotFoundException
      */
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<NotificacionesDTO> updateNotificacion(
             @PathVariable(value = "id") Long notificacionId,
-            @RequestBody NotificacionesDTO notificacionDTO) {
+            @RequestBody NotificacionesDTO notificacionDTO)
+            throws NotificacionesNotFoundException {
 
-        var notificacion = repository.findById(notificacionId).orElse(null);
-
-        if (notificacion == null) {
-            return ResponseEntity.notFound().build();
-        }
+        var notificacion = repository.findById(notificacionId)
+                .orElseThrow(() -> new NotificacionesNotFoundException(notificacionId));
 
         notificacion.setIdAlumno(notificacionDTO.getIdAlumno());
         notificacion.setTitulo(notificacionDTO.getTitulo());
@@ -108,15 +110,14 @@ public class NotificacionesController {
      * Eliminar una notificación
      * @param notificacionId
      * @return ResponseEntity sin contenido
+     * @throws NotificacionesNotFoundException
      */
     @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<Void> deleteNotificacion(@PathVariable(value = "id") Long notificacionId) {
+    public ResponseEntity<Void> deleteNotificacion(@PathVariable(value = "id") Long notificacionId)
+            throws NotificacionesNotFoundException {
 
-        var notificacion = repository.findById(notificacionId).orElse(null);
-
-        if (notificacion == null) {
-            return ResponseEntity.notFound().build();
-        }
+        var notificacion = repository.findById(notificacionId)
+                .orElseThrow(() -> new NotificacionesNotFoundException(notificacionId));
 
         repository.delete(notificacion);
         return ResponseEntity.noContent().build();

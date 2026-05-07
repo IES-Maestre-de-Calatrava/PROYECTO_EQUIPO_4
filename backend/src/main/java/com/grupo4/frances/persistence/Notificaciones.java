@@ -29,6 +29,9 @@ public class Notificaciones implements java.io.Serializable {
 	@Column(name="CODIGO", length = 20)
 	private String codigo;
 
+	public Notificaciones() {
+	}
+
 	public Notificaciones(String idAlumno1, String titulo1, String mensaje1, String codigo1) {
 	}
 

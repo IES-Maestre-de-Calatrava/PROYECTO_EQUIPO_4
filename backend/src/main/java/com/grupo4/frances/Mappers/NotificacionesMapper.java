@@ -6,11 +6,8 @@ import com.grupo4.frances.persistence.Notificaciones;
 public class NotificacionesMapper {
 
     public static NotificacionesDTO toDTO(Notificaciones notificaciones) {
+        if (notificaciones == null) return null;
 
-        if(notificaciones == null){
-            return null;
-        }
-    
         NotificacionesDTO dto = new NotificacionesDTO();
 
         dto.setIdNotificacion(notificaciones.getIdNotificacion());
@@ -23,19 +20,18 @@ public class NotificacionesMapper {
     }
 
     public static Notificaciones toEntity(NotificacionesDTO dto) {
-       
-        Notificaciones notificaciones = new Notificaciones(
+        if (dto == null) return null;
 
+        Notificaciones notificaciones = new Notificaciones(
             dto.getIdAlumno(),
             dto.getTitulo(),
             dto.getMensaje(),
             dto.getCodigo()
-
-        };
+        );
 
         // Manejo del ID para actualizaciones
-        if(null != dto.getIdAlumno()&& (dto.getIdAlumno() != 0)) {
-            Notificaciones.set(dto.getIdAlumno());
+        if (dto.getIdNotificacion() != null && dto.getIdNotificacion() != 0) {
+            notificaciones.setIdNotificacion(dto.getIdNotificacion());
         }
 
         return notificaciones;
@@ -44,15 +40,13 @@ public class NotificacionesMapper {
     public static Notificaciones toEntityCreate(NotificacionesDTO dto) {
 
         Notificaciones notificaciones = new Notificaciones(
-
-            notificaciones.getIdAlumno(),
-            notificaciones.getTitulo(),
-            notificaciones.getMensaje(),
-            notificaciones.getCodigo()
+            dto.getIdAlumno(),
+            dto.getTitulo(),
+            dto.getMensaje(),
+            dto.getCodigo()
         );
 
         return notificaciones;
     }
-
 }
 
