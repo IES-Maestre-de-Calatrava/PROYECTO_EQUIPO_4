@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Le Français 2.0 — Plataforma SaaS Educativa</title>
+  <title>Plataforma SaaS Educativa</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
@@ -28,6 +28,7 @@
   <!-- NAVBAR -->
   <nav class="app-navbar">
     <div class="navbar-logo">Le <span style="color:#002654">Fr</span><span style="color:#cfcfcf">anç</span><span style="color:#ED2939">ais</span>
+      <span style="font-size:.65rem;background:var(--primary-light);color:var(--primary);padding:.1rem .4rem;border-radius:4px;font-family:var(--font-body);font-weight:700;vertical-align:middle;">3.0</span>
     </div>
     <div class="navbar-user">
       <div class="timer-display" id="global-timer"><i class="bi bi-stopwatch-fill"></i> <span id="timer-val">00:00</span></div>
@@ -77,6 +78,7 @@
         <div class="sidebar-divider"></div>
         <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
       </div>
+
     </aside>
 
     <!-- MAIN -->
@@ -157,40 +159,12 @@
         </div>
       </div>
 
-      <!-- ── LEADERBOARD ALUMNO (3 tabs: General / Diaria / Semanal) ── -->
+      <!-- ── LEADERBOARD ALUMNO ──
+           Diseño podio: 👑 1º, coronas plata/bronce 2º y 3º
+           Solo alumnos. Profesor en impersonación no aparece.
+      -->
       <div id="leaderboard" class="panel">
-        <!-- Header -->
-        <div class="lb-page-header">
-          <div class="lb-title-wrap">
-            <i class="bi bi-trophy-fill lb-title-icon"></i>
-            <div>
-              <h2 class="lb-main-title">Leaderboard</h2>
-              <p class="lb-main-sub">Compite y sube al top de la clase</p>
-            </div>
-          </div>
-          <div class="lb-last-updated" id="lb-last-updated"></div>
-        </div>
-
-        <!-- Tab Selector -->
-        <div class="lb-tab-container">
-          <button class="lb-tab active" id="tab-general" onclick="switchLeaderboard('general')">
-            <i class="bi bi-globe2"></i>
-            <span>General</span>
-            <small>Histórico</small>
-          </button>
-          <button class="lb-tab" id="tab-diaria" onclick="switchLeaderboard('diaria')">
-            <i class="bi bi-sun-fill"></i>
-            <span>Diaria</span>
-            <small>Hoy</small>
-          </button>
-          <button class="lb-tab" id="tab-semanal" onclick="switchLeaderboard('semanal')">
-            <i class="bi bi-calendar-week-fill"></i>
-            <span>Semanal</span>
-            <small>Esta semana</small>
-          </button>
-        </div>
-
-        <!-- Content area -->
+        <div class="section-title">🏆 Salón de la Gloria</div>
         <div id="leaderboard-content"></div>
       </div>
 
@@ -308,37 +282,7 @@
 
       <!-- ── PROFESOR: LEADERBOARD ── -->
       <div id="profe-leaderboard" class="panel">
-        <!-- Header -->
-        <div class="lb-page-header">
-          <div class="lb-title-wrap">
-            <i class="bi bi-trophy-fill lb-title-icon"></i>
-            <div>
-              <h2 class="lb-main-title">Leaderboard del Aula</h2>
-              <p class="lb-main-sub">Progreso competitivo de tus alumnos</p>
-            </div>
-          </div>
-          <div class="lb-last-updated" id="profe-lb-last-updated"></div>
-        </div>
-
-        <!-- Tab Selector -->
-        <div class="lb-tab-container">
-          <button class="lb-tab active" id="profe-tab-general" onclick="switchProfeLeaderboard('general')">
-            <i class="bi bi-globe2"></i>
-            <span>General</span>
-            <small>Histórico</small>
-          </button>
-          <button class="lb-tab" id="profe-tab-diaria" onclick="switchProfeLeaderboard('diaria')">
-            <i class="bi bi-sun-fill"></i>
-            <span>Diaria</span>
-            <small>Hoy</small>
-          </button>
-          <button class="lb-tab" id="profe-tab-semanal" onclick="switchProfeLeaderboard('semanal')">
-            <i class="bi bi-calendar-week-fill"></i>
-            <span>Semanal</span>
-            <small>Esta semana</small>
-          </button>
-        </div>
-
+        <div class="section-title">🏆 Leaderboard del Aula</div>
         <div id="profe-leaderboard-content"></div>
       </div>
 
