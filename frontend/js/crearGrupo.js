@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8085/profesor";
+const API_URL = "http://192.168.150.185:8085/profesor";
 
 async function profesorCreaGrupo(nombreGrupo, codigoGrupo, idProfesor) {
     const datos = {
