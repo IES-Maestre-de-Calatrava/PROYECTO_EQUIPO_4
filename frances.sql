@@ -156,9 +156,31 @@ CREATE TABLE NOTIFICACIONES (
     CODIGO VARCHAR(20) COMMENT 'Código relacionado con la notificación (ej: actividad, grupo, etc.)',
 
     CONSTRAINT PK_NOTIFICACIONES PRIMARY KEY (ID_NOTIFICACION),
-    CONSTRAINT FK_NOTIFICACIONES_ALUMNO FOREIGN KEY (ID_ALUMNO) 
+    CONSTRAINT FK_NOTIFICACIONES_ALUMNO FOREIGN KEY (ID_ALUMNO)
         REFERENCES ALUMNO(ID_ALUMNO)
 );
+
+-- ======================================================
+-- 11. INVITACIONES
+-- ======================================================
+CREATE TABLE INVITACIONES (
+    ID_INVITACION INT AUTO_INCREMENT COMMENT 'Identificador único de la invitación',
+    ID_GRUPO INT NOT NULL COMMENT 'ID del grupo al que se invita al alumno',
+    ID_ALUMNO INT NOT NULL COMMENT 'ID del alumno que recibe la invitación',
+    ID_PROFESOR INT NOT NULL COMMENT 'ID del profesor que envía la invitación',
+    ESTADO VARCHAR(20) NOT NULL COMMENT 'Estado de la invitación: PENDIENTE, ACEPTADA, RECHAZADA',
+    FECHA_ENVIO DATETIME NOT NULL COMMENT 'Fecha y hora en que se envió la invitación',
+    FECHA_RESPUESTA DATETIME COMMENT 'Fecha y hora en que se respondió la invitación',
+
+    CONSTRAINT PK_INVITACIONES PRIMARY KEY (ID_INVITACION),
+    CONSTRAINT FK_INVITACIONES_GRUPO FOREIGN KEY (ID_GRUPO)
+        REFERENCES GRUPO(ID_GRUPO),
+    CONSTRAINT FK_INVITACIONES_ALUMNO FOREIGN KEY (ID_ALUMNO)
+        REFERENCES ALUMNO(ID_ALUMNO),
+    CONSTRAINT FK_INVITACIONES_PROFESOR FOREIGN KEY (ID_PROFESOR)
+        REFERENCES PROFESOR(ID_PROFESOR),
+    CONSTRAINT CHK_ESTADO CHECK (ESTADO IN ('PENDIENTE', 'ACEPTADA', 'RECHAZADA'))
+) COMMENT = 'Tabla que almacena las invitaciones enviadas a alumnos para unirse a grupos';
 
 -- ======================================================
 -- VISTA _ALUMNOS_PUNTOS
