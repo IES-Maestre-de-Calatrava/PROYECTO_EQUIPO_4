@@ -1516,42 +1516,56 @@ body.dark-mode .tutor-message-bot .tutor-msg-avatar { background: rgba(126,184,2
     display: contents;
 }
 
-/* Cada fila será una tarjeta */
-#courses-container tr {
-    display: flex;
-    flex-direction: column;
+#courses-container {
+    padding: 20px;
+}
+
+/* GRID */
+.groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+/* TARJETA */
+.grupo-card {
     background: white;
     border-radius: 18px;
     padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     border: 1px solid #e5e7eb;
-    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: relative;
+    overflow: hidden;
 }
 
-/* Efecto hover */
-#courses-container tr:hover {
+/* hover bonito */
+.grupo-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.12);
 }
 
-/* Estilo general de los datos */
-#courses-container td {
-    border: none;
-    padding: 8px 0 !important;
-    font-size: 0.95rem;
-    color: #444;
+/* banda superior */
+.grupo-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 6px;
+    width: 100%;
+    background: linear-gradient(90deg, #0066cc, #0053a6);
 }
 
-/* Nombre destacado */
-#courses-container td:nth-child(2) {
+/* título */
+.grupo-title {
     font-size: 1.2rem;
     font-weight: bold;
     color: #0053a6;
     margin-bottom: 10px;
 }
 
+<<<<<<< Updated upstream
 /* Etiquetas automáticas */
 
 #courses-container td:nth-child(3)::before {
@@ -1579,3 +1593,11 @@ body.dark-mode .tutor-message-bot .tutor-msg-avatar { background: rgba(126,184,2
     height: 6px;
     background: linear-gradient(90deg, #0066cc, #0066cc);
 }
+=======
+/* info */
+.grupo-info {
+    font-size: 0.95rem;
+    color: #444;
+    margin-bottom: 6px;
+}
+>>>>>>> Stashed changes
