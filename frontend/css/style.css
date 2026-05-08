@@ -1472,3 +1472,76 @@ body.dark-mode .tutor-message-bot .tutor-msg-avatar { background: rgba(126,184,2
         gap: 16px;
     }
 }
+/* =========================
+   MOBILE SIDEBAR
+========================= */
+
+.menu-toggle {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--primary);
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.mobile-sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 260px;
+  height: 100vh;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  z-index: 9999;
+  padding: 1rem;
+  overflow-y: auto;
+  transition: left .3s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+.mobile-sidebar.active {
+  left: 0;
+}
+
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 9998;
+  display: none;
+}
+
+.mobile-overlay.active {
+  display: block;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 770px) {
+
+  .sidebar {
+    display: none !important;
+  }
+
+  .menu-toggle {
+    display: flex;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .navbar-user {
+    gap: .45rem;
+  }
+
+  .profile-summary {
+    display: none;
+  }
+}

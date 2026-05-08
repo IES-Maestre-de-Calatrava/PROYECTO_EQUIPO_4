@@ -1770,3 +1770,52 @@ function doLogout() {
         loginBtn.title = isDark ? 'Modo claro' : 'Modo oscuro';
     }
 })();
+/* =========================
+   MOBILE MENU
+========================= */
+
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-sidebar');
+  const overlay = document.getElementById('mobile-overlay');
+
+  menu.classList.toggle('active');
+  overlay.classList.toggle('active');
+}
+
+function closeMobileMenu() {
+  document.getElementById('mobile-sidebar').classList.remove('active');
+  document.getElementById('mobile-overlay').classList.remove('active');
+}
+
+/* copiar contenido del sidebar */
+/* copiar contenido del sidebar según el rol activo */
+function initMobileSidebar() {
+  const sidebarAlumno = document.getElementById('sidebar-alumno');
+  const sidebarProfesor = document.getElementById('sidebar-profesor');
+  const sidebarDirector = document.getElementById('sidebar-director');
+  
+  let content = "";
+
+  // Solo copiamos el contenido del sidebar que no tenga "display: none"
+  if (sidebarAlumno && sidebarAlumno.style.display !== 'none') {
+    content = sidebarAlumno.innerHTML;
+  } else if (sidebarProfesor && sidebarProfesor.style.display !== 'none') {
+    content = sidebarProfesor.innerHTML;
+  } else if (sidebarDirector && sidebarDirector.style.display !== 'none') {
+    content = sidebarDirector.innerHTML;
+  }
+
+  document.getElementById('mobile-sidebar-content').innerHTML = content;
+}
+
+// Asegúrate de llamar a esta función también cuando cambies de rol o entres a la app
+// Modifica tu función enterApp() para que llame a initMobileSidebar() al final
+
+document.addEventListener('DOMContentLoaded', initMobileSidebar);
+
+/* cerrar menú al navegar */
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('sidebar-item')) {
+    closeMobileMenu();
+  }
+});
