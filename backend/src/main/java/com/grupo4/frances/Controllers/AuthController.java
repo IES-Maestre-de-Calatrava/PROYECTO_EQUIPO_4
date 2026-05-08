@@ -1,5 +1,6 @@
 package com.grupo4.frances.Controllers;
 
+import com.grupo4.frances.JSON.LoginCredentials;
 import com.grupo4.frances.Mappers.GrupoMapper;
 import com.grupo4.frances.Repositories.AlumnoRepository;
 import com.grupo4.frances.Repositories.ConexionRepository;
@@ -38,10 +39,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credenciales) {
+    public ResponseEntity<?> login(@RequestBody LoginCredentials credenciales) {
 
-        String correo    = credenciales.get("correo");
-        String contrasena = credenciales.get("contrasena");
+        String correo    = credenciales.getCorreo();
+        String contrasena = credenciales.getContrasena();
 
         if (correo == null || contrasena == null) {
             return ResponseEntity.badRequest()
