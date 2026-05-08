@@ -97,6 +97,7 @@
         <div class="sidebar-divider"></div>
         <div class="sidebar-section-label">Contenido</div>
         <button class="sidebar-item" onclick="showPanel('profe-courses')"><i class="bi bi-collection-fill"></i> Mis Cursos</button>
+        <button class="sidebar-item" onclick="showPanel('profe-grupos')"><i class="bi bi-people-fill"></i> Grupos</button>
         <button class="sidebar-item" onclick="showPanel('activity-editor')"><i class="bi bi-pencil-square"></i> Editor actividades</button>
         <div class="sidebar-divider"></div>
         <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
@@ -433,6 +434,30 @@
           </select>
         </div>
         <div id="activity-editor-list"></div>
+      </div>
+
+      <!-- ── PROFESOR: GRUPOS ── -->
+      <div id="profe-grupos" class="panel">
+        <div class="page-header">
+          <div class="section-title mb-0">Gestión de Grupos</div>
+          <button class="btn-primary-custom" onclick="openCrearGrupoModal()"><i class="bi bi-plus-lg me-1"></i>Nuevo grupo</button>
+        </div>
+        <div id="profe-grupos-list" class="groups-grid mt-3"></div>
+      </div>
+
+      <!-- ── MODAL: CREAR GRUPO ── -->
+      <div class="modal-overlay" id="modal-crear-grupo">
+        <div class="modal-box">
+          <h5>Nuevo Grupo</h5>
+          <div class="mb-3"><label class="form-label">Nombre del grupo</label><input type="text" class="form-control" id="cg-nombre" placeholder="Ej: Grupo A1 Mañana"/></div>
+          <div class="mb-3"><label class="form-label">ID del Centro</label><input type="number" class="form-control" id="cg-centro" placeholder="ID del centro" min="1"/></div>
+          <div class="mb-3"><label class="form-label">Código del grupo (opcional)</label><input type="text" class="form-control" id="cg-codigo" placeholder="Código único del grupo"/></div>
+          <div id="cg-error" class="alert alert-danger d-none py-2 px-3" style="font-size:.85rem;border-radius:8px;"></div>
+          <div class="d-flex gap-2 justify-content-end">
+            <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-crear-grupo')">Cancelar</button>
+            <button class="btn-primary-custom" onclick="saveNuevoGrupo()">Crear grupo</button>
+          </div>
+        </div>
       </div>
 
       <!-- ════════════════════════════
