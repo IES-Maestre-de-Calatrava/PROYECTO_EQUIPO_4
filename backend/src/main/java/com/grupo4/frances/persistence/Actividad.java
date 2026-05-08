@@ -1,0 +1,193 @@
+package com.grupo4.frances.persistence;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.grupo4.frances.JSON.Preguntas;
+import jakarta.persistence.*;
+
+@Entity
+@Table(name="ACTIVIDAD", schema="frances")
+public class Actividad implements java.io.Serializable {
+
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="Id_Actividad", precision = 10)
+    private Long idActividad;
+
+    @Column(name="Nombre", length = 50, nullable = false)
+    private String nombre;
+
+    @Column(name="Dificultad", length = 64, nullable = false)
+    private String dificultad;
+
+    @Column(name="Id_Profesor", length = 20, nullable = false)
+    private String idProfesor; // Esta puede ser FK en el futuro
+
+    @Column(name="Duracion")
+    private String duracion;
+
+    @Column(name="FECHA_INICIO", nullable = false)
+    private String fechaInicio;
+
+    @Column(name="FECHA_FIN")
+    private String fechaFin;
+
+    @Column(name="FECHA_ENTREGA", nullable = false)
+    private String fechaEntrega;
+
+    @Column(name="PREGUNTAS")
+    private String preguntas;
+
+    @Column(name="RESPUESTAS_CORRECTAS")
+    private String respuestas;
+
+    @Column(name="PUNTOS")
+    private int puntos;
+
+    @ManyToMany
+    @JoinTable(
+        name = "ACTIVIDAD_GRUPO",
+        schema = "frances",
+        joinColumns = @JoinColumn(name = "ID_ACTIVIDAD"),
+        inverseJoinColumns = @JoinColumn(name = "ID_GRUPO")
+    )
+    private Set<Grupo> grupos = new HashSet<>();
+
+
+    public Actividad() {
+    }
+
+
+    public Actividad(Long idActividad, String nombre, String dificultad, String idProfesor, String duracion, String fechaInicio, String fechaFin, String fechaEntrega, String preguntas, String respuestas, Set<Grupo> grupos, int puntos) {
+        this.idActividad = idActividad;
+        this.nombre = nombre;
+        this.dificultad = dificultad;
+        this.idProfesor = idProfesor;
+        this.duracion = duracion;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.fechaEntrega = fechaEntrega;
+        this.preguntas = preguntas;
+        this.respuestas = respuestas;
+        this.grupos = grupos;
+        this.puntos = puntos;
+    }
+
+    // Getters y Setters
+    public Long getIdActividad() {
+        return idActividad;
+    }
+
+    public void setIdActividad(Long idActividad) {
+        this.idActividad = idActividad;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getDificultad() {
+        return dificultad;
+    }
+
+    public void setDificultad(String dificultad) {
+        this.dificultad = dificultad;
+    }
+
+    public String getIdProfesor() {
+        return idProfesor;
+    }
+
+    public void setIdProfesor(String idProfesor) {
+        this.idProfesor = idProfesor;
+    }
+
+    public String getDuracion() {
+        return duracion;
+    }
+
+    public void setDuracion(String duracion) {
+        this.duracion = duracion;
+    }
+
+    public String getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public void setFechaInicio(String fechaInicio) {
+        this.fechaInicio = fechaInicio;
+    }
+
+    public String getFechaFin() {
+        return fechaFin;
+    }
+
+    public void setFechaFin(String fechaFin) {
+        this.fechaFin = fechaFin;
+    }
+
+    public String getFechaEntrega() {
+        return fechaEntrega;
+    }
+
+    public void setFechaEntrega(String fechaEntrega) {
+        this.fechaEntrega = fechaEntrega;
+    }
+
+    public Set<Grupo> getGrupos() {
+        return grupos;
+    }   
+
+    public void setGrupos(Set<Grupo> grupos) {
+        this.grupos = grupos;
+    }
+
+    public String getPreguntas() {
+        return preguntas;
+    }
+
+    public void setPreguntas(String preguntas) {
+        this.preguntas = preguntas;
+    }
+
+    public String getRespuestas() {
+        return respuestas;
+    }
+
+    public void setRespuestas(String respuestas) {
+        this.respuestas = respuestas;
+    }
+
+    public int getPuntos() {
+        return puntos;
+    }
+
+    public void setPuntos(int puntos) {
+        this.puntos = puntos;
+    }
+
+    public void agregarGrupo(Grupo grupo) {
+        this.grupos.add(grupo);
+        grupo.getActividades().add(this);
+    }
+
+    public void eliminarGrupo(Grupo grupo) {
+        this.grupos.remove(grupo);
+        grupo.getActividades().remove(this);
+    }
+
+    public Preguntas mapearPreguntas() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        Preguntas p = mapper.readValue(getPreguntas(), Preguntas.class);
+        return p;
+    }
+
+}

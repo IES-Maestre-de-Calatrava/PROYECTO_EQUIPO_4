@@ -1,0 +1,3 @@
+Comando docker run necesario para la ejecución de nuestra base de datos:
+
+docker run -d --name frances -e MYSQL_ROOT_PASSWORD=cambiar_contrasenya-supersegura -p 3306:3306 mysql:latest 
