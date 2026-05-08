@@ -26,6 +26,9 @@
 
   <!-- NAVBAR -->
   <nav class="app-navbar">
+    <button class="btn-menu-toggle" id="menu-toggle" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+    </button>
     <div class="navbar-logo">Le <span style="color:#002654">Fr</span><span style="color:#6c757d">anç</span><span style="color:#ED2939">ais</span>
     </div>
     <div class="navbar-user">
@@ -42,8 +45,29 @@
         </div>
         <i class="bi bi-chevron-down profile-dropdown-caret"></i>
         <div class="profile-menu" id="profile-menu" onclick="event.stopPropagation()">
-          <button type="button" onclick="openProfileSettings()">Mi perfil</button>
-          <button type="button" onclick="doLogout()">Cerrar sesión</button>
+          <div class="profile-menu-header">
+            <div class="profile-menu-avatar" id="pm-avatar">--</div>
+            <div>
+              <div class="profile-menu-name" id="pm-name">Usuario</div>
+              <div class="profile-menu-role" id="pm-role">Alumno</div>
+            </div>
+          </div>
+          <div class="profile-menu-divider"></div>
+          <button type="button" class="profile-menu-item" onclick="openProfileSettings()">
+            <i class="bi bi-person-fill"></i> Mi perfil
+          </button>
+          <div class="profile-menu-divider"></div>
+          <div class="profile-menu-darkrow">
+            <span><i class="bi bi-moon-fill"></i> Modo oscuro</span>
+            <label class="pm-switch">
+              <input type="checkbox" id="pm-dark-toggle" onchange="toggleDarkMode(this.checked)"/>
+              <span class="pm-switch-track"></span>
+            </label>
+          </div>
+          <div class="profile-menu-divider"></div>
+          <button type="button" class="profile-menu-item danger" onclick="doLogout()">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+          </button>
         </div>
       </div>
     </div>
@@ -227,20 +251,6 @@
       <!-- ── CONFIGURACIÓN (todos los roles) ── -->
       <div id="settings" class="panel">
         <div class="section-title">⚙️ Configuración</div>
-
-        <div class="settings-card">
-          <div class="settings-card-header"><i class="bi bi-palette-fill me-2"></i>Apariencia</div>
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Modo oscuro</div>
-              <div class="settings-row-desc">Cambia el tema de la interfaz a oscuro</div>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode(this.checked)"/>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
 
         <div class="settings-card">
           <div class="settings-card-header"><i class="bi bi-shield-lock-fill me-2"></i>Seguridad</div>

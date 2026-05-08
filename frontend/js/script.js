@@ -278,6 +278,14 @@ function enterApp() {
   const user = state.currentUser;
   document.getElementById('nav-avatar').textContent   = user.name.substring(0,2).toUpperCase();
   document.getElementById('nav-username').textContent = user.name;
+  const pmAvatar = document.getElementById('pm-avatar');
+  const pmName   = document.getElementById('pm-name');
+  const pmRole   = document.getElementById('pm-role');
+  const pmDark   = document.getElementById('pm-dark-toggle');
+  if (pmAvatar) pmAvatar.textContent = user.name.substring(0,2).toUpperCase();
+  if (pmName)   pmName.textContent   = user.name;
+  if (pmRole)   pmRole.textContent   = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+  if (pmDark)   pmDark.checked       = localStorage.getItem('lf_darkmode') === '1';
   const pill = document.getElementById('nav-role-pill');
 
   ['sidebar-alumno','sidebar-profesor','sidebar-director'].forEach(id => {
@@ -1620,3 +1628,33 @@ function doLogout() {
         loginBtn.title = isDark ? 'Modo claro' : 'Modo oscuro';
     }
 })();
+function toggleSidebar() {
+  var sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  var isOpen = sidebar.classList.toggle('active');
+  var overlay = document.getElementById('sidebar-overlay');
+  if (isOpen) {
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'sidebar-overlay';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:rgba(0,0,0,.4);';
+      overlay.addEventListener('click', closeSidebar);
+      document.body.appendChild(overlay);
+    }
+  } else {
+    closeSidebar();
+  }
+}
+
+function closeSidebar() {
+  var sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.classList.remove('active');
+  var overlay = document.getElementById('sidebar-overlay');
+  if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+}
+
+document.querySelectorAll('.sidebar-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    if (window.innerWidth <= 770) closeSidebar();
+  });
+});
