@@ -23,9 +23,34 @@ export async function getGrupoById(id) {
 
 //si no va borrar el codigo de aqui para abajo
 
+function getUserIdFromSession() {
+    let sessionData = sessionStorage.getItem('lf_session_api');
+    if (!sessionData) {
+        sessionData = localStorage.getItem('lf_session_api');
+    }
+    
+    if (sessionData) {
+        try {
+            const data = JSON.parse(sessionData);
+            return data.id_user;
+        } catch (e) {
+            console.error("Error parsing session data:", e);
+            return null;
+        }
+    }
+    return null;
+}
+
 async function renderGrupos() {
     try {
-        const grupos = await getGruposByAlumno(1);
+        const userId = getUserIdFromSession();
+        if (!userId) {
+            console.error("No user ID found in session");
+            document.getElementById("courses-container").innerHTML =
+                "<p>Error: Usuario no autenticado.</p>";
+            return;
+        }
+        const grupos = await getGruposByAlumno(userId);
         const contenedor = document.getElementById("courses-container");
 
         let html = `<h2 style="text-align:center;color:#333">GRUPOS</h2>`;

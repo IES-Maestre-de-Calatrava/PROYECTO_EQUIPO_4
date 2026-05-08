@@ -17,6 +17,9 @@ export async function postLogin() {
 
     try {
         const respuesta = await fetch(`${API}/login`, datosAdicionales);
+        if(respuesta.status == 401){
+            return false;
+        }
         if (!respuesta.ok) {
             console.error('No se ha podido conectar con la base de datos: ' + respuesta.statusText);
         }

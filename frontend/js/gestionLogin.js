@@ -16,7 +16,8 @@ async function doLogin() {
             nombre: response.nombre || response.name || '',
             apellidos: response.apellidos || '',
             rol: response.rol || response.role || 'alumno',
-            correo: response.correo || response.email || ''
+            correo: response.correo || response.email || '',
+            id_user : response.id,
         };
         if (document.getElementById('remember-me').checked) {
             localStorage.setItem('lf_session_api', JSON.stringify(sessionData));
@@ -25,7 +26,9 @@ async function doLogin() {
         }
         entrarApp();
     } else {
-        
+        const modal = document.getElementById('login-error');
+        modal.classList.remove('d-none');
+        modal.innerHTML = 'Credenciales incorrectas';
     }
 }
 
@@ -45,4 +48,5 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.key === 'Enter') ejecutarLogin();
         };
     }
+    
 });
