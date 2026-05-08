@@ -26,7 +26,6 @@ async function renderGrupos() {
             <table border="1" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">
                 <thead style="background-color: #f2f2f2;">
                     <tr>
-                        <th>ID</th>
                         <th>Nombre</th>
                         <th>Curso</th>
                         <th>Centro</th>
@@ -39,11 +38,11 @@ async function renderGrupos() {
         for (let grupo of grupos) {
             tabla += `
                 <tr>
-                    <td style="padding: 8px; text-align: center;">${grupo.idGrupo}</td>
                     <td style="padding: 8px;"><strong>${grupo.nombre}</strong></td>
                     <td style="padding: 8px;">${grupo.curso || '---'}</td>
-                    <td style="padding: 8px;">${grupo.centro || grupo.idCentro || '---'}</td>
                     <td style="padding: 8px; text-align: center;">${grupo.numAlumnos ?? '---'}</td>
+                    <td style="padding: 8px;">${grupo.centro || grupo.centro || '---'}</td>
+                    <td style="padding: 8px;">${grupo.numAlumnos ?? '---'}</td>
                 </tr>
             `;
         }
