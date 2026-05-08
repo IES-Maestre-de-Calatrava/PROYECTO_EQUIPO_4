@@ -12,7 +12,7 @@
 const TUTOR_CONFIG = {
   GEMINI_API_KEY: 'AIzaSyD5rTdqXKSbU6gKyuqC9UiuO2CcWtXp9ak', // ← Deja vacío para usar respuestas mock (funciona sin API)
   GEMINI_MODEL: 'gemini-2.5-pro',
-  SYSTEM_PROMPT: `Eres Lumi, un tutor de francés amable, paciente y motivador. Debes seguir estas reglas SIEMPRE:
+  SYSTEM_PROMPT: `Eres Gemini, un tutor de francés amable, paciente y motivador. Debes seguir estas reglas SIEMPRE:
 
 1. IDIOMA: Habla 70% en francés y 30% en español (con traducciones entre paréntesis). Adapta según el nivel del alumno.
 
