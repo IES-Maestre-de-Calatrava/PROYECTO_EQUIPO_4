@@ -1,5 +1,6 @@
 import {formatearFecha} from  '../../Utilidades.js';
 import {getProfesorById} from './getProfesores.js';
+import { Parser } from '../../JSON/Parser.js';
 
 const API = "http://192.168.150.185:8085/actividad/";
 
@@ -33,6 +34,8 @@ async function getActividades() {
             const profe = await getProfesorById(act.idProfesor);
             const nombreProfe = profe ? profe.nombre : "No asignado";
             const apellidosProfe = profe ? profe.apellidos : "No asignado";
+            const preguntasJson = Parser(act.preguntas);
+            const respuestasJson = Parser(act.respuestas);
             tabla += `
                 <tr>
                     <td style="padding: 8px; text-align: center;">${act.idActividad}</td>
@@ -43,8 +46,8 @@ async function getActividades() {
                     <td style="padding: 8px;">${formatearFecha(act.fechaInicio)}</td>
                     <td style="padding: 8px;">${formatearFecha(act.fechaFin)}</td>
                     <td style="padding: 8px; color: red;">${formatearFecha(act.fechaEntrega)}</td>
-                    <td style="padding: 8px;">${act.preguntas}</td>
-                    <td style="padding: 8px;">${act.respuestas}</td>
+                    <td style="padding: 8px;">${preguntasJson.length > 0 ? preguntasJson.join(", ") : '---'}</td>
+                    <td style="padding: 8px;">${respuestasJson.length > 0 ? respuestasJson.join(", ") : '---'}</td>
                 </tr>
             `;
         };
