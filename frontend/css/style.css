@@ -4,11 +4,11 @@
 ============================================= */
 :root {
   --primary:       #1a70c1;
-  --primary-dark:  #003d7a;
+  --primary-dark:  #184b7d;
   --primary-light: #dbeeff;
   --secondary:     #ff1100;
   --secondary-light:#fde8e7;
-  --bg:            #8db6df;
+  --bg:            #508ac5;
   --white:         #ffffff;
   --gold:          #d97706;
   --gold-light:    #fef3c7;
@@ -1485,53 +1485,26 @@ body.dark-mode .tutor-input:focus { border-color: var(--primary) !important; }
 body.dark-mode .tutor-hint { color: #9bb0c9 !important; }
 body.dark-mode .tutor-message-bot .tutor-msg-avatar { background: rgba(126,184,247,.2) !important; color: #7eb8f7 !important; }
 #courses-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-    padding: 30px;
+    padding: 20px;
     font-family: Arial, sans-serif;
     background: #f5f7fb;
 }
 
-/* Título */
-#courses-container h2 {
-    grid-column: 1 / -1;
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 10px;
-    font-size: 2rem;
-    letter-spacing: 1px;
-}
-
-/* Ocultamos la tabla original */
-#courses-container table {
-    display: contents;
-}
-
-#courses-container thead {
-    display: none;
-}
-
-#courses-container tbody {
-    display: contents;
-}
-
-#courses-container {
-    padding: 20px;
-}
-
-/* GRID */
+/* GRID PRINCIPAL */
 .groups-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* TARJETA */
 .grupo-card {
     background: white;
     border-radius: 18px;
-    padding: 20px;
+    padding: 22px;
+    min-height: 150px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     border: 1px solid #e5e7eb;
     cursor: pointer;
@@ -1540,13 +1513,13 @@ body.dark-mode .tutor-message-bot .tutor-msg-avatar { background: rgba(126,184,2
     overflow: hidden;
 }
 
-/* hover bonito */
+/* HOVER */
 .grupo-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 10px 22px rgba(0,0,0,0.12);
 }
 
-/* banda superior */
+/* BARRA SUPERIOR */
 .grupo-card::before {
     content: "";
     position: absolute;
@@ -1557,7 +1530,7 @@ body.dark-mode .tutor-message-bot .tutor-msg-avatar { background: rgba(126,184,2
     background: linear-gradient(90deg, #0066cc, #0053a6);
 }
 
-/* título */
+/* TEXTO */
 .grupo-title {
     font-size: 1.2rem;
     font-weight: bold;
@@ -1565,36 +1538,23 @@ body.dark-mode .tutor-message-bot .tutor-msg-avatar { background: rgba(126,184,2
     margin-bottom: 10px;
 }
 
-/* Etiquetas automáticas */
-
-#courses-container td:nth-child(3)::before {
-    content: "📚 Nivel: ";
-    font-weight: bold;
-}
-
-#courses-container td:nth-child(4)::before {
-    content: "🏫 Centro: ";
-    font-weight: bold;
-}
-
-#courses-container td:nth-child(5)::before {
-    content: "👨‍🎓 Alumnos: ";
-    font-weight: bold;
-}
-
-/* Banda decorativa superior */
-#courses-container tr::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 6px;
-    background: linear-gradient(90deg, #0066cc, #0066cc);
-}
-/* info */
 .grupo-info {
     font-size: 0.95rem;
     color: #444;
     margin-bottom: 6px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+    .groups-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .groups-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
 }
