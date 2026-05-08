@@ -424,6 +424,7 @@ function showPanel(id) {
     'progress':'Mi progreso','messages':'Mensajes','tutor':'Tutor IA','settings':'Configuración',
     'profe-dashboard':'Inicio','profe-students':'Alumnos',
     'profe-leaderboard':'Leaderboard','profe-courses':'Cursos',
+    'profe-grupos':'Grupos',
     'activity-editor':'Editor actividades',
     'director-dashboard':'Panel Director','director-users':'Usuarios',
   };
@@ -436,6 +437,7 @@ function showPanel(id) {
   if (id === 'leaderboard')       buildLeaderboard('leaderboard-content', false, _lbTabAlumno);
   if (id === 'profe-leaderboard') buildLeaderboard('profe-leaderboard-content', true, _lbTabProfe);
   if (id === 'progress')          buildProgressCourseList();
+  if (id === 'profe-grupos')      loadProfeGrupos();
 }
 
 /* ─── TIMERS ─── */
@@ -535,29 +537,32 @@ function getLevelData() {
 }
 
 function buildQuickCourses() {
-  document.getElementById('quick-courses').innerHTML =
-    COURSES.slice(0,3).map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
+  const container = document.getElementById('quick-courses');
+  if (!container) return;
+  container.innerHTML = `<div class="groups-grid">${COURSES.slice(0,3).map(c => courseCardHTML(c)).join('')}</div>`;
 }
 
 /* ─── COURSES ─── */
 function buildCourses() {
-  document.getElementById('courses-container').innerHTML =
-    COURSES.map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
+  const container = document.getElementById('courses-container');
+  if (!container) return;
+  container.innerHTML = `<div class="groups-grid">${COURSES.map(c => courseCardHTML(c)).join('')}</div>`;
 }
 
 function courseCardHTML(c) {
-  const total = c.activities.reduce((s,a) => s + a.exercises.length, 0);
+  const total = c.activities.reduce((s,a) => s + (a.exercises ? a.exercises.length : 0), 0);
   const done  = c.activities.filter(a => state.completedActivities.has(a.id)).length;
   const pct   = Math.round((done / Math.max(1, c.activities.length)) * 100);
-  return `<div class="course-card">
-    <span class="course-level-badge ${c.badge}">${c.level}</span>
-    <div class="course-title">${c.title}</div>
-    <div class="course-meta">${c.desc}</div>
-    <div class="course-meta mt-1">${c.activities.length} actividades · ${total} ejercicios</div>
-    <div class="course-progress-bar"><div class="course-progress-fill" style="width:${pct}%"></div></div>
-    <div class="course-progress-text">${done}/${c.activities.length} actividades completadas</div>
-    <button class="btn-course" onclick="openCourse('${c.id}')">
-      ${done === 0 ? 'Empezar' : done < c.activities.length ? 'Continuar' : 'Revisar'} →
+  const btnLabel = done === 0 ? 'Empezar' : done < c.activities.length ? 'Continuar' : 'Revisar';
+  return `<div class="grupo-card" onclick="openCourse('${c.id}')">
+    <span class="course-level-badge ${c.badge}" style="margin-bottom:.6rem;display:inline-block;">${c.level}</span>
+    <div class="grupo-title">${c.title}</div>
+    <div class="grupo-info">📖 ${c.desc}</div>
+    <div class="grupo-info">🗂️ ${c.activities.length} actividades · ${total} ejercicios</div>
+    <div class="course-progress-bar" style="margin:.7rem 0 .25rem;"><div class="course-progress-fill" style="width:${pct}%"></div></div>
+    <div class="grupo-info" style="font-size:.78rem;margin-bottom:.8rem;">${done}/${c.activities.length} actividades completadas</div>
+    <button class="btn-course" onclick="event.stopPropagation();openCourse('${c.id}')">
+      ${btnLabel} →
     </button>
   </div>`;
 }
@@ -1687,4 +1692,283 @@ document.addEventListener('click', function(e) {
   if (e.target.classList.contains('sidebar-item')) {
     closeMobileMenu();
   }
+});
+/* ══════════════════════════════════════════════════════════════════
+   GESTIÓN DE GRUPOS (Profesor) - Funciones integradas con la BD
+   API: http://192.168.150.185:8085/api/grupos
+══════════════════════════════════════════════════════════════════ */
+
+const API_GRUPOS = 'http://192.168.150.185:8085/api/grupos';
+
+/** Carga y renderiza los grupos del profesor en el panel profe-grupos */
+async function loadProfeGrupos() {
+  const container = document.getElementById('profe-grupos-list');
+  if (!container) return;
+  container.innerHTML = '<div class="text-muted p-3">Cargando grupos…</div>';
+
+  try {
+    // Intentar obtener grupos del profesor actual
+    const userId = _getSessionUserId();
+    const url = userId
+      ? `${API_GRUPOS}?idProfesor=${userId}`
+      : API_GRUPOS;
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const grupos = await res.json();
+
+    if (!grupos || grupos.length === 0) {
+      container.innerHTML = '<div class="text-muted p-4 text-center">No tienes grupos creados todavía. Pulsa <b>Nuevo grupo</b> para crear uno.</div>';
+      return;
+    }
+
+    container.innerHTML = grupos.map(g => `
+      <div class="grupo-card">
+        <div class="grupo-title">${g.nombre || 'Grupo sin nombre'}</div>
+        <div class="grupo-info">🏫 Centro: ${g.idCentro || g.centro || '—'}</div>
+        <div class="grupo-info">👨‍🎓 Alumnos: ${g.numAlumnos ?? (g.alumnos ? g.alumnos.length : '—')}</div>
+        ${g.codigo ? `<div class="grupo-info">🔑 Código: <b>${g.codigo}</b></div>` : ''}
+        <div class="mt-2">
+          <button class="btn btn-sm btn-outline-danger" style="border-radius:6px;font-size:.75rem;"
+            onclick="eliminarGrupo(${g.idGrupo})"><i class="bi bi-trash"></i> Eliminar</button>
+        </div>
+      </div>
+    `).join('');
+
+  } catch (err) {
+    container.innerHTML = `<div class="alert alert-warning">No se pudieron cargar los grupos. Verifica la conexión con el servidor.<br><small>${err.message}</small></div>`;
+    console.error('loadProfeGrupos error:', err);
+  }
+}
+
+/** Abre el modal para crear un nuevo grupo */
+function openCrearGrupoModal() {
+  document.getElementById('cg-nombre').value  = '';
+  document.getElementById('cg-centro').value  = '';
+  document.getElementById('cg-codigo').value  = '';
+  document.getElementById('cg-error').classList.add('d-none');
+  document.getElementById('modal-crear-grupo').classList.add('active');
+}
+
+/** Guarda el nuevo grupo enviándolo a la BD */
+async function saveNuevoGrupo() {
+  const nombre  = document.getElementById('cg-nombre').value.trim();
+  const idCentro = parseInt(document.getElementById('cg-centro').value);
+  const codigo  = document.getElementById('cg-codigo').value.trim() || null;
+  const errEl   = document.getElementById('cg-error');
+
+  if (!nombre) {
+    errEl.textContent = 'El nombre del grupo es obligatorio.';
+    errEl.classList.remove('d-none'); return;
+  }
+  if (!idCentro || isNaN(idCentro)) {
+    errEl.textContent = 'El ID del centro es obligatorio y debe ser un número.';
+    errEl.classList.remove('d-none'); return;
+  }
+
+  const userId = _getSessionUserId();
+  const idProfesor = userId || (state.currentUser?.id ?? state.currentUser?.idProfesor ?? 1);
+
+  // Generar un idGrupo temporal basado en timestamp
+  const idGrupo = Date.now() % 1000000;
+
+  const payload = {
+    idGrupo,
+    nombre,
+    idCentro,
+    idProfesor: Number(idProfesor),
+    codigo
+  };
+
+  try {
+    const res = await fetch(API_GRUPOS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      let msg = `Error ${res.status}`;
+      try { msg = JSON.parse(txt).error || JSON.parse(txt).message || txt; } catch {}
+      throw new Error(msg);
+    }
+
+    closeModal('modal-crear-grupo');
+    showFeedback(`Grupo "${nombre}" creado correctamente`);
+    loadProfeGrupos(); // Recargar lista
+
+  } catch (err) {
+    errEl.textContent = `No se pudo crear el grupo: ${err.message}`;
+    errEl.classList.remove('d-none');
+    console.error('saveNuevoGrupo error:', err);
+  }
+}
+
+/** Elimina un grupo por ID */
+async function eliminarGrupo(idGrupo) {
+  if (!confirm(`¿Eliminar el grupo ${idGrupo}?`)) return;
+  try {
+    const res = await fetch(`${API_GRUPOS}/${idGrupo}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    showFeedback('Grupo eliminado');
+    loadProfeGrupos();
+  } catch (err) {
+    alert('No se pudo eliminar el grupo: ' + err.message);
+  }
+}
+
+/** Helper: obtiene el ID de usuario desde la sesión */
+function _getSessionUserId() {
+  const keys = ['lf_session_api', 'lf_session', 'usuario'];
+  for (const k of keys) {
+    const raw = sessionStorage.getItem(k) || localStorage.getItem(k);
+    if (raw) {
+      try {
+        const obj = JSON.parse(raw);
+        return obj.id_user || obj.id || obj.idProfesor || null;
+      } catch {}
+    }
+  }
+  return null;
+}
+
+/** Muestra un toast de feedback reutilizando el sistema existente */
+function showFeedback(msg) {
+  const toast = document.getElementById('feedback-toast');
+  const toastMsg = document.getElementById('toast-msg');
+  const toastPts = document.getElementById('toast-points');
+  if (!toast) return;
+  if (toastMsg) toastMsg.textContent = msg;
+  if (toastPts) toastPts.textContent = '';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   ACTIVIDADES DESDE LA BD (Parser JSON)
+   API: http://192.168.150.185:8085/actividad/find
+   Transforma la respuesta de la BD al formato COURSES que usa la app
+══════════════════════════════════════════════════════════════════ */
+
+const API_ACTIVIDADES = 'http://192.168.150.185:8085/actividad/find';
+
+/**
+ * Parsea el campo JSON (preguntas/respuestas) devuelto como string por la BD.
+ * Devuelve un array con los valores del objeto, o [] si falla.
+ */
+function parserJson(stringJson) {
+  if (!stringJson) return [];
+  try {
+    const datos = JSON.parse(stringJson);
+    return Object.values(datos);
+  } catch (e) {
+    console.warn('parserJson: error al parsear:', e);
+    return [];
+  }
+}
+
+/**
+ * Convierte una actividad de la BD al formato de ejercicio que entiende la app.
+ * El campo "preguntas" de la BD es un JSON con las preguntas,
+ * el campo "respuestas" es un JSON con las respuestas correctas.
+ */
+function actividadBdToEjercicio(act) {
+  const preguntas  = parserJson(act.preguntas);
+  const respuestas = parserJson(act.respuestas);
+
+  // Si hay preguntas, construir ejercicios tipo test
+  if (preguntas.length > 0) {
+    return preguntas.map((pregunta, i) => ({
+      type: 'test',
+      question: String(pregunta),
+      options: respuestas.filter((_, j) => Math.floor(j / 4) === i).slice(0, 4).map(String),
+      correct: 0  // La BD no siempre especifica el índice correcto; usar 0 por defecto
+    }));
+  }
+
+  // Fallback: ejercicio genérico vacío
+  return [{
+    type: 'test',
+    question: act.nombre || 'Pregunta de la actividad',
+    options: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
+    correct: 0
+  }];
+}
+
+/**
+ * Carga las actividades desde la BD y las agrupa en COURSES.
+ * Si la BD no responde, mantiene los COURSES hardcodeados.
+ */
+async function loadActividadesFromDB() {
+  try {
+    const res = await fetch(API_ACTIVIDADES);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const actividades = await res.json();
+
+    if (!Array.isArray(actividades) || actividades.length === 0) {
+      console.info('loadActividadesFromDB: sin datos, usando cursos locales');
+      return;
+    }
+
+    // Agrupar actividades por dificultad → curso
+    const nivelMap = { A1: 'a1', A2: 'a2', B1: 'b1', B2: 'b2' };
+    const badgeMap = { A1: 'badge-a1', A2: 'badge-a2', B1: 'badge-b1', B2: 'badge-b1' };
+
+    // Crear estructura de cursos a partir de la BD
+    const cursosDB = {};
+
+    for (const act of actividades) {
+      const nivel   = (act.dificultad || 'A1').toUpperCase();
+      const cursoId = nivelMap[nivel] || 'a1';
+
+      if (!cursosDB[cursoId]) {
+        cursosDB[cursoId] = {
+          id: cursoId,
+          title: `Francés ${nivel}`,
+          level: nivel,
+          badge: badgeMap[nivel] || 'badge-a1',
+          desc: `Actividades de nivel ${nivel} cargadas desde la base de datos`,
+          activities: []
+        };
+      }
+
+      // Convertir preguntas/respuestas con el parser
+      const ejercicios = actividadBdToEjercicio(act);
+
+      cursosDB[cursoId].activities.push({
+        id:       `bd-act-${act.idActividad}`,
+        title:    act.nombre || `Actividad ${act.idActividad}`,
+        icon:     'bi-book',
+        subtitle: `Duración: ${act.duracion || '—'} · Dificultad: ${act.dificultad || '—'}`,
+        deadline: act.fechaEntrega ? act.fechaEntrega.split('T')[0] : '',
+        maxTime:  act.duracion ? parseInt(act.duracion) : 0,
+        exercises: ejercicios
+      });
+    }
+
+    const cursosOrdenados = Object.values(cursosDB).sort((a, b) =>
+      a.level.localeCompare(b.level)
+    );
+
+    if (cursosOrdenados.length > 0) {
+      COURSES.length = 0; // Vaciar array manteniendo la referencia
+      cursosOrdenados.forEach(c => COURSES.push(c));
+      console.info(`loadActividadesFromDB: ${actividades.length} actividades cargadas en ${COURSES.length} cursos`);
+
+      // Si ya está renderizado, actualizar la vista
+      if (document.getElementById('courses-container')) buildCourses();
+      if (document.getElementById('quick-courses'))     buildQuickCourses();
+    }
+
+  } catch (err) {
+    console.warn('loadActividadesFromDB: no se pudo conectar a la BD, usando datos locales.', err.message);
+    // Silenciosamente mantiene los COURSES hardcodeados
+  }
+}
+
+// Intentar cargar actividades de la BD al iniciar la página
+document.addEventListener('DOMContentLoaded', () => {
+  loadActividadesFromDB();
 });
