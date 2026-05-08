@@ -24,8 +24,8 @@
   --shadow-lg:     0 10px 40px rgba(0,0,0,.14);
   --radius:        14px;
   --radius-sm:     8px;
-  --font-display:  'Playfair Display', Georgia, serif;
-  --font-body:     'DM Sans', sans-serif;
+--font-display: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-body:    'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --transition:    all .28s cubic-bezier(.4,0,.2,1);
 }
 
