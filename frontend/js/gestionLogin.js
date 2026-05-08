@@ -10,11 +10,18 @@ async function ejecutarLogin() {
 async function doLogin() {
     const response = await postLogin();
     if (response && response !== false) {
-        alert(JSON.stringify(response));
+        // Guardar nombre y datos del usuario devueltos por la API
+        const sessionData = {
+            id_sesion: response.id_sesion,
+            nombre: response.nombre || response.name || '',
+            apellidos: response.apellidos || '',
+            rol: response.rol || response.role || 'alumno',
+            correo: response.correo || response.email || ''
+        };
         if (document.getElementById('remember-me').checked) {
-            localStorage.setItem('idSesion', JSON.stringify(response.id_sesion));
+            localStorage.setItem('lf_session_api', JSON.stringify(sessionData));
         } else {
-            sessionStorage.setItem('idSesion', JSON.stringify(response.id_sesion));
+            sessionStorage.setItem('lf_session_api', JSON.stringify(sessionData));
         }
         entrarApp();
     } else {

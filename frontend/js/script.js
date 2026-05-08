@@ -163,7 +163,9 @@ function doLogin() {
   }
 
   if (document.getElementById('remember-me').checked) {
-    try { localStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role })); } catch(e) {}
+    try { localStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role, name: state.currentUser.name })); } catch(e) {}
+  } else {
+    try { sessionStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role, name: state.currentUser.name })); } catch(e) {}
   }
   document.getElementById('login-error').classList.add('d-none');
   //REDIRIGIR A LA PAGINA INDEX
@@ -1576,41 +1578,53 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
     el.textContent = m.msg;
   }, 10000);
 
-  // Restaurar sesión
-  // Restaurar sesión
+  // Restaurar sesión (soporta sesión de API real y sesión mock)
   try {
-    const saved = localStorage.getItem('lf_session');
-    if (saved) {
-      const { email, role } = JSON.parse(saved);
-      
-      // Rellenar formulario de login SOLO si existe en el DOM
+    const savedApi  = localStorage.getItem('lf_session_api')  || sessionStorage.getItem('lf_session_api');
+    const savedMock = localStorage.getItem('lf_session') || sessionStorage.getItem('lf_session');
+
+    if (savedApi) {
+      // Sesión proveniente del backend real — usa nombre y apellidos de la BD
+      const { nombre, apellidos, rol, correo, id_sesion } = JSON.parse(savedApi);
+      const fullName = [nombre, apellidos].filter(Boolean).join(' ') || correo || 'Usuario';
+      const role = (rol || 'alumno').toLowerCase();
+      state.currentUser = { email: correo, name: fullName, role, id_sesion };
+      if (document.getElementById('screen-app')) {
+        enterApp();
+      }
+    } else if (savedMock) {
+      // Sesión mock (login sin backend)
+      const { email, role, name: savedName } = JSON.parse(savedMock);
+
       const emailInput = document.getElementById('login-email');
       if (emailInput) {
-          emailInput.value = email;
-          selectRole(role);
+        emailInput.value = email;
+        selectRole(role);
       }
-      
-      // Configurar el usuario actual simulando el login
+
       let user = MOCK_USERS.find(u => u.email === email);
       if (!user) {
-        user = { email, password: '', name: email.split('@')[0], role: role };
+        const resolvedName = savedName || email.split('@')[0];
+        user = { email, password: '', name: resolvedName, role: role };
       }
       state.currentUser = { ...user, role: role };
 
-      // Si estamos en la página principal (index.html), iniciamos la app
       if (document.getElementById('screen-app')) {
-          enterApp();
+        enterApp();
       }
     } else {
-      // Si no hay sesión guardada y estamos en index.html, redirigir a login
-      // window.location.href = "./login.html"; 
+      // Sin sesión guardada — redirigir a login si estamos en index
+      // window.location.href = './login.html';
     }
   } catch(e) {}
 })();
 function doLogout() {
     // 1. Borramos los datos del usuario del almacenamiento local
-    localStorage.removeItem('user'); // O sessionStorage.clear(), según uses
-    localStorage.clear(); 
+    localStorage.removeItem('user');
+    localStorage.removeItem('lf_session_api');
+    localStorage.clear();
+    sessionStorage.removeItem('lf_session');
+    sessionStorage.removeItem('lf_session_api');
 
     // 2. Redirigimos al login
     window.location.href = 'login.html';
