@@ -4,6 +4,8 @@ import com.grupo4.frances.Repositories.AlumnoRepository;
 import com.grupo4.frances.Repositories.ProfesorRepository;
 import com.grupo4.frances.persistence.Alumno;
 import com.grupo4.frances.persistence.Profesor;
+import static com.grupo4.frances.utilidades.Seguridad.*;
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,14 +32,15 @@ public class AdminController {
     }
 
     @PostMapping("/alumnos")
+    @Transactional
     public ResponseEntity<?> crearAlumno(@RequestParam Long idDirector, @RequestBody Alumno alumno) {
         ResponseEntity<?> errorPermisos = validarDirector(idDirector);
         if (errorPermisos != null) return errorPermisos;
 
-        // Forzamos que sea una creación nueva ignorando cualquier ID que venga del front
         alumno.setIdAlumno(null);
-    
-        return ResponseEntity.ok(alumnoRepository.save(alumno));
+        alumno.setContrasena(sha256(alumno.getContrasena()));
+        Alumno guardado = alumnoRepository.save(alumno);
+        return ResponseEntity.ok(guardado);
     }
 
     @DeleteMapping("/alumnos/{id}")
@@ -58,11 +61,12 @@ public class AdminController {
     @PostMapping("/profesores")
     public ResponseEntity<?> crearProfesor(@RequestParam Long idDirector, @RequestBody Profesor profesor) {
         ResponseEntity<?> errorPermisos = validarDirector(idDirector);
-        if (errorPermisos != null) {
-            return errorPermisos;
-        }
+        if (errorPermisos != null) return errorPermisos;
 
-        return ResponseEntity.ok(profesorRepository.save(profesor));
+        profesor.setIdProfesor(null);
+        profesor.setContrasena(sha256(profesor.getContrasena()));
+        Profesor guardado = profesorRepository.save(profesor);
+        return ResponseEntity.ok(guardado);
     }
 
     @DeleteMapping("/profesores/{id}")
