@@ -1642,33 +1642,3 @@ function doLogout() {
         loginBtn.title = isDark ? 'Modo claro' : 'Modo oscuro';
     }
 })();
-function toggleSidebar() {
-  var sidebar = document.getElementById('sidebar');
-  if (!sidebar) return;
-  var isOpen = sidebar.classList.toggle('active');
-  var overlay = document.getElementById('sidebar-overlay');
-  if (isOpen) {
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'sidebar-overlay';
-      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:rgba(0,0,0,.4);';
-      overlay.addEventListener('click', closeSidebar);
-      document.body.appendChild(overlay);
-    }
-  } else {
-    closeSidebar();
-  }
-}
-
-function closeSidebar() {
-  var sidebar = document.getElementById('sidebar');
-  if (sidebar) sidebar.classList.remove('active');
-  var overlay = document.getElementById('sidebar-overlay');
-  if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-}
-
-document.querySelectorAll('.sidebar-item').forEach(function(item) {
-  item.addEventListener('click', function() {
-    if (window.innerWidth <= 770) closeSidebar();
-  });
-});
