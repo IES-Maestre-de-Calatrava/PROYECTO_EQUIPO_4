@@ -6,13 +6,15 @@
    ✓ Pronunciación con fonética visual
    ✓ Tips culturales
    ✓ Preguntas de seguimiento
-   ✓ Integrado con Google Gemini API
+   ✓ Integrado con Claude API
 ═══════════════════════════════════════════════════════════════ */
 
 const TUTOR_CONFIG = {
-  GEMINI_API_KEY: 'AIzaSyD5rTdqXKSbU6gKyuqC9UiuO2CcWtXp9ak', // ← Deja vacío para usar respuestas mock (funciona sin API)
-  GEMINI_MODEL: 'gemini-2.5-pro',
-  SYSTEM_PROMPT: `Eres Lumi, un tutor de francés amable, paciente y motivador. Debes seguir estas reglas SIEMPRE:
+  CLAUDE_API_KEY: '', // Pega aqui tu API key de Claude. Dejalo vacio para usar respuestas mock (funciona sin API)
+  CLAUDE_MODEL: 'claude-sonnet-4-5',
+  CLAUDE_API_VERSION: '2023-06-01',
+  MAX_TOKENS: 700,
+  SYSTEM_PROMPT: `Eres Claudia, un tutor de francés amable, paciente y motivador. Debes seguir estas reglas SIEMPRE:
 
 1. IDIOMA: Habla 70% en francés y 30% en español (con traducciones entre paréntesis). Adapta según el nivel del alumno.
 
@@ -63,7 +65,7 @@ async function sendTutorMessage() {
   showTutorLoading();
   
   try {
-    // Llamar a la API del tutor (OpenAI o fallback)
+    // Llamar a la API del tutor (Claude o fallback)
     const response = await callTutorAPI(message);
     
     // Remover indicador de escritura
@@ -89,62 +91,57 @@ async function sendTutorMessage() {
 }
 
 /* ─────────────────────────────────
-   API CALL: Conectar con Gemini API
+   API CALL: Conectar con Claude API
 ───────────────────────────────────── */
 async function callTutorAPI(userMessage) {
-  // SI TIENES GEMINI_API_KEY configurada, usa esto:
-  if (TUTOR_CONFIG.GEMINI_API_KEY) {
-    return await callGeminiAPI(userMessage);
+  // SI TIENES CLAUDE_API_KEY configurada, usa esto:
+  if (TUTOR_CONFIG.CLAUDE_API_KEY) {
+    return await callClaudeAPI();
   }
   
   // FALLBACK: Respuestas inteligentes mock (SIN API)
   return generateMockTutorResponse(userMessage);
 }
 
-async function callGeminiAPI(userMessage) {
-  // Construir el prompt con historial de conversación
-  let promptText = `${TUTOR_CONFIG.SYSTEM_PROMPT}\n\n`;
-  TUTOR_STATE.conversationHistory.forEach(msg => {
-    if (msg.role === 'user') {
-      promptText += `Usuario: ${msg.content}\n`;
-    } else {
-      promptText += `Asistente: ${msg.content}\n`;
-    }
-  });
-  promptText += `Usuario: ${userMessage}\nAsistente:`;
+async function callClaudeAPI() {
+  const messages = TUTOR_STATE.conversationHistory.slice(-12).map(msg => ({
+    role: msg.role === 'assistant' ? 'assistant' : 'user',
+    content: String(msg.content)
+  }));
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1/models/${TUTOR_CONFIG.GEMINI_MODEL}:generateContent?key=${TUTOR_CONFIG.GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{ text: promptText }]
-        }]
-      })
-    }
-  );
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': TUTOR_CONFIG.CLAUDE_API_KEY,
+      'anthropic-version': TUTOR_CONFIG.CLAUDE_API_VERSION
+    },
+    body: JSON.stringify({
+      model: TUTOR_CONFIG.CLAUDE_MODEL,
+      max_tokens: TUTOR_CONFIG.MAX_TOKENS,
+      system: TUTOR_CONFIG.SYSTEM_PROMPT,
+      messages
+    })
+  });
   
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(`Gemini API error: ${error.error?.message || response.statusText}`);
+    throw new Error(`Claude API error: ${error.error?.message || response.statusText}`);
   }
   
   const data = await response.json();
   
-  // Respuesta de Gemini Text Bison
-  if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-    return data.candidates[0].content;
+  if (Array.isArray(data.content)) {
+    const text = data.content
+      .filter(block => block.type === 'text' && block.text)
+      .map(block => block.text)
+      .join('\n')
+      .trim();
+
+    if (text) return text;
   }
   
-  if (data.text) {
-    return data.text;
-  }
-  
-  throw new Error('Respuesta inesperada de Gemini API');
+  throw new Error('Respuesta inesperada de Claude API');
 }
 
 /* ─────────────────────────────────
@@ -242,11 +239,11 @@ Los franceses aprecian mucho cuando dices "Bonjour" y "Merci". Es considerado mu
 
 Gracias por tu pregunta o comentario. 
 
-En el futuro, esta respuesta vendrá de un modelo de IA real (OpenAI), pero por ahora estamos usando respuestas pre-configuradas.
+En el futuro, esta respuesta vendrá de un modelo de IA real (Claude), pero por ahora estamos usando respuestas pre-configuradas.
 
-Para conectar con OpenAI:
-1. Obtén tu clave API en https://platform.openai.com/
-2. Configura TUTOR_CONFIG.OPENAI_API_KEY en este archivo
+Para conectar con Claude:
+1. Obtén tu clave API en https://console.anthropic.com/
+2. Configura TUTOR_CONFIG.CLAUDE_API_KEY en este archivo
 3. ¡El tutor IA real estará listo!
 
 **Pregunta:**
