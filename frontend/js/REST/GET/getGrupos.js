@@ -7,6 +7,13 @@ export async function getAllGrupos(){
     return grupos;
 }
 
+export async function getGruposByAlumno(id){
+    const response = await fetch(`${API}/alumno/${id}`);
+    const grupos = await response.json();
+
+    return grupos;
+}
+
 export async function getGrupoById(id) {
     const response = await fetch(`${API}/${id}`);
     const grupo = await response.json();
@@ -18,7 +25,7 @@ export async function getGrupoById(id) {
 
 async function renderGrupos() {
     try {
-        const grupos = await getAllGrupos();
+        const grupos = await getGruposByAlumno(1);
         const contenedor = document.getElementById("courses-container");
 
         let html = `<h2 style="text-align:center;color:#333">GRUPOS</h2>`;
