@@ -624,13 +624,13 @@ function openActivity(courseId, activityId) {
 /* ─── SCORING ─── */
 function applyPoints(pts) {
   const prevLevel = getLevelData().id;
-  state.score += pts;
+  state.score = Math.max(0, state.score + pts);
   state.exerciseSessionScore += pts;
   state.exercisesDone++;
   document.getElementById('ex-points-live').textContent = state.exerciseSessionScore;
   const pop = document.createElement('div');
-  pop.className = 'points-pop';
-  pop.textContent = `+${pts}`;
+  pop.className = pts >= 0 ? 'points-pop' : 'points-pop points-pop--neg';
+  pop.textContent = pts >= 0 ? `+${pts}` : `${pts}`;
   pop.style.cssText = `top:${Math.random()*30+35}%;left:${Math.random()*30+35}%;`;
   document.body.appendChild(pop);
   setTimeout(() => pop.remove(), 1000);
@@ -758,8 +758,8 @@ function selectMatch(side, idx) {
     document.getElementById(`ml-${leftIdx}`).classList.add('wrong');
     document.getElementById(`mr-${rightIdx}`).classList.add('wrong');
     state.totalAnswers++;
-    applyPoints(20);
-    showFeedback(false, 20);
+    applyPoints(-20);
+    showFeedback(false, -20);
     setTimeout(() => {
       document.getElementById(`ml-${leftIdx}`)?.classList.remove('wrong');
       document.getElementById(`mr-${rightIdx}`)?.classList.remove('wrong');
@@ -775,7 +775,7 @@ function checkTest(chosen, correct, actId, exIndex) {
   const btns = document.querySelectorAll('.option-btn');
   btns.forEach(b => b.disabled = true);
   const isCorrect = chosen === correct;
-  const pts = isCorrect ? 100 : 20;
+  const pts = isCorrect ? 100 : -20;
   btns[chosen].classList.add(isCorrect ? 'correct' : 'wrong');
   if (!isCorrect) btns[correct].classList.add('correct');
   if (isCorrect) state.correctAnswers++;
@@ -792,7 +792,7 @@ function checkFill(correct, actId, exIndex) {
   state.exerciseAnswered = true;
   state.totalAnswers++;
   const isCorrect = val.toLowerCase() === correct.toLowerCase();
-  const pts = isCorrect ? 100 : 20;
+  const pts = isCorrect ? 100 : -20;
   input.disabled = true;
   document.getElementById('fill-btn').disabled = true;
   input.classList.add(isCorrect ? 'correct' : 'wrong');
@@ -811,11 +811,11 @@ function checkFill(correct, actId, exIndex) {
 function showFeedback(isCorrect, pts) {
   const t = document.getElementById('feedback-toast');
   const msgs = isCorrect
-    ? ['¡Perfecto! 🔥','¡Excelente! ⭐','¡Correcto! 💪','¡Brillante! ✨']
-    : ['¡Casi! Sigue intentándolo 💪','¡Muy cerca! No te rindas 🎯','¡Buen intento! 📚'];
+    ? ['¡Perfecto! 🔥','¡Excelente! ⭐','¡Correcto! 💪','¡Brillante! ✨','¡Muy bien! 🎯','¡Genial! 🚀']
+    : ['¡Casi! Sigue intentándolo 💪','¡No te rindas! La práctica hace al maestro 📚','¡Buen intento! Revisa la respuesta correcta 🎯','¡Error! Pero aprendemos de los fallos 💡'];
   t.querySelector('#toast-msg').textContent    = msgs[Math.floor(Math.random()*msgs.length)];
-  t.querySelector('#toast-points').textContent = pts > 0 ? `+${pts} pts` : '';
-  t.querySelector('#toast-icon').textContent   = isCorrect ? '🎉' : '💡';
+  t.querySelector('#toast-points').textContent = pts > 0 ? `+${pts} pts` : `${pts} pts`;
+  t.querySelector('#toast-icon').textContent   = isCorrect ? '🎉' : '😅';
   t.className = `feedback-toast show ${isCorrect ? 'toast-correct' : 'toast-wrong'}`;
   setTimeout(() => t.classList.remove('show'), 2500);
 }
@@ -839,6 +839,8 @@ function finishActivity(activity) {
   state.completedActivities.add(activity.id);
   state.activitiesDone++;
   updateDashboard();
+  // Sincronizar puntos con la BD
+  syncPuntosConBD(state.exerciseSessionScore);
   document.getElementById('complete-icon').textContent   = '🎉';
   document.getElementById('complete-points').textContent = `+${state.exerciseSessionScore} puntos`;
   document.getElementById('complete-sub').textContent    = `Has completado "${activity.title}"`;
@@ -851,6 +853,61 @@ function finishActivity(activity) {
     accEl.style.display = 'none';
   }
   showPanel('activity-complete-panel');
+}
+
+/**
+ * Actualiza los puntos del alumno actual en la BD.
+ * Llama a PUT /alumno/{id} con los nuevos puntos totales.
+ * Si falla (sin conexión), no bloquea la UI.
+ */
+async function syncPuntosConBD(puntosGanados) {
+  if (!puntosGanados || puntosGanados <= 0) return;
+  try {
+    // Obtener ID del alumno desde la sesión
+    const sessionRaw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
+    if (!sessionRaw) return; // No hay sesión de API, nada que hacer
+    const session = JSON.parse(sessionRaw);
+    const idAlumno = session.id_user || session.id;
+    if (!idAlumno) return;
+
+    // Obtener datos actuales del alumno para conservar los campos requeridos
+    const resGet = await fetch(`http://192.168.150.185:8085/alumno/find/${idAlumno}`);
+    if (!resGet.ok) throw new Error(`GET alumno: HTTP ${resGet.status}`);
+    const alumno = await resGet.json();
+
+    // Calcular nuevos puntos totales (puntos actuales en BD + ganados en esta sesión)
+    const puntosActuales = alumno.puntos || 0;
+    const puntosNuevos   = Math.max(0, puntosActuales + puntosGanados);
+
+    // Determinar nuevo nivel según puntos totales
+    let nuevoNivel = alumno.nivel || 'A1';
+    if (puntosNuevos >= 9000)      nuevoNivel = 'B2';
+    else if (puntosNuevos >= 5000) nuevoNivel = 'B1';
+    else if (puntosNuevos >= 2000) nuevoNivel = 'A2';
+    else                           nuevoNivel = 'A1';
+
+    // Enviar actualización
+    const resPut = await fetch(`http://192.168.150.185:8085/alumno/${idAlumno}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...alumno,
+        puntos: puntosNuevos,
+        nivel:  nuevoNivel,
+      })
+    });
+
+    if (!resPut.ok) throw new Error(`PUT alumno: HTTP ${resPut.status}`);
+    console.info(`✅ Puntos sincronizados: ${puntosActuales} + ${puntosGanados} = ${puntosNuevos} pts (BD)`);
+
+    // Invalidar caché del leaderboard para que se recargue con datos frescos
+    _lbStudentsCache = null;
+    _lbCacheTime = 0;
+
+  } catch (err) {
+    // No bloquear la UI si la BD falla — los puntos siguen en local
+    console.warn('syncPuntosConBD: no se pudo sincronizar con la BD.', err.message);
+  }
 }
 
 /* ─── LEVEL UP ─── */
@@ -882,10 +939,10 @@ function buildProgressCourseList() {
 
 /* ─── LEADERBOARD MULTI-TAB ──────────────────────────────────
    Tipos: 'general' | 'diaria' | 'semanal'
-   Datos mock con puntos diarios/semanales para simulación.
+   Datos reales de la BD: GET /alumno/find (vista VISTA_ALUMNOS_PUNTOS)
 ─────────────────────────────────────────────────────────────── */
 
-/* Mock: puntos por período. En producción vendrían del backend. */
+/* Mock de respaldo por si la BD no responde */
 const MOCK_DAILY_POINTS = {
   'Ana García':     120,
   'Carlos López':   45,
@@ -923,41 +980,110 @@ function switchProfeLeaderboard(tipo) {
   buildLeaderboard('profe-leaderboard-content', true, tipo);
 }
 
-function buildLeaderboard(containerId, isTeacherView, tipo) {
+/* Caché de alumnos de la BD para no repetir llamadas */
+let _lbStudentsCache = null;
+let _lbCacheTime = 0;
+const LB_CACHE_TTL = 60000; // 1 minuto
+
+async function _fetchLeaderboardStudents() {
+  const now = Date.now();
+  if (_lbStudentsCache && (now - _lbCacheTime) < LB_CACHE_TTL) {
+    return _lbStudentsCache;
+  }
+  try {
+    const res = await fetch('http://192.168.150.185:8085/alumno/find');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const alumnos = await res.json();
+
+    // Mapear formato BD → formato leaderboard
+    const nivelToId = { A1:'basico', A2:'elemental', B1:'intermedio', B2:'avanzado' };
+    const colorPalette = ['#0055A4','#059669','#d97706','#7c3aed','#EF4135','#1a70c1','#db2777','#0891b2'];
+    const mapped = alumnos.map((a, idx) => {
+      const fullName = `${a.nombre} ${a.apellidos}`.trim();
+      const initials = (a.nombre?.[0] || '') + (a.apellidos?.[0] || '');
+      return {
+        name:      fullName,
+        initials:  initials.toUpperCase() || '??',
+        color:     colorPalette[idx % colorPalette.length],
+        points:    a.puntos || 0,
+        level:     nivelToId[(a.nivel || 'A1').toUpperCase()] || 'basico',
+        course:    a.nivel || 'A1',
+        role:      'alumno',
+        idAlumno:  a.idAlumno || a.id_alumno,
+      };
+    });
+    _lbStudentsCache = mapped;
+    _lbCacheTime = now;
+    return mapped;
+  } catch (err) {
+    console.warn('Leaderboard: no se pudo cargar desde BD, usando mock.', err.message);
+    return null; // señal de fallo → usar mock
+  }
+}
+
+async function buildLeaderboard(containerId, isTeacherView, tipo) {
   tipo = tipo || 'general';
+
+  // Mostrar spinner mientras carga
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '<div class="text-center p-4 text-muted"><i class="bi bi-hourglass-split me-2"></i>Cargando clasificación…</div>';
+
+  // Intentar cargar desde BD
+  let studentsFromDB = await _fetchLeaderboardStudents();
+
   const levelLabels = { basico:'A1 — Básico', elemental:'A2 — Elemental', intermedio:'B1 — Intermedio', avanzado:'B2 — Avanzado' };
   const levelCls    = { basico:'lb-level-basico', elemental:'lb-level-elemental', intermedio:'lb-level-intermedio', avanzado:'lb-level-avanzado' };
 
-  /* Resolver puntos según el tipo */
+  /* Si BD falla, usar mock */
+  let baseStudents = studentsFromDB || MOCK_STUDENTS;
+
+  /* Resolver puntos según el tipo de período */
   function getPts(s) {
+    if (tipo === 'general') return s.points;
+    // Para diaria/semanal: si hay datos de BD, usar fracción aproximada
+    // En producción aquí iría un endpoint específico de puntos por período
+    if (studentsFromDB) {
+      return tipo === 'diaria'
+        ? Math.round(s.points * 0.05)   // ~5% de los puntos totales como estimación diaria
+        : Math.round(s.points * 0.25);  // ~25% como estimación semanal
+    }
     if (tipo === 'diaria')  return MOCK_DAILY_POINTS[s.name]  || 0;
     if (tipo === 'semanal') return MOCK_WEEKLY_POINTS[s.name] || 0;
     return s.points;
   }
 
-  /* Construir lista con puntos del período */
-  let students = MOCK_STUDENTS.map(s => ({ ...s, displayPts: getPts(s) }));
+  let students = baseStudents.map(s => ({ ...s, displayPts: getPts(s) }));
 
-  /* Añadir usuario actual si es alumno real */
+  /* Añadir usuario actual si es alumno y no está en la lista */
   const u = state.currentUser;
-  if (u && u.role === 'alumno' && state.score > 0 && !MOCK_STUDENTS.find(s => s.name === u.name)) {
-    const dp = tipo === 'diaria' ? Math.round(state.score * 0.15) : tipo === 'semanal' ? Math.round(state.score * 0.6) : state.score;
-    students.push({ name:u.name, initials:u.name.substring(0,2).toUpperCase(), color:'#1a70c1', points:state.score, displayPts:dp, level:state.currentLevel, course:'—', role:'alumno' });
+  if (u && u.role === 'alumno' && state.score > 0) {
+    const yaEsta = students.find(s => s.name === u.name || (u.idAlumno && s.idAlumno === u.idAlumno));
+    if (!yaEsta) {
+      const dp = tipo === 'diaria' ? Math.round(state.score * 0.05)
+               : tipo === 'semanal' ? Math.round(state.score * 0.25)
+               : state.score;
+      students.push({ name:u.name, initials:u.name.substring(0,2).toUpperCase(), color:'#1a70c1',
+        points:state.score, displayPts:dp, level:state.currentLevel, course:'—', role:'alumno' });
+    } else {
+      // Actualizar sus puntos locales si son mayores (aún no sincronizados)
+      if (tipo === 'general' && state.score > yaEsta.displayPts) {
+        yaEsta.displayPts = state.score;
+        yaEsta.points = state.score;
+      }
+    }
   }
 
   students.sort((a, b) => b.displayPts - a.displayPts);
 
-  /* Etiqueta de período */
   const periodoLabel = tipo === 'diaria' ? 'pts hoy' : tipo === 'semanal' ? 'pts esta semana' : 'pts totales';
-
-  /* Info meta */
   const metaInfo = {
-    general: { icon:'bi-globe2', label:'Clasificación histórica', color:'#0055A4' },
-    diaria:  { icon:'bi-sun-fill', label:'Puntos obtenidos hoy', color:'#f59e0b' },
+    general: { icon:'bi-globe2', label: studentsFromDB ? 'Clasificación en tiempo real (BD)' : 'Clasificación histórica', color:'#0055A4' },
+    diaria:  { icon:'bi-sun-fill',           label:'Puntos obtenidos hoy',         color:'#f59e0b' },
     semanal: { icon:'bi-calendar-week-fill', label:'Puntos obtenidos esta semana', color:'#10b981' },
   }[tipo];
 
-  /* ─ PODIO top 3 (orden visual: 2º izq, 1º centro, 3º der) ─ */
+  /* ─ PODIO top 3 ─ */
   const crownIcons  = ['👑','🥈','🥉'];
   const podiumOrder = [1, 0, 2];
   const top3 = students.slice(0, 3);
@@ -966,10 +1092,11 @@ function buildLeaderboard(containerId, isTeacherView, tipo) {
     const s    = top3[visIdx];
     const rank = visIdx + 1;
     if (!s) return `<div class="lb-podium-slot rank-${rank}" style="opacity:.25;min-height:140px;"></div>`;
-    return `<div class="lb-podium-slot rank-${rank}" style="animation-delay:${visIdx * 0.12}s">
+    const isMe = u && s.name === u.name;
+    return `<div class="lb-podium-slot rank-${rank}${isMe ? ' lb-podium-slot--me' : ''}" style="animation-delay:${visIdx * 0.12}s">
       <span class="lb-podium-crown">${crownIcons[visIdx]}</span>
       <div class="lb-podium-avatar" style="background:${s.color}">${s.initials}</div>
-      <div class="lb-podium-name">${s.name}</div>
+      <div class="lb-podium-name">${s.name}${isMe ? ' <span class="lb-you-badge">Tú</span>' : ''}</div>
       <div class="lb-podium-pts">${s.displayPts.toLocaleString()}</div>
       <div class="lb-podium-pts-label">${periodoLabel}</div>
       <span class="lb-list-level ${levelCls[s.level] || 'lb-level-basico'}">${levelLabels[s.level] || s.level}</span>
@@ -997,12 +1124,13 @@ function buildLeaderboard(containerId, isTeacherView, tipo) {
   }).join('');
 
   /* Timestamp actualización */
-  const now = new Date();
+  const now2 = new Date();
   const tsId = containerId === 'leaderboard-content' ? 'lb-last-updated' : 'profe-lb-last-updated';
   const tsEl = document.getElementById(tsId);
-  if (tsEl) tsEl.innerHTML = `<i class="bi bi-clock me-1"></i>Actualizado: ${now.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'})}`;
+  const bdLabel = studentsFromDB ? '· Datos en vivo' : '· Datos demo';
+  if (tsEl) tsEl.innerHTML = `<i class="bi bi-clock me-1"></i>Actualizado: ${now2.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'})} ${bdLabel}`;
 
-  document.getElementById(containerId).innerHTML = `
+  container.innerHTML = `
     <div class="lb-meta-bar">
       <span class="lb-meta-icon" style="color:${metaInfo.color}"><i class="bi ${metaInfo.icon}"></i></span>
       <span class="lb-meta-label">${metaInfo.label}</span>
@@ -1642,33 +1770,52 @@ function doLogout() {
         loginBtn.title = isDark ? 'Modo claro' : 'Modo oscuro';
     }
 })();
-function toggleSidebar() {
-  var sidebar = document.getElementById('sidebar');
-  if (!sidebar) return;
-  var isOpen = sidebar.classList.toggle('active');
-  var overlay = document.getElementById('sidebar-overlay');
-  if (isOpen) {
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'sidebar-overlay';
-      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:rgba(0,0,0,.4);';
-      overlay.addEventListener('click', closeSidebar);
-      document.body.appendChild(overlay);
-    }
-  } else {
-    closeSidebar();
+/* =========================
+   MOBILE MENU
+========================= */
+
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-sidebar');
+  const overlay = document.getElementById('mobile-overlay');
+
+  menu.classList.toggle('active');
+  overlay.classList.toggle('active');
+}
+
+function closeMobileMenu() {
+  document.getElementById('mobile-sidebar').classList.remove('active');
+  document.getElementById('mobile-overlay').classList.remove('active');
+}
+
+/* copiar contenido del sidebar */
+/* copiar contenido del sidebar según el rol activo */
+function initMobileSidebar() {
+  const sidebarAlumno = document.getElementById('sidebar-alumno');
+  const sidebarProfesor = document.getElementById('sidebar-profesor');
+  const sidebarDirector = document.getElementById('sidebar-director');
+  
+  let content = "";
+
+  // Solo copiamos el contenido del sidebar que no tenga "display: none"
+  if (sidebarAlumno && sidebarAlumno.style.display !== 'none') {
+    content = sidebarAlumno.innerHTML;
+  } else if (sidebarProfesor && sidebarProfesor.style.display !== 'none') {
+    content = sidebarProfesor.innerHTML;
+  } else if (sidebarDirector && sidebarDirector.style.display !== 'none') {
+    content = sidebarDirector.innerHTML;
   }
+
+  document.getElementById('mobile-sidebar-content').innerHTML = content;
 }
 
-function closeSidebar() {
-  var sidebar = document.getElementById('sidebar');
-  if (sidebar) sidebar.classList.remove('active');
-  var overlay = document.getElementById('sidebar-overlay');
-  if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-}
+// Asegúrate de llamar a esta función también cuando cambies de rol o entres a la app
+// Modifica tu función enterApp() para que llame a initMobileSidebar() al final
 
-document.querySelectorAll('.sidebar-item').forEach(function(item) {
-  item.addEventListener('click', function() {
-    if (window.innerWidth <= 770) closeSidebar();
-  });
+document.addEventListener('DOMContentLoaded', initMobileSidebar);
+
+/* cerrar menú al navegar */
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('sidebar-item')) {
+    closeMobileMenu();
+  }
 });
