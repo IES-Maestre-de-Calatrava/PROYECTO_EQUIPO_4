@@ -163,7 +163,13 @@ function doLogin() {
   }
 
   if (document.getElementById('remember-me').checked) {
+<<<<<<< Updated upstream
     try { localStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role })); } catch(e) {}
+=======
+    try { localStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role, name: state.currentUser.name })); } catch(e) {}
+  } else {
+    try { sessionStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role, name: state.currentUser.name })); } catch(e) {}
+>>>>>>> Stashed changes
   }
   document.getElementById('login-error').classList.add('d-none');
   //REDIRIGIR A LA PAGINA INDEX
@@ -1568,6 +1574,7 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
     el.textContent = m.msg;
   }, 10000);
 
+<<<<<<< Updated upstream
   // Restaurar sesión
   // Restaurar sesión
   try {
@@ -1596,13 +1603,60 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
     } else {
       // Si no hay sesión guardada y estamos en index.html, redirigir a login
       // window.location.href = "./login.html"; 
+=======
+  // Restaurar sesión (soporta sesión de API real y sesión mock)
+  try {
+    const savedApi  = localStorage.getItem('lf_session_api')  || sessionStorage.getItem('lf_session_api');
+    const savedMock = localStorage.getItem('lf_session') || sessionStorage.getItem('lf_session');
+
+    if (savedApi) {
+      // Sesión proveniente del backend real — usa nombre y apellidos de la BD
+      const { nombre, apellidos, rol, correo, id_sesion } = JSON.parse(savedApi);
+      const fullName = [nombre, apellidos].filter(Boolean).join(' ') || correo || 'Usuario';
+      const role = (rol || 'alumno').toLowerCase();
+      state.currentUser = { email: correo, name: fullName, role, id_sesion };
+      if (document.getElementById('screen-app')) {
+        enterApp();
+      }
+    } else if (savedMock) {
+      // Sesión mock (login sin backend)
+      const { email, role, name: savedName } = JSON.parse(savedMock);
+
+      const emailInput = document.getElementById('login-email');
+      if (emailInput) {
+        emailInput.value = email;
+        selectRole(role);
+      }
+
+      let user = MOCK_USERS.find(u => u.email === email);
+      if (!user) {
+        const resolvedName = savedName || email.split('@')[0];
+        user = { email, password: '', name: resolvedName, role: role };
+      }
+      state.currentUser = { ...user, role: role };
+
+      if (document.getElementById('screen-app')) {
+        enterApp();
+      }
+    } else {
+      // Sin sesión guardada — redirigir a login si estamos en index
+      // window.location.href = './login.html';
+>>>>>>> Stashed changes
     }
   } catch(e) {}
 })();
 function doLogout() {
     // 1. Borramos los datos del usuario del almacenamiento local
+<<<<<<< Updated upstream
     localStorage.removeItem('user'); // O sessionStorage.clear(), según uses
     localStorage.clear(); 
+=======
+    localStorage.removeItem('user');
+    localStorage.removeItem('lf_session_api');
+    localStorage.clear();
+    sessionStorage.removeItem('lf_session');
+    sessionStorage.removeItem('lf_session_api');
+>>>>>>> Stashed changes
 
     // 2. Redirigimos al login
     window.location.href = 'login.html';
