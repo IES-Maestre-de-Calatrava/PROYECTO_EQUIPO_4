@@ -19,7 +19,7 @@ export async function getGrupoById(id) {
 async function renderGrupos() {
     try {
         const grupos = await getAllGrupos();
-        const contenedor = document.getElementById("contenedor-tabla");
+        const contenedor = document.getElementById("courses-container");
 
         let tabla = `
         <h2 style="text-align: center; color: #333">GRUPOS</h2>
@@ -53,6 +53,8 @@ async function renderGrupos() {
 
     } catch (error) {
         console.error("Error al obtener los grupos:", error);
-        document.getElementById("contenedor-tabla").innerHTML = "<p>Error al cargar datos.</p>";
+        document.getElementById("courses-container").innerHTML = "<p>Error al cargar datos.</p>";
     }
 }
+
+document.addEventListener("DOMContentLoaded", function() {renderGrupos()});
