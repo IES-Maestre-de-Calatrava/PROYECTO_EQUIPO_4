@@ -26,7 +26,8 @@ async function doLogin() {
         }
         entrarApp();
     } else {
-        
+        const modal = document.getElementById('login-error');
+        modal.innerHTML = 'Credenciales incorrectas';
     }
 }
 
@@ -38,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.querySelector('.btn-login');
     console.log("Botón encontrado:", btn);
     if (btn) {
-        btn.onclick = ejecutarLogin;
+        btn.onclick = ejecutarLogin();
     }
     const passInput = document.getElementById('login-password');
     if (passInput) {
