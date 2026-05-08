@@ -105,7 +105,7 @@
     <input type="text" id="instituto" class="campo" value="IES Maestre de Calatrava">
 
     <label for="telefono">Telefono</label>
-    <input type="number" id="telefono" class="campo" value="600000001">
+    <input type="number" id="telefono" class="campo" value="600000001" maxlength="9">
 
     <div id="camposAlumno">
         <label for="nivel">Nivel alumno</label>
@@ -116,9 +116,6 @@
             <option value="B2">B2</option>
             <option value="C1">C1</option>
         </select>
-
-        <label for="rango">Rango alumno</label>
-        <input type="text" id="rango" class="campo" value="Novato">
     </div>
 
     <div id="camposProfesor" style="display:none">
@@ -129,43 +126,17 @@
     </div>
 
     <div>
-        <button id="btnCrearUsuario">Crear usuario con API</button>
+        <button id="btnCrearUsuario">Crear usuario</button>
     </div>
 
     <hr>
-
-    <h2>Crear grupo API</h2>
-
-    <div>
-        <button id="btnSesionProfesor">Simular sesion profesor</button>
-    </div>
-
-    <label for="idGrupo">ID grupo</label>
-    <input type="number" id="idGrupo" class="campo" value="999">
-
-    <label for="nombreGrupo">Nombre grupo</label>
-    <input type="text" id="nombreGrupo" class="campo" value="Grupo prueba">
-
-    <label for="idCentroGrupo">ID centro</label>
-    <input type="number" id="idCentroGrupo" class="campo" value="1">
-
-    <label for="idProfesorGrupo">ID profesor</label>
-    <input type="number" id="idProfesorGrupo" class="campo" value="2">
-
-    <label for="codigoGrupo">Codigo grupo opcional</label>
-    <input type="text" id="codigoGrupo" class="campo" value="">
-
-    <div>
-        <button id="btnCrearGrupo">Crear grupo con API</button>
-    </div>
 
     <p id="estado"></p>
     <pre id="resultado">Pulsa un boton para probar la conexion con la API.</pre>
 
     <script type="module">
         import { gestionUsuariosGet } from "../../js/REST/GET/getGestionUsuarios.js";
-        import { gestionUsuariosPut } from "../../js/REST/POST/putGestionUsuarios.js";
-        import { gestionGruposPut } from "../../js/REST/POST/putGestionGrupos.js";
+        import { gestionUsuariosPut } from "../../js/REST/PUT/putGestionUsuarios.js";
 
         const estado = document.getElementById("estado");
         const resultado = document.getElementById("resultado");
@@ -298,30 +269,6 @@
             resultado.textContent = "Si intentas crear un usuario ahora, debe bloquearse por permisos antes de llamar a la API.";
         });
 
-        document.getElementById("btnSesionProfesor").addEventListener("click", () => {
-            const idProfesor = Number(document.getElementById("idProfesorGrupo").value);
-            const profesor = {
-                nombre: "Profesor",
-                apellidos: "Prueba",
-                id: idProfesor,
-                idProfesor,
-                rol: "PROFESOR",
-                role: "profesor"
-            };
-
-            localStorage.setItem("usuario", JSON.stringify(profesor));
-            localStorage.setItem("lf_session", JSON.stringify({
-                email: "profesor@test.com",
-                id: idProfesor,
-                idProfesor,
-                role: "profesor"
-            }));
-
-            estado.className = "ok";
-            estado.textContent = "Sesion de profesor guardada";
-            resultado.textContent = "Ahora puedes probar Crear grupo con API.";
-        });
-
         document.getElementById("btnCrearUsuario").addEventListener("click", () => {
             const tipoUsuario = document.getElementById("tipoUsuario").value;
             const idDirector = Number(document.getElementById("idDirector").value);
@@ -337,28 +284,6 @@
             ejecutarPeticion(
                 () => gestionUsuariosPut.crearUsuario(datosUsuario, tipoUsuario, usuarioDirector),
                 "Usuario enviado a la API"
-            );
-        });
-
-        document.getElementById("btnCrearGrupo").addEventListener("click", () => {
-            const idProfesor = Number(document.getElementById("idProfesorGrupo").value);
-            const usuarioProfesor = {
-                id: idProfesor,
-                idProfesor,
-                rol: "PROFESOR",
-                role: "profesor"
-            };
-            const datosGrupo = {
-                idGrupo: Number(document.getElementById("idGrupo").value),
-                nombre: document.getElementById("nombreGrupo").value.trim(),
-                idCentro: Number(document.getElementById("idCentroGrupo").value),
-                idProfesor,
-                codigo: document.getElementById("codigoGrupo").value.trim() || null
-            };
-
-            ejecutarPeticion(
-                () => gestionGruposPut.crearGrupo(datosGrupo, usuarioProfesor),
-                "Grupo enviado a la API"
             );
         });
 

@@ -1,11 +1,11 @@
-const API_ALUMNOS = "http://192.168.150.185:8085/api/admin/alumno";
-const API_PROFESORES = "http://192.168.150.185:8085/api/admin/profesor";
+const API_ALUMNOS = "http://192.168.150.185:8085/api/admin/alumnos";
+const API_PROFESORES = "http://192.168.150.185:8085/api/admin/profesores";
 
 export class PutGestionUsuarios {
     async crearAlumno(datosAlumno, usuarioActual = this.#getUsuarioActual()) {
         this.#validarDirector(usuarioActual);
 
-        return await this.#putJson(`${API_ALUMNOS}/`, {
+        return await this.#putJson(`${API_ALUMNOS}`, {
             ...datosAlumno,
             rol: "ALUMNO"
         });
@@ -14,7 +14,7 @@ export class PutGestionUsuarios {
     async crearProfesor(datosProfesor, usuarioActual = this.#getUsuarioActual()) {
         this.#validarDirector(usuarioActual);
 
-        return await this.#putJson(`${API_PROFESORES}/`, {
+        return await this.#putJson(`${API_PROFESORES}`, {
             ...datosProfesor,
             rol: "PROFESOR"
         });
@@ -65,10 +65,10 @@ export class PutGestionUsuarios {
     }
 
     async #putJson(url, datos) {
-        console.log("Enviando peticion PUT:", url, datos);
+        console.log("Enviando peticion POST:", url, datos);
 
-        const response = await fetch(url, {
-            method: "PUT",
+        const response = await fetch(`${url}?idDirector=1`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
