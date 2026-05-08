@@ -12,9 +12,9 @@ async function doLogin() {
     if (response && response !== false) {
         alert(JSON.stringify(response));
         if (document.getElementById('remember-me').checked) {
-            // localStorage.setItem('usuario', JSON.stringify(response.idsesion));
+            localStorage.setItem('idSesion', JSON.stringify(response.id_sesion));
         } else {
-            // sessionStorage.setItem('usuario', JSON.stringify(response.nombre));
+            sessionStorage.setItem('idSesion', JSON.stringify(response.id_sesion));
         }
         entrarApp();
     } else {
