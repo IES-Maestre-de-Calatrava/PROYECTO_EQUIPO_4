@@ -8,6 +8,7 @@ import com.grupo4.frances.persistence.Alumno;
 import com.grupo4.frances.persistence.Conexion;
 import com.grupo4.frances.persistence.Profesor;
 import jakarta.transaction.Transactional;
+import org.apache.coyote.Response;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
@@ -88,6 +89,47 @@ public class AuthController {
         // ❌ No encontrado en ninguna tabla
         return ResponseEntity.status(401)
                 .body(Map.of("error", "Correo o contraseña incorrectos"));
+    }
+
+    @GetMapping("/getUser")
+    public ResponseEntity<?> getUserFromUUID(@RequestBody String UUID){
+        Conexion conexion = conexionRepository.buscarPoridsesion(UUID).orElse(null);
+        if(!(conexion != null && conexion.getIdsesion().equals(UUID))){
+            return ResponseEntity.status(401).body(Map.of("error", "No existe el UUID en la base de datos"));
+        }
+
+        // Buscar si es un alumno
+        Alumno alumno = alumnoRepository.findById(conexion.getIdAlumno()).orElse(null);
+
+        if(alumno != null){
+            Map<String, Object> respuesta = new HashMap<>();
+            respuesta.put("id",        alumno.getIdAlumno());
+            respuesta.put("nombre",    alumno.getNombre());
+            respuesta.put("apellidos", alumno.getApellidos());
+            respuesta.put("correo",    alumno.getCorreo());
+            respuesta.put("rol",       "ALUMNO");
+            respuesta.put("nivel",     alumno.getNivel());
+            respuesta.put("rango",     alumno.getRango());
+            respuesta.put("id_sesion", conexion.getIdsesion());
+            return ResponseEntity.ok(respuesta);
+        }
+
+        // Buscar si es un profesor
+        Profesor profesor = profesorRepository.findById(conexion.getIdAlumno()).orElse(null);
+
+        if(profesor != null){
+            Map<String, Object> respuesta = new HashMap<>();
+            respuesta.put("id",        profesor.getIdProfesor());
+            respuesta.put("nombre",    profesor.getNombre());
+            respuesta.put("apellidos", profesor.getApellidos());
+            respuesta.put("correo",    profesor.getCorreo());
+            respuesta.put("rol",       profesor.isDirector() ? "DIRECTOR" : "PROFESOR");
+            respuesta.put("instituto", profesor.getInstituto());
+            respuesta.put("id_sesion", conexion.getIdsesion());
+            return ResponseEntity.ok(respuesta);
+        }
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", "Error en la query"));
     }
 
     private void registrarConexion(Alumno alumno) {
