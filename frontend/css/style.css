@@ -1565,7 +1565,6 @@ body.dark-mode .tutor-message-bot .tutor-msg-avatar { background: rgba(126,184,2
     margin-bottom: 10px;
 }
 
-<<<<<<< Updated upstream
 /* Etiquetas automáticas */
 
 #courses-container td:nth-child(3)::before {
@@ -1593,11 +1592,9 @@ body.dark-mode .tutor-message-bot .tutor-msg-avatar { background: rgba(126,184,2
     height: 6px;
     background: linear-gradient(90deg, #0066cc, #0066cc);
 }
-=======
 /* info */
 .grupo-info {
     font-size: 0.95rem;
     color: #444;
     margin-bottom: 6px;
 }
->>>>>>> Stashed changes
