@@ -896,6 +896,7 @@ body.dark-mode .profile-dropdown.active { background:rgba(255,255,255,.07); }
    UTILITY
 ============================================= */
 .points-pop { position:fixed; pointer-events:none; font-size:1.1rem; font-weight:800; color:var(--gold); z-index:9999; animation:pointsPop .9s ease forwards; }
+.points-pop--neg { color:#ef4444; }
 ::-webkit-scrollbar { width:6px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
