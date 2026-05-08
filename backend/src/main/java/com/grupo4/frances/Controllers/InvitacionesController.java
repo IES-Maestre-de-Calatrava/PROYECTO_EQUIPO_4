@@ -73,7 +73,7 @@ public class InvitacionesController {
      * @return List de InvitacionDTO
      */
     @GetMapping("/alumno/{idAlumno}/pendientes")
-    public List<InvitacionDTO> getInvitacionesPendientes(@PathVariable(value = "idAlumno") String idAlumno) {
+    public List<InvitacionDTO> getInvitacionesPendientes(@PathVariable(value = "idAlumno") Long idAlumno) {
         return invitacionRepository.buscarInvitacionesPendientes(idAlumno)
                 .stream()
                 .map(InvitacionMapper::toDTO)
@@ -90,10 +90,13 @@ public class InvitacionesController {
     @PostMapping("/{idGrupo}/alumnos/{idAlumno}/invitacion")
     public ResponseEntity<InvitacionDTO> enviarInvitacion(
             @PathVariable(value = "idGrupo") Long idGrupo,
-            @PathVariable(value = "idAlumno") String idAlumno,
+            @PathVariable(value = "idAlumno") Long idAlumno,
             @RequestBody Map<String, Object> requestBody) {
 
-        String idProfesor = (String) requestBody.get("idProfesor");
+        Long idProfesor = parseLongValue(requestBody.get("idProfesor"));
+        if (idProfesor == null) {
+            return ResponseEntity.badRequest().build();
+        }
 
         // Verificar si ya existe una invitación pendiente
         Invitacion invitacionExistente = invitacionRepository.buscarPorGrupoYAlumno(idGrupo, idAlumno);
@@ -128,7 +131,7 @@ public class InvitacionesController {
     @PutMapping("/{idGrupo}/alumnos/{idAlumno}/invitacion")
     public ResponseEntity<InvitacionDTO> responderInvitacion(
             @PathVariable(value = "idGrupo") Long idGrupo,
-            @PathVariable(value = "idAlumno") String idAlumno,
+            @PathVariable(value = "idAlumno") Long idAlumno,
             @RequestBody Map<String, Object> requestBody) {
 
         String accion = (String) requestBody.get("accion"); // "aceptar" o "rechazar"
@@ -197,5 +200,18 @@ public class InvitacionesController {
 
         Notificaciones notificacion = NotificacionesMapper.toEntityCreate(notificacionDTO);
         notificacionesRepository.save(notificacion);
+    }
+
+    private Long parseLongValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        if (value instanceof String string && !string.isBlank()) {
+            return Long.valueOf(string);
+        }
+        throw new IllegalArgumentException("El valor proporcionado no se puede convertir en Long");
     }
 }

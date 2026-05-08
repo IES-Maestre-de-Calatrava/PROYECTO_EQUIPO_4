@@ -62,7 +62,7 @@ public class NotificacionesController {
      * @return List de NotificacionesDTO
      */
     @GetMapping("/alumno/{idAlumno}")
-    public List<NotificacionesDTO> getNotificacionesByAlumno(@PathVariable(value = "idAlumno") String idAlumno) {
+    public List<NotificacionesDTO> getNotificacionesByAlumno(@PathVariable(value = "idAlumno") Long idAlumno) {
         return repository.buscarPorIdAlumno(idAlumno)
                 .stream()
                 .map(NotificacionesMapper::toDTO)

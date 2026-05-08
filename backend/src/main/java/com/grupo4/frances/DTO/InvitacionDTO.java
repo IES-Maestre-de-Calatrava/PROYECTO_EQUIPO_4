@@ -4,9 +4,7 @@ import java.time.LocalDateTime;
 
 import com.grupo4.frances.persistence.Invitacion.EstadoInvitacion;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 public class InvitacionDTO {
 
@@ -15,13 +13,11 @@ public class InvitacionDTO {
     @NotNull
     private Long idGrupo;
 
-    @NotBlank
-    @Size(max = 20)
-    private String idAlumno;
+    @NotNull
+    private Long idAlumno;
 
-    @NotBlank
-    @Size(max = 20)
-    private String idProfesor;
+    @NotNull
+    private Long idProfesor;
 
     @NotNull
     private EstadoInvitacion estado;
@@ -36,7 +32,7 @@ public class InvitacionDTO {
     }
 
     // Constructor completo
-    public InvitacionDTO(Long idInvitacion, Long idGrupo, String idAlumno, String idProfesor,
+    public InvitacionDTO(Long idInvitacion, Long idGrupo, Long idAlumno, Long idProfesor,
                         EstadoInvitacion estado, LocalDateTime fechaEnvio, LocalDateTime fechaRespuesta) {
         this.idInvitacion = idInvitacion;
         this.idGrupo = idGrupo;
@@ -64,19 +60,19 @@ public class InvitacionDTO {
         this.idGrupo = idGrupo;
     }
 
-    public String getIdAlumno() {
+    public Long getIdAlumno() {
         return idAlumno;
     }
 
-    public void setIdAlumno(String idAlumno) {
+    public void setIdAlumno(Long idAlumno) {
         this.idAlumno = idAlumno;
     }
 
-    public String getIdProfesor() {
+    public Long getIdProfesor() {
         return idProfesor;
     }
 
-    public void setIdProfesor(String idProfesor) {
+    public void setIdProfesor(Long idProfesor) {
         this.idProfesor = idProfesor;
     }
 

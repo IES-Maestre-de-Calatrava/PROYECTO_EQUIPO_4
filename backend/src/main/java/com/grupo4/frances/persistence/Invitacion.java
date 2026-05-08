@@ -23,11 +23,11 @@ public class Invitacion implements java.io.Serializable {
     @Column(name="ID_GRUPO", nullable = false)
     private Long idGrupo;
 
-    @Column(name="ID_ALUMNO", length = 20, nullable = false)
-    private String idAlumno;
+    @Column(name="ID_ALUMNO", nullable = false)
+    private Long idAlumno;
 
-    @Column(name="ID_PROFESOR", length = 20, nullable = false)
-    private String idProfesor;
+    @Column(name="ID_PROFESOR", nullable = false)
+    private Long idProfesor;
 
     @Column(name="ESTADO", length = 20, nullable = false)
     @Enumerated(EnumType.STRING)
@@ -45,10 +45,10 @@ public class Invitacion implements java.io.Serializable {
         RECHAZADA
     }
 
-    public Invitacion() {
+    public Invitacion(Long idGrupo1, Long idAlumno1, Long idProfesor1, EstadoInvitacion estado1, LocalDateTime fechaEnvio1, LocalDateTime fechaRespuesta1) {
     }
 
-    public Invitacion(Long idInvitacion, Long idGrupo, String idAlumno, String idProfesor,
+    public Invitacion(Long idInvitacion, Long idGrupo, Long idAlumno, Long idProfesor,
                      EstadoInvitacion estado, LocalDateTime fechaEnvio, LocalDateTime fechaRespuesta) {
         this.idInvitacion = idInvitacion;
         this.idGrupo = idGrupo;
@@ -76,19 +76,19 @@ public class Invitacion implements java.io.Serializable {
         this.idGrupo = idGrupo;
     }
 
-    public String getIdAlumno() {
+    public Long getIdAlumno() {
         return idAlumno;
     }
 
-    public void setIdAlumno(String idAlumno) {
+    public void setIdAlumno(Long idAlumno) {
         this.idAlumno = idAlumno;
     }
 
-    public String getIdProfesor() {
+    public Long getIdProfesor() {
         return idProfesor;
     }
 
-    public void setIdProfesor(String idProfesor) {
+    public void setIdProfesor(Long idProfesor) {
         this.idProfesor = idProfesor;
     }
 

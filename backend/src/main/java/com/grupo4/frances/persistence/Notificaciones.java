@@ -17,8 +17,8 @@ public class Notificaciones implements java.io.Serializable {
 	@Column(name="ID_NOTIFICACION", precision = 10)
 	private Long idNotificacion;
 	
-	@Column(name="ID_ALUMNO", length = 20, nullable = false)
-	private String idAlumno;
+	@Column(name="ID_ALUMNO", nullable = false)
+	private Long idAlumno;
 	
 	@Column(name="TITULO", length = 100, nullable = false)
 	private String titulo;
@@ -32,10 +32,14 @@ public class Notificaciones implements java.io.Serializable {
 	public Notificaciones() {
 	}
 
-	public Notificaciones(String idAlumno1, String titulo1, String mensaje1, String codigo1) {
+	public Notificaciones(Long idAlumno, String titulo, String mensaje, String codigo) {
+		this.idAlumno = idAlumno;
+		this.titulo = titulo;
+		this.mensaje = mensaje;
+		this.codigo = codigo;
 	}
 
-	public Notificaciones(Long idNotificacion, String idAlumno, String titulo, String mensaje, String codigo) {
+	public Notificaciones(Long idNotificacion, Long idAlumno, String titulo, String mensaje, String codigo) {
 		this.idNotificacion = idNotificacion;
 		this.idAlumno = idAlumno;
 		this.titulo = titulo;
@@ -52,11 +56,11 @@ public class Notificaciones implements java.io.Serializable {
 		this.idNotificacion = idNotificacion;
 	}
 
-	public String getIdAlumno() {
+	public Long getIdAlumno() {
 		return idAlumno;
 	}
 
-	public void setIdAlumno(String idAlumno) {
+	public void setIdAlumno(Long idAlumno) {
 		this.idAlumno = idAlumno;
 	}
 

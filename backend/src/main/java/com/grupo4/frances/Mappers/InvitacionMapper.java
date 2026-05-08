@@ -22,16 +22,15 @@ public class InvitacionMapper {
     }
 
     public static Invitacion toEntity(InvitacionDTO dto) {
-        if (dto == null) return null;
 
-        Invitacion invitacion = new Invitacion();
-
-        invitacion.setIdGrupo(dto.getIdGrupo());
-        invitacion.setIdAlumno(dto.getIdAlumno());
-        invitacion.setIdProfesor(dto.getIdProfesor());
-        invitacion.setEstado(dto.getEstado());
-        invitacion.setFechaEnvio(dto.getFechaEnvio());
-        invitacion.setFechaRespuesta(dto.getFechaRespuesta());
+        Invitacion invitacion = new Invitacion(
+            dto.getIdGrupo(),
+            dto.getIdAlumno(),
+            dto.getIdProfesor(),
+            dto.getEstado(),
+            dto.getFechaEnvio(),
+            dto.getFechaRespuesta()
+        );
 
         // Manejo del ID para actualizaciones
         if (dto.getIdInvitacion() != null && dto.getIdInvitacion() != 0) {
@@ -42,16 +41,15 @@ public class InvitacionMapper {
     }
 
     public static Invitacion toEntityCreate(InvitacionDTO dto) {
-        if (dto == null) return null;
 
-        Invitacion invitacion = new Invitacion();
-
-        invitacion.setIdGrupo(dto.getIdGrupo());
-        invitacion.setIdAlumno(dto.getIdAlumno());
-        invitacion.setIdProfesor(dto.getIdProfesor());
-        invitacion.setEstado(dto.getEstado());
-        invitacion.setFechaEnvio(dto.getFechaEnvio());
-        invitacion.setFechaRespuesta(dto.getFechaRespuesta());
+        Invitacion invitacion = new Invitacion(
+            dto.getIdGrupo(),
+            dto.getIdAlumno(),
+            dto.getIdProfesor(),
+            dto.getEstado(),
+            dto.getFechaEnvio(),
+            dto.getFechaRespuesta()
+        );
 
         return invitacion;
     }

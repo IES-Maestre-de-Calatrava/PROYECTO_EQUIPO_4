@@ -23,16 +23,12 @@ public class NotificacionesMapper {
         if (dto == null) return null;
 
         Notificaciones notificaciones = new Notificaciones(
+            dto.getIdNotificacion(),
             dto.getIdAlumno(),
             dto.getTitulo(),
             dto.getMensaje(),
             dto.getCodigo()
         );
-
-        // Manejo del ID para actualizaciones
-        if (dto.getIdNotificacion() != null && dto.getIdNotificacion() != 0) {
-            notificaciones.setIdNotificacion(dto.getIdNotificacion());
-        }
 
         return notificaciones;
     }
