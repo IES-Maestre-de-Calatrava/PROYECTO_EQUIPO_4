@@ -1612,8 +1612,6 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 })();
 function doLogout() {
     // 1. Borramos los datos del usuario del almacenamiento local
-    localStorage.removeItem('user'); // O sessionStorage.clear(), según uses
-    localStorage.clear(); 
     localStorage.removeItem('user');
     localStorage.removeItem('lf_session_api');
     localStorage.clear();
