@@ -1,4 +1,4 @@
-const API = "http://192.168.150.185:8085/api/grupos";
+    const API = "http://192.168.150.185:8085/api/grupos";
 
 export async function getAllGrupos(){
     const response = await fetch(`${API}`);
@@ -19,11 +19,7 @@ export async function getGrupoById(id) {
 async function renderGrupos() {
     try {
         const grupos = await getAllGrupos();
-<<<<<<< Updated upstream
         const contenedor = document.getElementById("courses-container");
-=======
-        const contenedor = document.getElementById("contenedor-tabla");
->>>>>>> Stashed changes
 
         let tabla = `
         <h2 style="text-align: center; color: #333">GRUPOS</h2>
@@ -57,14 +53,8 @@ async function renderGrupos() {
 
     } catch (error) {
         console.error("Error al obtener los grupos:", error);
-<<<<<<< Updated upstream
         document.getElementById("courses-container").innerHTML = "<p>Error al cargar datos.</p>";
     }
 }
 
 document.addEventListener("DOMContentLoaded", function() {renderGrupos()});
-=======
-        document.getElementById("contenedor-tabla").innerHTML = "<p>Error al cargar datos.</p>";
-    }
-}
->>>>>>> Stashed changes

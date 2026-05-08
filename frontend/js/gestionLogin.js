@@ -10,13 +10,6 @@ async function ejecutarLogin() {
 async function doLogin() {
     const response = await postLogin();
     if (response && response !== false) {
-<<<<<<< Updated upstream
-        alert(JSON.stringify(response));
-        if (document.getElementById('remember-me').checked) {
-            localStorage.setItem('idSesion', JSON.stringify(response.id_sesion));
-        } else {
-            sessionStorage.setItem('idSesion', JSON.stringify(response.id_sesion));
-=======
         // Guardar nombre y datos del usuario devueltos por la API
         const sessionData = {
             id_sesion: response.id_sesion,
@@ -29,7 +22,6 @@ async function doLogin() {
             localStorage.setItem('lf_session_api', JSON.stringify(sessionData));
         } else {
             sessionStorage.setItem('lf_session_api', JSON.stringify(sessionData));
->>>>>>> Stashed changes
         }
         entrarApp();
     } else {

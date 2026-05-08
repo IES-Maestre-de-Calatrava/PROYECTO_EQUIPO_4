@@ -163,13 +163,9 @@ function doLogin() {
   }
 
   if (document.getElementById('remember-me').checked) {
-<<<<<<< Updated upstream
-    try { localStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role })); } catch(e) {}
-=======
     try { localStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role, name: state.currentUser.name })); } catch(e) {}
   } else {
     try { sessionStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role, name: state.currentUser.name })); } catch(e) {}
->>>>>>> Stashed changes
   }
   document.getElementById('login-error').classList.add('d-none');
   //REDIRIGIR A LA PAGINA INDEX
@@ -1574,36 +1570,6 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
     el.textContent = m.msg;
   }, 10000);
 
-<<<<<<< Updated upstream
-  // Restaurar sesión
-  // Restaurar sesión
-  try {
-    const saved = localStorage.getItem('lf_session');
-    if (saved) {
-      const { email, role } = JSON.parse(saved);
-      
-      // Rellenar formulario de login SOLO si existe en el DOM
-      const emailInput = document.getElementById('login-email');
-      if (emailInput) {
-          emailInput.value = email;
-          selectRole(role);
-      }
-      
-      // Configurar el usuario actual simulando el login
-      let user = MOCK_USERS.find(u => u.email === email);
-      if (!user) {
-        user = { email, password: '', name: email.split('@')[0], role: role };
-      }
-      state.currentUser = { ...user, role: role };
-
-      // Si estamos en la página principal (index.html), iniciamos la app
-      if (document.getElementById('screen-app')) {
-          enterApp();
-      }
-    } else {
-      // Si no hay sesión guardada y estamos en index.html, redirigir a login
-      // window.location.href = "./login.html"; 
-=======
   // Restaurar sesión (soporta sesión de API real y sesión mock)
   try {
     const savedApi  = localStorage.getItem('lf_session_api')  || sessionStorage.getItem('lf_session_api');
@@ -1641,22 +1607,16 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
     } else {
       // Sin sesión guardada — redirigir a login si estamos en index
       // window.location.href = './login.html';
->>>>>>> Stashed changes
     }
   } catch(e) {}
 })();
 function doLogout() {
     // 1. Borramos los datos del usuario del almacenamiento local
-<<<<<<< Updated upstream
-    localStorage.removeItem('user'); // O sessionStorage.clear(), según uses
-    localStorage.clear(); 
-=======
     localStorage.removeItem('user');
     localStorage.removeItem('lf_session_api');
     localStorage.clear();
     sessionStorage.removeItem('lf_session');
     sessionStorage.removeItem('lf_session_api');
->>>>>>> Stashed changes
 
     // 2. Redirigimos al login
     window.location.href = 'login.html';
