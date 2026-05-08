@@ -27,6 +27,7 @@ async function doLogin() {
         entrarApp();
     } else {
         const modal = document.getElementById('login-error');
+        modal.classList.remove('d-none');
         modal.innerHTML = 'Credenciales incorrectas';
     }
 }
