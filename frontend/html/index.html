@@ -113,7 +113,7 @@
       <div id="sidebar-director" style="display:none">
         <div class="sidebar-section-label">Director</div>
         <button class="sidebar-item active" onclick="showPanel('director-dashboard')"><i class="bi bi-speedometer2"></i> Panel Director</button>
-        <button class="sidebar-item" onclick="showPanel('director-users')"><i class="bi bi-people-fill"></i> Usuarios</button>
+        <a class="sidebar-item" href="TESTS_ALVARO/testGestionUsuarios.html" target="_blank" rel="noopener"><i class="bi bi-tools"></i> Test Gestión Usuarios</a>
         <div class="sidebar-divider"></div>
         <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
       </div>
@@ -457,7 +457,7 @@
           <div class="col-6 col-md-3"><div class="metric-card"><div class="metric-value">3</div><div class="metric-label">Cursos activos</div><div class="metric-sub">A1 · A2 · B1</div></div></div>
         </div>
         <div class="d-flex gap-3 flex-wrap mb-4">
-          <button class="btn-primary-custom" onclick="showPanel('director-users')"><i class="bi bi-person-plus-fill me-2"></i>Gestionar usuarios</button>
+          <a class="btn-primary-custom" href="TESTS_ALVARO/testGestionUsuarios.html" target="_blank" rel="noopener"><i class="bi bi-tools me-2"></i>Test Gestión de usuarios</a>
         </div>
         <div class="settings-card">
           <div class="settings-card-header"><i class="bi bi-info-circle-fill me-2"></i>Nota del sistema</div>
@@ -465,14 +465,6 @@
             El panel de Director está preparado para integración con backend. La generación real de credenciales y gestión de centros se conectará al sistema de autenticación en producción.
           </div>
         </div>
-      </div>
-
-      <div id="director-users" class="panel">
-        <div class="page-header">
-          <div class="section-title mb-0">👑 Gestión de Usuarios</div>
-          <button class="btn-primary-custom" onclick="openCreateUserModal()"><i class="bi bi-person-plus-fill me-1"></i>Crear usuario</button>
-        </div>
-        <div id="director-users-list"></div>
       </div>
 
     </main>
@@ -595,43 +587,6 @@
     <div class="d-flex gap-2 justify-content-end mt-4">
       <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-exercise')">Cancelar</button>
       <button class="btn-primary-custom" onclick="saveExercise()"><i class="bi bi-check-lg me-1"></i>Guardar ejercicio</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── MODAL: CREAR USUARIO (Director) ── -->
-<div class="modal-overlay" id="modal-create-user">
-  <div class="modal-box">
-    <h5>Crear nuevo usuario</h5>
-    <div class="row g-3 mb-3">
-      <div class="col-md-6"><label class="form-label">Nombre</label><input type="text" class="form-control" id="cu-nombre" placeholder="Ej: María" oninput="generateUsername()"/></div>
-      <div class="col-md-6"><label class="form-label">Apellidos</label><input type="text" class="form-control" id="cu-apellidos" placeholder="Ej: García López" oninput="generateUsername()"/></div>
-    </div>
-    <div class="mb-3"><label class="form-label">Correo electrónico</label><input type="email" class="form-control" id="cu-email" placeholder="usuario@centro.es"/></div>
-    <div class="mb-3"><label class="form-label">Rol</label>
-      <select class="form-select" id="cu-rol">
-        <option value="alumno">Alumno</option><option value="profesor">Profesor</option>
-      </select>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Username generado</label>
-      <div class="d-flex gap-2">
-        <input type="text" class="form-control" id="cu-username" readonly style="background:var(--bg);font-family:monospace;" placeholder="Se genera automáticamente"/>
-        <button type="button" class="btn btn-outline-secondary" style="border-radius:8px;" onclick="generateUsername()"><i class="bi bi-arrow-clockwise"></i></button>
-      </div>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Contraseña generada</label>
-      <div class="d-flex gap-2">
-        <input type="text" class="form-control" id="cu-password" readonly style="background:var(--bg);font-family:monospace;letter-spacing:.05em;" placeholder="Se genera automáticamente"/>
-        <button type="button" class="btn btn-outline-secondary" style="border-radius:8px;" onclick="generatePassword()"><i class="bi bi-arrow-clockwise"></i></button>
-      </div>
-      <div class="mt-1" style="font-size:.75rem;color:var(--text-muted);"><i class="bi bi-info-circle me-1"></i>Comparte esta contraseña con el usuario. Podrá cambiarla desde Configuración.</div>
-    </div>
-    <div id="cu-msg" class="d-none mb-2 alert py-2 px-3" style="font-size:.85rem;border-radius:8px;"></div>
-    <div class="d-flex gap-2 justify-content-end">
-      <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-create-user')">Cancelar</button>
-      <button class="btn-primary-custom" onclick="createUser()"><i class="bi bi-person-plus-fill me-1"></i>Crear usuario</button>
     </div>
   </div>
 </div>
