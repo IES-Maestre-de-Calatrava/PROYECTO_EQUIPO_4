@@ -1,6 +1,5 @@
 /* =============================================================
-   Le Français v3.0 — JavaScript unificado
-   Cambios vs v2:
+   Le Français
    ✓ Login: sin registro visible, sin hint demo en UI
    ✓ Leaderboard: podio visual, solo alumnos, profesor excluido
    ✓ % acierto: añadido al alumno, eliminado del panel profesor
