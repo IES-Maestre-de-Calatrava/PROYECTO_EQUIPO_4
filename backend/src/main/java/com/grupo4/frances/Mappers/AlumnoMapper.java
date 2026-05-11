@@ -21,6 +21,7 @@ public class AlumnoMapper {
         dto.setCorreo(alumno.getCorreo());
         dto.setNivel(alumno.getNivel());
         dto.setRango(alumno.getRango());
+        dto.setPuntos(alumno.getPuntos());
 
         return dto;
     }
@@ -36,7 +37,8 @@ public class AlumnoMapper {
                 dto.getTelefono(),
                 dto.getCorreo(),
                 dto.getNivel(),
-                dto.getRango()
+                dto.getRango(),
+                dto.getPuntos()
         );
 
         if (null != dto.getIdAlumno() && (dto.getIdAlumno() != 0)) {
@@ -57,7 +59,8 @@ public class AlumnoMapper {
                 dto.getTelefono(),
                 dto.getCorreo(),
                 dto.getNivel(),
-                dto.getRango()
+                dto.getRango(),
+                dto.getPuntos()
         );
 
         return alumno;

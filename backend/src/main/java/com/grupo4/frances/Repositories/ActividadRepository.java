@@ -19,5 +19,6 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long> {
     @Query("SELECT a FROM Actividad a WHERE a.duracion = :duracion")
     List<Actividad> buscarPorDuracion(@Param("duracion") int duracion);
 
-
+    @Query("SELECT a FROM Actividad a JOIN a.grupos g WHERE g.idGrupo = :idGrupo")
+    List<Actividad> findByGrupoId(@Param("idGrupo") Integer idGrupo);
 }

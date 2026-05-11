@@ -36,12 +36,14 @@ public class AlumnoDTO {
     @Size(max = 20)
     private String rango;
 
+    private Integer puntos;
+
 
     public AlumnoDTO() {
     }
 
     public AlumnoDTO(Long idAlumno, String nombreUsuario, String nombre, String apellidos,
-                     String instituto, int telefono, String correo, String nivel, String rango) {
+                     String instituto, int telefono, String correo, String nivel, String rango, Integer puntos) {
         this.idAlumno = idAlumno;
         this.nombreUsuario = nombreUsuario;
         this.nombre = nombre;
@@ -51,6 +53,7 @@ public class AlumnoDTO {
         this.correo = correo;
         this.nivel = nivel;
         this.rango = rango;
+        this.puntos = puntos;
     }
 
     public Long getIdAlumno() {
@@ -123,5 +126,13 @@ public class AlumnoDTO {
 
     public void setRango(String rango) {
         this.rango = rango;
+    }
+
+    public Integer getPuntos() {
+        return puntos;
+    }
+
+    public void setPuntos(Integer puntos) {
+        this.puntos = puntos;
     }
 }

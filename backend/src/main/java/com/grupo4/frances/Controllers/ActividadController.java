@@ -1,6 +1,7 @@
 package com.grupo4.frances.Controllers;
 
 import com.grupo4.frances.DTO.ActividadDTO;
+import com.grupo4.frances.persistence.Actividad;
 import com.grupo4.frances.persistence.Actividad.*;
 import com.grupo4.frances.Exceptions.ActividadNotFoundException;
 import com.grupo4.frances.Mappers.ActividadMapper;
@@ -47,5 +48,21 @@ public class ActividadController {
                 .orElseThrow(() -> new ActividadNotFoundException(actividadId));
 
         return ResponseEntity.ok(actividad);
+    }
+
+    @GetMapping("/grupo/{gid}")
+    public ResponseEntity<List<ActividadDTO>> getActividadByUID(@PathVariable(value = "gid") Integer idGrupo) throws ActividadNotFoundException {
+        List<Actividad> actividades = repository.findByGrupoId(idGrupo);
+
+        // Si la lista está vacía, puedes lanzar la excepción o devolver 204 No Content
+        if (actividades.isEmpty()) {
+            throw new ActividadNotFoundException(idGrupo);
+        }
+
+        List<ActividadDTO> dtos = actividades.stream()
+                .map(ActividadMapper::toDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtos);
     }
 }
