@@ -43,106 +43,33 @@ function getUserIdFromSession() {
 
 async function renderGrupos() {
     try {
-
         const userId = getUserIdFromSession();
-
         if (!userId) {
             console.error("No user ID found in session");
-
             document.getElementById("courses-container").innerHTML =
                 "<p>Error: Usuario no autenticado.</p>";
-
             return;
         }
-
         const grupos = await getGruposByAlumno(userId);
+        const contenedor = document.getElementById("courses-container");
 
-        const contenedor =
-            document.getElementById("courses-container");
-
-        let html = `
-            <h2 style="text-align:center;color:#333">
-                GRUPOS
-            </h2>
-        `;
+        let html = `<h2 style="text-align:center;color:#333">GRUPOS</h2>`;
 
         html += `<div class="groups-grid">`;
 
         for (let grupo of grupos) {
-
-            const grupoId =
-                grupo.idGrupo ??
-                grupo.id ??
-                grupo.id_grupo;
-
-            const completed =
-                state?.completedActivities || new Set();
-
-            const totalActivities =
-                grupo.activities?.length || 0;
-
-            const totalExercises =
-                grupo.activities?.reduce(
-                    (s, a) =>
-                        s + (a.exercises?.length || 0),
-                    0
-                ) || 0;
-
-            const doneActivities =
-                grupo.activities?.filter(a =>
-                    completed.has(a.id)
-                ).length || 0;
-
-            const pct = Math.round(
-                (doneActivities /
-                    Math.max(1, totalActivities)) * 100
-            );
-
+            const grupoId = grupo.idGrupo ?? grupo.id ?? grupo.id_grupo;
             html += `
-                <div class="course-card">
+                <div class="grupo-card" onclick="openCourse('${grupoId}')">
+                    <div class="grupo-title">${grupo.nombre}</div>
 
-                    <span class="course-level-badge ${grupo.badge || 'basic'}">
-                        ${grupo.level || 'Curso'}
-                    </span>
-
-                    <div class="course-title">
-                        ${grupo.nombre}
+                    <div class="grupo-info">
+                        🏫 Centro: ${grupo.centro || '---'}
                     </div>
 
-                    <div class="course-meta">
-                        ${grupo.desc || grupo.centro || 'Sin descripción'}
+                    <div class="grupo-info">
+                        👨‍🎓 Alumnos: ${grupo.numAlumnos ?? '---'}
                     </div>
-
-                    <div class="course-meta mt-1">
-                        ${totalActivities || '--'} actividades ·
-                        ${totalExercises || '--'} ejercicios
-                    </div>
-
-                    <div class="course-progress-bar">
-                        <div
-                            class="course-progress-fill"
-                            style="width:${pct}%"
-                        ></div>
-                    </div>
-
-                    <div class="course-progress-text">
-                        ${doneActivities}/${totalActivities}
-                        actividades completadas
-                    </div>
-
-                    <button
-                        class="btn-course"
-                        onclick="event.stopPropagation(); openCourse('${grupoId}')"
-                    >
-                        ${
-                            doneActivities === 0
-                                ? 'Empezar'
-                                : doneActivities < totalActivities
-                                    ? 'Continuar'
-                                    : 'Revisar'
-                        } →
-                    </button>
-
                 </div>
             `;
         }
@@ -152,18 +79,12 @@ async function renderGrupos() {
         contenedor.innerHTML = html;
 
     } catch (error) {
-
-        console.error(
-            "Error al obtener los grupos:",
-            error
-        );
-
+        console.error("Error al obtener los grupos:", error);
         document.getElementById("courses-container").innerHTML =
             "<p>Error al cargar datos.</p>";
     }
 }
 
-document.addEventListener(
-    "DOMContentLoaded",
-    renderGrupos
-);
+document.addEventListener("DOMContentLoaded", renderGrupos);
+
+document.addEventListener("DOMContentLoaded", function() {renderGrupos()});
