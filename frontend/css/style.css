@@ -577,6 +577,12 @@ body.dark-mode .profile-dropdown.active { background:rgba(255,255,255,.07); }
 /* =============================================
    COURSES
 ============================================= */
+.groups-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:1.5rem;
+  margin-top:2rem;
+}
 .course-card {
   background:var(--white); border:1px solid var(--border); border-radius:var(--radius);
   padding:1.4rem; box-shadow:var(--shadow-sm); transition:var(--transition);
