@@ -148,15 +148,111 @@
 <script src="../js/script.js"></script>
 <script type="module">
   import { generarFormularioActividad } from '../js/formularioActividades.js';
-  document.addEventListener('DOMContentLoaded', () => {
-    const preguntas = JSON.stringify([
-      '¿Cómo se dice "Hola" en francés?',
-      'Traduce "Gracias".',
-      '¿Cuál es el artículo definido masculino en francés?',
-      'Escribe la forma correcta: Je ___ étudiant.'
-    ]);
-    const respuestas = JSON.stringify(['Bonjour', 'Merci', 'Le', 'suis']);
-    generarFormularioActividad(preguntas, respuestas, 'actividad-form-container');
+  import { obtenerActividadesDelGrupo } from '../js/REST/GET/getActividades.js';
+  import { Parser } from '../js/JSON/Parser.js';
+
+  /**
+   * Obtiene los datos de sesión del usuario
+   */
+  function getUserDataFromSession() {
+    let sessionData = sessionStorage.getItem('lf_session_api');
+    if (!sessionData) {
+      sessionData = localStorage.getItem('lf_session_api');
+    }
+    
+    if (sessionData) {
+      try {
+        return JSON.parse(sessionData);
+      } catch (e) {
+        console.error("Error parsing session data:", e);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Actualiza los puntos del usuario en el backend
+   */
+  function getCookieValue(nombre) {
+    const cookie = document.cookie
+      .split('; ')
+      .find(row => row.startsWith(`${nombre}=`));
+    return cookie ? decodeURIComponent(cookie.split('=').slice(1).join('=')) : null;
+  }
+
+  async function actualizarPuntosEnBackend(puntosGanados) {
+    try {
+      const userData = getUserDataFromSession();
+      const idAlumno = getCookieValue('idAlumno') || userData?.id_user || userData?.id;
+      const puntos = Number(puntosGanados) || 0;
+
+      if (!idAlumno) {
+        console.error("No idAlumno found in cookies/session");
+        return false;
+      }
+
+      const response = await fetch('http://192.168.150.74:8085/alumno/update/puntos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idAlumno: Number(idAlumno),
+          puntos: puntos
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      console.log(`Puntos actualizados: alumno ${idAlumno} +${puntos}`);
+      return true;
+    } catch (error) {
+      console.error("Error al actualizar puntos:", error);
+      return false;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      // Obtener actividades del grupo
+      const actividades = await obtenerActividadesDelGrupo();
+      
+      if (!actividades || actividades.length === 0) {
+        document.getElementById('actividad-form-container').innerHTML = 
+          '<p style="color: #d97706; font-weight: 600;">No hay actividades disponibles para tu grupo.</p>';
+        return;
+      }
+
+      // Usar la primera actividad
+      const actividad = actividades[0];
+      const preguntas = JSON.stringify(Parser(actividad.preguntas));
+      const respuestas = JSON.stringify(Parser(actividad.respuestas));
+      const puntos = Number(actividad.puntos) || 0;
+      let puntosYaAsignados = false;
+      
+      // Generar el formulario con los datos reales
+      generarFormularioActividad(preguntas, respuestas, 'actividad-form-container', (resultado) => {
+        console.log('Resultado de la actividad:', resultado);
+        
+        // Si el usuario responde correctamente el 60% o más, asignar puntos
+        if (resultado.porcentaje >= 60 && !puntosYaAsignados) {
+          puntosYaAsignados = true;
+          const puntosGanados = Math.max(0, Math.round(puntos));
+          actualizarPuntosEnBackend(puntosGanados);
+          
+          // Mostrar mensaje de éxito con puntos
+          const contenedor = document.getElementById('actividad-form-container');
+          const mensajeExito = document.createElement('div');
+          mensajeExito.style.cssText = 'margin-top: 20px; padding: 15px; background-color: #d4edda; border: 1px solid #28a745; border-radius: 8px; color: #155724; font-weight: 600;';
+          mensajeExito.innerHTML = `🎉 ¡Actividad completada! Has ganado <strong>+${puntosGanados} puntos</strong>`;
+          contenedor.appendChild(mensajeExito);
+        }
+      });
+    } catch (error) {
+      console.error('Error al cargar la actividad:', error);
+      document.getElementById('actividad-form-container').innerHTML = 
+        '<p style="color: #dc2626;">Error al cargar la actividad.</p>';
+    }
   });
 </script>
 </body>
