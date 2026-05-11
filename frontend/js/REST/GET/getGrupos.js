@@ -23,7 +23,7 @@ export async function getGrupoById(id) {
 
 export async function getGruposByNombre(nombre) {
     try {
-        const response = await fetch(`${API}/nombre/${encodeURIComponent(nombre)}`);
+        const response = await fetch(`${API}/nombre?nombre=${encodeURIComponent(nombre)}`);
         
         if (!response.ok) {
             // Si no se encuentra, devolvemos lista vacía en lugar de dejar que el JSON falle
