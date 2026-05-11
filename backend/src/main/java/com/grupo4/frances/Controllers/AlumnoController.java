@@ -1,14 +1,12 @@
 package com.grupo4.frances.Controllers;
 
 import java.util.List;
+import java.util.Map;
 
+import com.grupo4.frances.DTO.UpdatePuntosDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.grupo4.frances.DTO.AlumnoDTO;
 import com.grupo4.frances.Mappers.AlumnoMapper;
@@ -47,5 +45,11 @@ public class AlumnoController {
                 .orElse(null);
 
         return ResponseEntity.ok(alumno);
+    }
+
+    @PostMapping("/update/puntos")
+    public ResponseEntity<String> updatePuntosAlumno(@RequestBody UpdatePuntosDTO params){
+        repository.sumarPuntosAlumno(params.getIdAlumno(), params.getPuntos());
+        return ResponseEntity.ok("Puntos actualizados correctamente");
     }
 }
