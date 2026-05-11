@@ -410,12 +410,16 @@ function exitImpersonation() {
 /* ─── SCREEN / PANEL NAV ─── */
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const screen = document.getElementById(id);
+  if (!screen) return;
+  screen.classList.add('active');
 }
 
 function showPanel(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const panel = document.getElementById(id);
+  if (!panel) return;
+  panel.classList.add('active');
   document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
   const map = {
     'dashboard':'Inicio','courses':'Cursos','leaderboard':'Leaderboard',
@@ -485,10 +489,13 @@ function showToastAlert(msg, type) {
 
 /* ─── DASHBOARD ─── */
 function updateDashboard() {
+  const scoreEl = document.getElementById('user-score');
+  if (!scoreEl) return;
+
   const acc = state.totalAnswers > 0
     ? Math.round((state.correctAnswers / state.totalAnswers) * 100) + '%' : '—';
 
-  document.getElementById('user-score').textContent           = state.score.toLocaleString();
+  scoreEl.textContent           = state.score.toLocaleString();
   document.getElementById('dash-exercises-done').textContent  = state.exercisesDone;
   document.getElementById('dash-activities-done').textContent = state.activitiesDone;
   document.getElementById('dash-accuracy').textContent        = acc;
@@ -533,14 +540,16 @@ function getLevelData() {
 }
 
 function buildQuickCourses() {
-  document.getElementById('quick-courses').innerHTML =
-    COURSES.slice(0,3).map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
+  const quickEl = document.getElementById('quick-courses');
+  if (!quickEl) return;
+  quickEl.innerHTML = COURSES.slice(0,3).map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
 }
 
 /* ─── COURSES ─── */
 function buildCourses() {
-  document.getElementById('courses-container').innerHTML =
-    COURSES.map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
+  const coursesEl = document.getElementById('courses-container');
+  if (!coursesEl) return;
+  coursesEl.innerHTML = COURSES.map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
 }
 
 function courseCardHTML(c) {
@@ -561,16 +570,9 @@ function courseCardHTML(c) {
 }
 
 function openCourse(courseId) {
-  const course = COURSES.find(c => c.id === courseId);
-  if (!course) return;
-  state.currentCourseId = courseId;
-  document.getElementById('activity-course-title').textContent = course.title;
-  const notesWrap = document.getElementById('activity-notes-wrap');
-  const notesTA   = document.getElementById('activity-notes');
-  notesWrap.style.display = '';
-  notesTA.value = state.courseNotes[courseId] || '';
-  buildActivityList(course);
-  showPanel('activity-container');
+  console.log('openCourse called with', courseId);
+  if (!courseId) return;
+  window.location.href = 'curso.html';
 }
 
 function saveNotes() {
@@ -1146,9 +1148,11 @@ async function buildLeaderboard(containerId, isTeacherView, tipo) {
 /* ─── MESSAGING ─── */
 function seedChat() {
   const msgs = document.getElementById('chat-messages');
+  if (!msgs) return;
   msgs.innerHTML = '';
   const isProf = state.currentUser.role === 'profesor' && !state.isImpersonating;
-  document.getElementById('chat-partner-name').textContent = isProf ? 'Chat con alumnos' : 'Mensaje de tu profesor';
+  const partnerName = document.getElementById('chat-partner-name');
+  if (partnerName) partnerName.textContent = isProf ? 'Chat con alumnos' : 'Mensaje de tu profesor';
   const seed = isProf
     ? [{ sent:false, text:'Profesor, tengo dudas con el passé composé 🙁', time:'10:12' },
        { sent:true,  text:'¡Hola Ana! Claro, repasemos juntos. ¿Qué parte no entiendes?', time:'10:14' }]
