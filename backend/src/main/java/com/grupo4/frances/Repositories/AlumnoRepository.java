@@ -1,8 +1,10 @@
 package com.grupo4.frances.Repositories;
 
 import com.grupo4.frances.persistence.Actividad;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.grupo4.frances.persistence.Alumno;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.Optional;
@@ -26,5 +28,10 @@ public interface AlumnoRepository extends JpaRepository<Alumno, Long> {
     List<Actividad> findPuntosAlumno(Long idAlumno);
 
     Optional<Alumno> findByCorreo(String correo);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Alumno a SET a.puntos = a.puntos + :puntosNuevos WHERE a.idAlumno = :idAlumno")
+    void sumarPuntosAlumno(@Param("idAlumno") Integer idAlumno, @Param("puntosNuevos") Integer puntosNuevos);
 
 }
