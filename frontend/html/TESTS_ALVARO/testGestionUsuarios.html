@@ -527,8 +527,8 @@
         const idUsuario = document.getElementById("idUsuario");
         const sufijo = Date.now();
 
-        document.getElementById("correo").value = usuario.prueba.${sufijo}@test.com;
-        document.getElementById("nombreUsuario").value = usuarioprueba${sufijo};
+        document.getElementById("correo").value = `usuario.prueba.${sufijo}@test.com`;
+        document.getElementById("nombreUsuario").value = `usuarioprueba${sufijo}`;
 
         function escaparHtml(valor) {
             return String(valor)
@@ -545,7 +545,7 @@
             }
 
             if (typeof valor === "object") {
-                return <span class="result-json">${escaparHtml(JSON.stringify(valor, null, 2))}</span>;
+                return `<span class="result-json">${escaparHtml(JSON.stringify(valor, null, 2))}</span>`;
             }
 
             if (typeof valor === "boolean") {
@@ -573,13 +573,13 @@
 
             if (filas.every((fila) => fila && typeof fila === "object" && !Array.isArray(fila))) {
                 const columnas = clavesDeFilas(filas);
-                const cabecera = columnas.map((columna) => <th>${escaparHtml(columna)}</th>).join("");
+                const cabecera = columnas.map((columna) => `<th>${escaparHtml(columna)}</th>`).join("");
                 const cuerpo = filas.map((fila) => {
-                    const celdas = columnas.map((columna) => <td class="result-value">${formatearValor(fila[columna])}</td>).join("");
-                    return <tr>${celdas}</tr>;
+                    const celdas = columnas.map((columna) => `<td class="result-value">${formatearValor(fila[columna])}</td>`).join("");
+                    return `<tr>${celdas}</tr>`;
                 }).join("");
 
-                resultado.innerHTML = <table class="result-table"><thead><tr>${cabecera}</tr></thead><tbody>${cuerpo}</tbody></table>;
+                resultado.innerHTML = `<table class="result-table"><thead><tr>${cabecera}</tr></thead><tbody>${cuerpo}</tbody></table>`;
                 return;
             }
 
@@ -590,7 +590,7 @@
                 </tr>
             `).join("");
 
-            resultado.innerHTML = <table class="result-table"><thead><tr><th>#</th><th>Valor</th></tr></thead><tbody>${cuerpo}</tbody></table>;
+            resultado.innerHTML = `<table class="result-table"><thead><tr><th>#</th><th>Valor</th></tr></thead><tbody>${cuerpo}</tbody></table>`;
         }
 
         function renderizarTablaObjeto(objeto) {
@@ -601,7 +601,7 @@
                 </tr>
             `).join("");
 
-            resultado.innerHTML = <table class="result-table"><thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>${filas}</tbody></table>;
+            resultado.innerHTML = `<table class="result-table"><thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>${filas}</tbody></table>`;
         }
 
         function mostrarResultado(datos) {
@@ -615,7 +615,7 @@
                 return;
             }
 
-            resultado.innerHTML = <p class="result-message">${escaparHtml(datos || "Sin datos para mostrar.")}</p>;
+            resultado.innerHTML = `<p class="result-message">${escaparHtml(datos || "Sin datos para mostrar.")}</p>`;
         }
 
         function actualizarCamposPorTipo() {
