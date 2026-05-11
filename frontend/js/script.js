@@ -49,12 +49,69 @@ let SYSTEM_USERS = [
   { name:'Profesor Demo', initials:'PD', color:'#1a70c1', role:'profesor', email:'profesor@test.com', username:'pdemo', points:0, level:'—', exercises:0, lastSeen:'—', time:'—', course:'—' },
 ];
 
-/**
- * COURSES se carga desde la BD al iniciar la app (enterApp).
- * No contiene datos hardcodeados.
- * Estructura: [{ id, title, level, badge, desc, activities:[{id, title, subtitle, icon, deadline, maxTime, exercises:[]}] }]
- */
-let COURSES = [];
+let COURSES = [
+  {
+    id:'a1', title:'Francés A1 Básico', level:'A1', badge:'badge-a1',
+    desc:'Vocabulario esencial, saludos y presentaciones',
+    activities:[
+      { id:'a1-act1', title:'Saludos y presentaciones', icon:'bi-hand-wave-fill', subtitle:'Aprende a saludar y presentarte en francés', deadline:'', maxTime:0,
+        exercises:[
+          { type:'test', question:'¿Cómo se dice "Buenos días" en francés?', options:['Bonjour','Bonsoir','Bonne nuit','Au revoir'], correct:0 },
+          { type:'fill', question:'Completa: Je m\'appelle _____ (Yo me llamo María)', hint:'prénom féminin', correct:'Maria' },
+          { type:'test', question:'¿Qué significa "Comment t\'appelles-tu ?"', options:['¿Cómo estás?','¿Cuántos años tienes?','¿Cómo te llamas?','¿De dónde eres?'], correct:2 },
+          { type:'fill', question:'Traduce: "Encantado de conocerte" → _____ de te rencontrer', hint:'', correct:'Enchanté' },
+        ]
+      },
+      { id:'a1-act2', title:'Los números del 1 al 20', icon:'bi-123', subtitle:'Domina los primeros números en francés', deadline:'', maxTime:0,
+        exercises:[
+          { type:'test', question:'¿Cómo se dice "5" en francés?', options:['Quatre','Cinq','Six','Sept'], correct:1 },
+          { type:'fill', question:'Escribe en francés el número 12: _____', hint:'', correct:'Douze' },
+          { type:'test', question:'¿Cuánto es "dix + sept" en español?', options:['15','16','17','18'], correct:2 },
+        ]
+      },
+      { id:'a1-act3', title:'Los colores', icon:'bi-palette-fill', subtitle:'Aprende los colores básicos en francés', deadline:'', maxTime:0,
+        exercises:[
+          { type:'test', question:'¿Cómo se dice "rojo" en francés?', options:['Bleu','Vert','Rouge','Jaune'], correct:2 },
+          { type:'fill', question:'Traduce "azul" al francés: _____', hint:'couleur du ciel', correct:'Bleu' },
+          { type:'match', question:'Une cada color con su traducción', pairs:[['Rouge','Rojo'],['Bleu','Azul'],['Vert','Verde']] },
+        ]
+      },
+    ]
+  },
+  {
+    id:'a2', title:'Francés A2 Elemental', level:'A2', badge:'badge-a2',
+    desc:'Conversación básica, verbos y rutinas diarias',
+    activities:[
+      { id:'a2-act1', title:'Verbos esenciales: être y avoir', icon:'bi-lightning-fill', subtitle:'Los dos verbos más importantes del francés', deadline:'', maxTime:10,
+        exercises:[
+          { type:'test', question:'"Je _____ étudiant" — ¿qué verbo usar?', options:['ai','suis','est','sont'], correct:1 },
+          { type:'fill', question:'Completa: Nous _____ deux chiens', hint:'forme de avoir', correct:'avons' },
+          { type:'test', question:'¿Cuál es la traducción de "Ils sont français"?', options:['Ellos tienen francés','Ellos son franceses','Ellas están en Francia','Nosotros somos franceses'], correct:1 },
+        ]
+      },
+      { id:'a2-act2', title:'La vida cotidiana', icon:'bi-house-fill', subtitle:'Vocabulario de actividades diarias', deadline:'', maxTime:0,
+        exercises:[
+          { type:'test', question:'¿Qué significa "Je mange à midi"?', options:['Como a medianoche','Ceno a las doce','Como al mediodía','Desayuno a las doce'], correct:2 },
+          { type:'fill', question:'Traduce: "Voy al trabajo" → Je vais au _____', hint:'lieu de travail', correct:'travail' },
+        ]
+      },
+    ]
+  },
+  {
+    id:'b1', title:'Francés B1 Intermedio', level:'B1', badge:'badge-b1',
+    desc:'Expresión oral, cultura francesa y gramática avanzada',
+    activities:[
+      { id:'b1-act1', title:'El pasado: Passé Composé', icon:'bi-clock-history', subtitle:'Habla de eventos pasados con fluidez', deadline:'', maxTime:15,
+        exercises:[
+          { type:'test', question:'"J\'ai mangé une pomme" está en:', options:['Presente','Futuro','Passé composé','Imparfait'], correct:2 },
+          { type:'fill', question:'Forma el passé composé de parler (yo): J\'_____ parlé', hint:'auxiliaire avoir', correct:'ai' },
+          { type:'match', question:'Une el infinitivo con su participio pasado', pairs:[['parler','parlé'],['finir','fini'],['être','été']] },
+        ]
+      },
+    ]
+  },
+];
+
 /* ─── STATE ─── */
 const state = {
   currentUser: null, selectedRole: 'alumno',
@@ -240,13 +297,13 @@ function enterApp() {
     pill.textContent = 'Alumno';
     pill.className   = 'user-role-pill';
     document.getElementById('sidebar-alumno').style.display = '';
-    buildCourses().then(() => updateDashboard()); showPanel('dashboard'); startSessionTimer();
+    buildCourses(); updateDashboard(); showPanel('dashboard'); startSessionTimer();
   } else if (user.role === 'profesor') {
     pill.textContent = 'Profesor';
     pill.className   = 'user-role-pill profesor';
     document.getElementById('sidebar-profesor').style.display = '';
     buildProfeDashboard(); buildStudents(); buildProfeCourses(); buildProfeLeaderboard();
-    showPanel('profe-dashboard');
+    populateEditorFilter(); renderActivityEditor(); showPanel('profe-dashboard');
   } else if (user.role === 'director') {
     pill.textContent = 'Director';
     pill.className   = 'user-role-pill director';
@@ -336,7 +393,7 @@ function startImpersonation() {
   const pill = document.getElementById('nav-role-pill');
   pill.textContent = 'Vista Alumno';
   pill.className   = 'user-role-pill';
-  buildCourses().then(() => updateDashboard()); showPanel('dashboard');
+  buildCourses(); updateDashboard(); showPanel('dashboard');
 }
 
 function exitImpersonation() {
@@ -353,12 +410,16 @@ function exitImpersonation() {
 /* ─── SCREEN / PANEL NAV ─── */
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const screen = document.getElementById(id);
+  if (!screen) return;
+  screen.classList.add('active');
 }
 
 function showPanel(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const panel = document.getElementById(id);
+  if (!panel) return;
+  panel.classList.add('active');
   document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
   const map = {
     'dashboard':'Inicio','courses':'Cursos','leaderboard':'Leaderboard',
@@ -428,10 +489,13 @@ function showToastAlert(msg, type) {
 
 /* ─── DASHBOARD ─── */
 function updateDashboard() {
+  const scoreEl = document.getElementById('user-score');
+  if (!scoreEl) return;
+
   const acc = state.totalAnswers > 0
     ? Math.round((state.correctAnswers / state.totalAnswers) * 100) + '%' : '—';
 
-  document.getElementById('user-score').textContent           = state.score.toLocaleString();
+  scoreEl.textContent           = state.score.toLocaleString();
   document.getElementById('dash-exercises-done').textContent  = state.exercisesDone;
   document.getElementById('dash-activities-done').textContent = state.activitiesDone;
   document.getElementById('dash-accuracy').textContent        = acc;
@@ -476,64 +540,16 @@ function getLevelData() {
 }
 
 function buildQuickCourses() {
-  document.getElementById('quick-courses').innerHTML =
-    COURSES.slice(0,3).map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
+  const quickEl = document.getElementById('quick-courses');
+  if (!quickEl) return;
+  quickEl.innerHTML = COURSES.slice(0,3).map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
 }
 
 /* ─── COURSES ─── */
-async function buildCourses() {
-  const container = document.getElementById('courses-container');
-  if (!container) return;
-  container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">Cargando grupos...</p>';
-  try {
-    // Obtener grupos del alumno desde la BD
-    const sessionRaw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
-    let grupos = [];
-    if (sessionRaw) {
-      const session = JSON.parse(sessionRaw);
-      const idAlumno = session.id_user || session.id;
-      if (idAlumno) {
-        const res = await fetch(`http://192.168.150.74:8085/api/grupos/alumno/${idAlumno}`);
-        if (res.ok) {
-          const data = await res.json();
-          grupos = Array.isArray(data) ? data : [];
-        }
-      }
-    }
-    if (grupos.length === 0) {
-      // Fallback: mostrar todos los grupos si no hay por alumno
-      const res = await fetch('http://192.168.150.74:8085/api/grupos');
-      if (res.ok) grupos = await res.json();
-    }
-    // Mapear grupos de BD al formato COURSES y actualizar estado global
-    COURSES = grupos.map(g => _mapGrupoToCourse(g));
-    container.innerHTML = COURSES.length
-      ? COURSES.map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('')
-      : '<p style="text-align:center;color:var(--text-muted);padding:2rem;">No perteneces a ningún grupo todavía.</p>';
-  } catch (err) {
-    console.error('buildCourses error:', err);
-    container.innerHTML = '<p style="color:red;text-align:center;">Error al cargar grupos.</p>';
-  }
-}
-
-/**
- * Convierte un grupo de la BD al formato interno de COURSES.
- * Las actividades se cargan bajo demanda al abrir el grupo (openCourse).
- */
-function _mapGrupoToCourse(g) {
-  const badgeMap = { A1:'badge-a1', A2:'badge-a2', B1:'badge-b1', B2:'badge-b1' };
-  const nivel = g.nivel || g.level || 'A1';
-  return {
-    id: String(g.id || g.idGrupo),
-    _idBD: g.id || g.idGrupo,   // ID real de BD para llamadas API
-    title: g.nombre || g.title || 'Grupo',
-    level: nivel,
-    badge: badgeMap[nivel] || 'badge-a1',
-    desc: g.descripcion || g.desc || '',
-    centro: g.id_centro || g.idCentro || null,
-    activities: [],              // Se cargan al abrir el grupo
-    _actividadesCargadas: false,
-  };
+function buildCourses() {
+  const coursesEl = document.getElementById('courses-container');
+  if (!coursesEl) return;
+  coursesEl.innerHTML = COURSES.map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
 }
 
 function courseCardHTML(c) {
@@ -553,76 +569,10 @@ function courseCardHTML(c) {
   </div>`;
 }
 
-async function openCourse(courseId) {
-  const course = COURSES.find(c => c.id === courseId);
-  if (!course) return;
-  state.currentCourseId = courseId;
-  document.getElementById('activity-course-title').textContent = course.title;
-  const notesWrap = document.getElementById('activity-notes-wrap');
-  const notesTA   = document.getElementById('activity-notes');
-  notesWrap.style.display = '';
-  notesTA.value = state.courseNotes[courseId] || '';
-  showPanel('activity-container');
-
-  // Cargar actividades reales desde la BD si aún no se han cargado
-  if (!course._actividadesCargadas && course._idBD) {
-    const listEl = document.getElementById('activity-list');
-    if (listEl) listEl.innerHTML = '<p style="padding:1rem;color:var(--text-muted);">Cargando actividades...</p>';
-    try {
-      const res = await fetch(`http://192.168.150.74:8085/actividad/grupo/${course._idBD}`);
-      if (res.ok) {
-        const actividades = await res.json();
-        course.activities = actividades.map(a => _mapActividadToActivity(a));
-        course._actividadesCargadas = true;
-      } else {
-        console.warn(`No se pudieron cargar actividades para grupo ${course._idBD}: HTTP ${res.status}`);
-        course.activities = [];
-        course._actividadesCargadas = true;
-      }
-    } catch (err) {
-      console.error('Error cargando actividades:', err);
-      course.activities = [];
-      course._actividadesCargadas = true;
-    }
-  }
-  buildActivityList(course);
-}
-
-/**
- * Convierte una actividad de la BD al formato interno de exercises.
- * Las preguntas/respuestas se almacenan como JSON en la BD.
- */
-function _mapActividadToActivity(a) {
-  let exercises = [];
-  try {
-    const preguntas  = a.preguntas  ? JSON.parse(a.preguntas)  : [];
-    const respuestas = a.respuestas ? JSON.parse(a.respuestas) : [];
-    // Construir ejercicios tipo "fill" con cada pregunta/respuesta
-    exercises = preguntas.map((q, i) => ({
-      type: 'fill',
-      question: q,
-      correct: respuestas[i] || '',
-      hint: '',
-      _puntosPorPregunta: Math.max(1, Math.round((a.puntos || 10) / Math.max(1, preguntas.length))),
-    }));
-  } catch {}
-  return {
-    id: String(a.idActividad),
-    _idBD: a.idActividad,
-    title: a.nombre || 'Actividad',
-    subtitle: `Dificultad: ${a.dificultad || '---'} · Entrega: ${a.fechaEntrega || '---'}`,
-    icon: 'bi-book-fill',
-    deadline: a.fechaEntrega || '',
-    maxTime: _parseDuracion(a.duracion),
-    puntosBD: a.puntos || 10,
-    exercises,
-  };
-}
-
-function _parseDuracion(duracion) {
-  if (!duracion) return 0;
-  const n = parseInt(duracion);
-  return isNaN(n) ? 0 : n;
+function openCourse(courseId) {
+  console.log('openCourse called with', courseId);
+  if (!courseId) return;
+  window.location.href = 'curso.html';
 }
 
 function saveNotes() {
@@ -911,51 +861,52 @@ function finishActivity(activity) {
  * Llama a PUT /alumno/{id} con los nuevos puntos totales.
  * Si falla (sin conexión), no bloquea la UI.
  */
-/**
- * syncPuntosConBD — Persiste los puntos ganados en esta sesión a la BD.
- * Llama a GET /alumno/find/{id} para obtener los puntos actuales,
- * suma los nuevos y hace PUT /alumno/{id}.
- * No bloquea la UI si falla.
- */
 async function syncPuntosConBD(puntosGanados) {
   if (!puntosGanados || puntosGanados <= 0) return;
-  const API = 'http://192.168.150.74:8085';
   try {
+    // Obtener ID del alumno desde la sesión
     const sessionRaw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
-    if (!sessionRaw) return;
-    const session  = JSON.parse(sessionRaw);
+    if (!sessionRaw) return; // No hay sesión de API, nada que hacer
+    const session = JSON.parse(sessionRaw);
     const idAlumno = session.id_user || session.id;
     if (!idAlumno) return;
 
-    const resGet = await fetch(`${API}/alumno/find/${idAlumno}`);
+    // Obtener datos actuales del alumno para conservar los campos requeridos
+    const resGet = await fetch(`http://192.168.150.74:8085/alumno/find/${idAlumno}`);
     if (!resGet.ok) throw new Error(`GET alumno: HTTP ${resGet.status}`);
     const alumno = await resGet.json();
 
+    // Calcular nuevos puntos totales (puntos actuales en BD + ganados en esta sesión)
     const puntosActuales = alumno.puntos || 0;
     const puntosNuevos   = Math.max(0, puntosActuales + puntosGanados);
 
+    // Determinar nuevo nivel según puntos totales
     let nuevoNivel = alumno.nivel || 'A1';
-    if      (puntosNuevos >= 9000) nuevoNivel = 'B2';
+    if (puntosNuevos >= 9000)      nuevoNivel = 'B2';
     else if (puntosNuevos >= 5000) nuevoNivel = 'B1';
     else if (puntosNuevos >= 2000) nuevoNivel = 'A2';
     else                           nuevoNivel = 'A1';
 
-    const resPut = await fetch(`${API}/alumno/${idAlumno}`, {
-      method:  'PUT',
+    // Enviar actualización
+    const resPut = await fetch(`http://192.168.150.74:8085/alumno/${idAlumno}`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ ...alumno, puntos: puntosNuevos, nivel: nuevoNivel }),
+      body: JSON.stringify({
+        ...alumno,
+        puntos: puntosNuevos,
+        nivel:  nuevoNivel,
+      })
     });
+
     if (!resPut.ok) throw new Error(`PUT alumno: HTTP ${resPut.status}`);
-
-    // Actualizar estado local con los puntos de la BD para coherencia
-    state.score = puntosNuevos;
-    updateDashboard();
-
     console.info(`✅ Puntos sincronizados: ${puntosActuales} + ${puntosGanados} = ${puntosNuevos} pts (BD)`);
+
+    // Invalidar caché del leaderboard para que se recargue con datos frescos
     _lbStudentsCache = null;
-    _lbCacheTime     = 0;
+    _lbCacheTime = 0;
 
   } catch (err) {
+    // No bloquear la UI si la BD falla — los puntos siguen en local
     console.warn('syncPuntosConBD: no se pudo sincronizar con la BD.', err.message);
   }
 }
@@ -1197,9 +1148,11 @@ async function buildLeaderboard(containerId, isTeacherView, tipo) {
 /* ─── MESSAGING ─── */
 function seedChat() {
   const msgs = document.getElementById('chat-messages');
+  if (!msgs) return;
   msgs.innerHTML = '';
   const isProf = state.currentUser.role === 'profesor' && !state.isImpersonating;
-  document.getElementById('chat-partner-name').textContent = isProf ? 'Chat con alumnos' : 'Mensaje de tu profesor';
+  const partnerName = document.getElementById('chat-partner-name');
+  if (partnerName) partnerName.textContent = isProf ? 'Chat con alumnos' : 'Mensaje de tu profesor';
   const seed = isProf
     ? [{ sent:false, text:'Profesor, tengo dudas con el passé composé 🙁', time:'10:12' },
        { sent:true,  text:'¡Hola Ana! Claro, repasemos juntos. ¿Qué parte no entiendes?', time:'10:14' }]
@@ -1360,39 +1313,23 @@ function applyStudentFilters() {
   `).join('');
 }
 
-async function buildProfeCourses() {
+function buildProfeCourses() {
   const el = document.getElementById('profe-courses-container');
-  if (!el) return;
-  el.innerHTML = '<p style="text-align:center;padding:2rem;color:var(--text-muted);">Cargando grupos...</p>';
-  const API = 'http://192.168.150.74:8085';
   const badgeMap = { A1:'badge-a1', A2:'badge-a2', B1:'badge-b1', B2:'badge-b1' };
-  try {
-    // Cargar todos los grupos de la BD (el profesor ve todos)
-    const res = await fetch(`${API}/api/grupos`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const grupos = await res.json();
-    // Actualizar COURSES con datos reales
-    COURSES = grupos.map(g => _mapGrupoToCourse(g));
-    el.innerHTML = COURSES.map(c => `
-      <div class="col-md-4 col-sm-6">
-        <div class="course-card">
-          <span class="course-level-badge ${c.badge || badgeMap[c.level] || 'badge-a1'}">${c.level}</span>
-          <div class="course-title">${c.title}</div>
-          <div class="course-meta">${c.desc || ''}</div>
-          <div class="course-meta mt-1">${c.activities.length} actividades</div>
-          <div class="mt-3 d-flex gap-2 flex-wrap">
-            <button class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:.8rem;" onclick="editCourse('${c.id}')"><i class="bi bi-pencil me-1"></i>Editar</button>
-            <button class="btn btn-sm btn-outline-secondary" style="border-radius:8px;font-size:.8rem;" onclick="openCourse('${c.id}')"><i class="bi bi-eye me-1"></i>Ver</button>
-            <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;font-size:.8rem;" onclick="deleteCourse('${c.id}')"><i class="bi bi-trash"></i></button>
-          </div>
+  el.innerHTML = COURSES.map(c => `
+    <div class="col-md-4 col-sm-6">
+      <div class="course-card">
+        <span class="course-level-badge ${c.badge || badgeMap[c.level] || 'badge-a1'}">${c.level}</span>
+        <div class="course-title">${c.title}</div>
+        <div class="course-meta">${c.desc}</div>
+        <div class="course-meta mt-1">${c.activities.length} actividades</div>
+        <div class="mt-3 d-flex gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:.8rem;" onclick="editCourse('${c.id}')"><i class="bi bi-pencil me-1"></i>Editar</button>
+          <button class="btn btn-sm btn-outline-secondary" style="border-radius:8px;font-size:.8rem;" onclick="openCourse('${c.id}')"><i class="bi bi-eye me-1"></i>Ver</button>
+          <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;font-size:.8rem;" onclick="deleteCourse('${c.id}')"><i class="bi bi-trash"></i></button>
         </div>
-      </div>`).join('') || '<p style="color:var(--text-muted);padding:1rem;">No hay grupos creados todavía.</p>';
-    populateEditorFilter();
-    renderActivityEditor();
-  } catch (err) {
-    console.error('buildProfeCourses error:', err);
-    el.innerHTML = '<p style="color:red;text-align:center;">Error al cargar grupos.</p>';
-  }
+      </div>
+    </div>`).join('');
 }
 
 function buildProfeLeaderboard() { buildLeaderboard('profe-leaderboard-content', true, _lbTabProfe); }
@@ -1415,75 +1352,25 @@ function openCourseModal(courseId) {
   openModal('modal-course');
 }
 function editCourse(id) { openCourseModal(id); }
-async function saveCourse() {
+function saveCourse() {
   const title = document.getElementById('mc-title').value.trim();
   const level = document.getElementById('mc-level').value;
   const desc  = document.getElementById('mc-desc').value.trim();
   if (!title) { alert('Escribe un título para el curso.'); return; }
-  const API = 'http://192.168.150.74:8085';
-
-  // Obtener ID del profesor desde la sesión
-  const sessionRaw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
-  let idProfesor = null;
-  if (sessionRaw) {
-    try { idProfesor = JSON.parse(sessionRaw).id_user || JSON.parse(sessionRaw).id; } catch {}
+  const badgeMap = { A1:'badge-a1', A2:'badge-a2', B1:'badge-b1', B2:'badge-b1' };
+  if (state.editingCourseId) {
+    const c = COURSES.find(x => x.id === state.editingCourseId);
+    c.title = title; c.level = level; c.desc = desc; c.badge = badgeMap[level];
+  } else {
+    COURSES.push({ id:'c'+Date.now(), title, level, badge:badgeMap[level], desc, activities:[] });
   }
-
-  try {
-    if (state.editingCourseId) {
-      // Editar grupo existente en BD
-      const course = COURSES.find(x => x.id === state.editingCourseId);
-      const grupoDTO = {
-        idGrupo:   course._idBD || null,
-        nombre:    title,
-        idCentro:  course.centro || null,
-        idProfesor: idProfesor,
-      };
-      if (course._idBD) {
-        // No hay endpoint PUT en GrupoController — usar DELETE + POST o simplemente actualizar local
-        // Si el backend añade PUT /api/grupos/{id}, cambiar aquí.
-        console.warn('PUT grupo no implementado en backend — actualización local solamente');
-        course.title = title; course.desc = desc;
-      }
-    } else {
-      // Crear grupo nuevo en BD
-      const grupoDTO = {
-        nombre:    title,
-        idCentro:  1,          // Centro por defecto; ajustar según flujo real
-        idProfesor: idProfesor || 1,
-      };
-      const res = await fetch(`${API}/api/grupos`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(grupoDTO),
-      });
-      if (!res.ok) throw new Error(`POST /api/grupos → HTTP ${res.status}`);
-      const nuevoGrupo = await res.json();
-      console.info('✅ Grupo creado en BD:', nuevoGrupo);
-    }
-    closeModal('modal-course');
-    await buildProfeCourses();
-  } catch (err) {
-    console.error('Error al guardar grupo:', err);
-    alert('No se pudo guardar el grupo en la base de datos: ' + err.message);
-  }
+  closeModal('modal-course');
+  buildProfeCourses(); populateEditorFilter(); renderActivityEditor();
 }
-async function deleteCourse(id) {
+function deleteCourse(id) {
   if (!confirm('¿Eliminar este curso y todas sus actividades?')) return;
-  const API = 'http://192.168.150.74:8085';
-  const course = COURSES.find(c => c.id === id);
-  try {
-    if (course && course._idBD) {
-      const res = await fetch(`${API}/api/grupos/${course._idBD}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error(`DELETE /api/grupos/${course._idBD} → HTTP ${res.status}`);
-      console.info(`✅ Grupo ${course._idBD} eliminado de BD`);
-    }
-    COURSES = COURSES.filter(c => c.id !== id);
-    await buildProfeCourses();
-  } catch (err) {
-    console.error('Error al eliminar grupo:', err);
-    alert('No se pudo eliminar el grupo: ' + err.message);
-  }
+  COURSES = COURSES.filter(c => c.id !== id);
+  buildProfeCourses(); populateEditorFilter(); renderActivityEditor();
 }
 
 /* ─── ACTIVITY EDITOR ─── */
@@ -1560,7 +1447,7 @@ function openActivityModal(courseId, actId) {
   }
   openModal('modal-activity');
 }
-async function saveActivity() {
+function saveActivity() {
   const courseId = document.getElementById('ma-course').value;
   const title    = document.getElementById('ma-title').value.trim();
   const subtitle = document.getElementById('ma-subtitle').value.trim();
@@ -1569,77 +1456,22 @@ async function saveActivity() {
   if (!title) { alert('Escribe un título para la actividad.'); return; }
   const course = COURSES.find(c => c.id === courseId);
   if (!course) return;
-  const API = 'http://192.168.150.74:8085';
-
-  // Obtener ID del profesor desde la sesión
-  const sessionRaw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
-  let idProfesor = '1';
-  if (sessionRaw) {
-    try { idProfesor = String(JSON.parse(sessionRaw).id_user || JSON.parse(sessionRaw).id || '1'); } catch {}
+  if (state.editingActivityId) {
+    const act = course.activities.find(a => a.id === state.editingActivityId);
+    act.title=title; act.subtitle=subtitle; act.deadline=deadline; act.maxTime=maxTime;
+  } else {
+    course.activities.push({ id:'act-'+Date.now(), title, subtitle, icon:'bi-book-fill', deadline, maxTime, exercises:[] });
   }
-
-  try {
-    if (state.editingActivityId) {
-      // Editar actividad existente — actualizar solo en local por ahora
-      // (el backend necesita un endpoint PUT /actividad/{id} para esto)
-      const act = course.activities.find(a => a.id === state.editingActivityId);
-      if (act) { act.title = title; act.subtitle = subtitle; act.deadline = deadline; act.maxTime = maxTime; }
-    } else {
-      // Crear actividad nueva en BD y asociarla al grupo
-      const actividadDTO = {
-        nombre:       title,
-        dificultad:   subtitle || 'Media',
-        idProfesor:   idProfesor,
-        duracion:     String(maxTime),
-        fechaInicio:  new Date().toISOString().split('T')[0],
-        fechaFin:     deadline || null,
-        fechaEntrega: deadline || new Date().toISOString().split('T')[0],
-        preguntas:    '[]',
-        respuestas:   '[]',
-        puntos:       10,
-        idGrupo:      course._idBD || null,  // Enviamos el grupo al que pertenece
-      };
-      const res = await fetch(`${API}/actividad`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(actividadDTO),
-      });
-      if (!res.ok) throw new Error(`POST /actividad → HTTP ${res.status}`);
-      const nueva = await res.json();
-      console.info('✅ Actividad creada en BD:', nueva);
-      // Forzar recarga de actividades al volver a abrir el grupo
-      course._actividadesCargadas = false;
-    }
-    closeModal('modal-activity');
-    await buildProfeCourses();
-  } catch (err) {
-    console.error('Error al guardar actividad:', err);
-    alert('No se pudo guardar la actividad en la base de datos: ' + err.message);
-  }
+  closeModal('modal-activity');
+  buildProfeCourses(); renderActivityEditor();
 }
 function editActivity(courseId, actId) { openActivityModal(courseId, actId); }
-async function deleteActivity(courseId, actId) {
+function deleteActivity(courseId, actId) {
   if (!confirm('¿Eliminar esta actividad y todos sus ejercicios?')) return;
   const course = COURSES.find(c => c.id === courseId);
-  if (!course) return;
-  const act = course.activities.find(a => a.id === actId);
-  const API = 'http://192.168.150.74:8085';
-  try {
-    if (act && act._idBD) {
-      // El backend actualmente no tiene DELETE /actividad/{id}
-      // Si se añade, descomentar:
-      // const res = await fetch(`${API}/actividad/${act._idBD}`, { method: 'DELETE' });
-      // if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      console.warn('DELETE actividad — endpoint no implementado en backend. Eliminado solo en local.');
-    }
-    course.activities = course.activities.filter(a => a.id !== actId);
-    course._actividadesCargadas = false; // Forzar recarga en próxima apertura
-    await buildProfeCourses();
-    if (state.currentCourseId === courseId) buildActivityList(course);
-  } catch (err) {
-    console.error('Error al eliminar actividad:', err);
-    alert('No se pudo eliminar la actividad: ' + err.message);
-  }
+  course.activities = course.activities.filter(a => a.id !== actId);
+  buildProfeCourses(); renderActivityEditor();
+  if (state.currentCourseId === courseId) buildActivityList(course);
 }
 
 /* ─── EXERCISE MODAL (4 tipos) ─── */
@@ -1884,25 +1716,12 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 
     if (savedApi) {
       // Sesión proveniente del backend real — usa nombre y apellidos de la BD
-      const { nombre, apellidos, rol, correo, id_sesion, id_user, id } = JSON.parse(savedApi);
+      const { nombre, apellidos, rol, correo, id_sesion } = JSON.parse(savedApi);
       const fullName = [nombre, apellidos].filter(Boolean).join(' ') || correo || 'Usuario';
       const role = (rol || 'alumno').toLowerCase();
       state.currentUser = { email: correo, name: fullName, role, id_sesion };
       if (document.getElementById('screen-app')) {
         enterApp();
-        // Cargar puntos reales del alumno desde la BD
-        const idAlumno = id_user || id;
-        if (role === 'alumno' && idAlumno) {
-          fetch(`http://192.168.150.74:8085/alumno/find/${idAlumno}`)
-            .then(r => r.ok ? r.json() : null)
-            .then(alumno => {
-              if (alumno && alumno.puntos != null) {
-                state.score = alumno.puntos;
-                updateDashboard();
-              }
-            })
-            .catch(() => {});
-        }
       }
     } else if (savedMock) {
       // Sesión mock (login sin backend)

@@ -1,19 +1,90 @@
-/**
- * getGrupos.js
- * Solo expone funciones de acceso a la API de grupos.
- * El renderizado se hace en script.js, reutilizando courseCardHTML().
- */
+    const API = "http://192.168.150.74:8085/api/grupos";
 
-import { apiGetAllGrupos, apiGetGruposByAlumno, apiGetGrupoById } from '../../api.js';
+export async function getAllGrupos(){
+    const response = await fetch(`${API}`);
+    const grupos = await response.json();
 
-export async function getAllGrupos() {
-  return apiGetAllGrupos();
+    return grupos;
 }
 
-export async function getGruposByAlumno(idAlumno) {
-  return apiGetGruposByAlumno(idAlumno);
+export async function getGruposByAlumno(id){
+    const response = await fetch(`${API}/alumno/${id}`);
+    const grupos = await response.json();
+
+    return grupos;
 }
 
 export async function getGrupoById(id) {
-  return apiGetGrupoById(id);
+    const response = await fetch(`${API}/${id}`);
+    const grupo = await response.json();
+
+    return grupo;
 }
+
+//si no va borrar el codigo de aqui para abajo
+
+function getUserIdFromSession() {
+    let sessionData = sessionStorage.getItem('lf_session_api');
+    if (!sessionData) {
+        sessionData = localStorage.getItem('lf_session_api');
+    }
+    
+    if (sessionData) {
+        try {
+            const data = JSON.parse(sessionData);
+            return data.id_user;
+        } catch (e) {
+            console.error("Error parsing session data:", e);
+            return null;
+        }
+    }
+    return null;
+}
+
+async function renderGrupos() {
+    try {
+        const userId = getUserIdFromSession();
+        if (!userId) {
+            console.error("No user ID found in session");
+            document.getElementById("courses-container").innerHTML =
+                "<p>Error: Usuario no autenticado.</p>";
+            return;
+        }
+        const grupos = await getGruposByAlumno(userId);
+        const contenedor = document.getElementById("courses-container");
+
+        let html = `<h2 style="text-align:center;color:#333">GRUPOS</h2>`;
+
+        html += `<div class="groups-grid">`;
+
+        for (let grupo of grupos) {
+            const grupoId = grupo.idGrupo ?? grupo.id ?? grupo.id_grupo;
+            html += `
+                <div class="grupo-card" onclick="openCourse('${grupoId}')">
+                    <div class="grupo-title">${grupo.nombre}</div>
+
+                    <div class="grupo-info">
+                        🏫 Centro: ${grupo.centro || '---'}
+                    </div>
+
+                    <div class="grupo-info">
+                        👨‍🎓 Alumnos: ${grupo.numAlumnos ?? '---'}
+                    </div>
+                </div>
+            `;
+        }
+
+        html += `</div>`;
+
+        contenedor.innerHTML = html;
+
+    } catch (error) {
+        console.error("Error al obtener los grupos:", error);
+        document.getElementById("courses-container").innerHTML =
+            "<p>Error al cargar datos.</p>";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", renderGrupos);
+
+document.addEventListener("DOMContentLoaded", function() {renderGrupos()});

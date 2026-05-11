@@ -1,14 +1,16 @@
-/**
- * getProfesores.js
- * Redirige a las funciones centralizadas de api.js
- */
+const API = "http://192.168.150.74:8085/profesor";
 
-import { apiGetAllProfesores, apiGetProfesorById } from '../../api.js';
+export async function getAllProfesores(){
+    const response = await fetch(`${API}/find`);
+    const profesores = await response.json();
 
-export async function getAllProfesores() {
-  return apiGetAllProfesores();
+    return profesores;
 }
 
-export async function getProfesorById(id) {
-  return apiGetProfesorById(id);
+export async function getProfesorById(id){
+    const response = await fetch(`${API}/find/${id}`);
+    const profesor = await response.json();
+
+    return profesor;
 }
+

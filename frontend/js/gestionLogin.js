@@ -18,6 +18,7 @@ async function doLogin() {
             rol: response.rol || response.role || 'alumno',
             correo: response.correo || response.email || '',
             id_user : response.id,
+            id_grupo : response.id_grupo,
         };
         if (document.getElementById('remember-me').checked) {
             localStorage.setItem('lf_session_api', JSON.stringify(sessionData));
