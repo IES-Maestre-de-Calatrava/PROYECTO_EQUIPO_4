@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Le Français</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="https://static.vecteezy.com/system/resources/previews/012/624/939/non_2x/france-flag-icon-free-png.png">
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .course-page-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      box-shadow: var(--shadow-sm);
+    }
+    .course-page-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: flex-end;
+      margin-bottom: 1.5rem;
+    }
+    .course-page-intro {
+      color: var(--text-muted);
+      max-width: 760px;
+      line-height: 1.7;
+    }
+    .actividad-form-card {
+      margin-top: 1rem;
+    }
+    .actividad-form-card #actividad-form-container {
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+<div id="screen-app" class="screen active">
+  <nav class="app-navbar">
+    <button class="menu-toggle" onclick="toggleMobileMenu()"><i class="bi bi-list"></i></button>
+    <div class="navbar-logo">Le <span style="color:#002654">Fr</span><span style="color:#6c757d">anç</span><span style="color:#ED2939">ais</span></div>
+    <div class="navbar-user">
+      <div class="timer-display" id="global-timer"><i class="bi bi-stopwatch-fill"></i> <span id="timer-val">00:00</span></div>
+      <button class="btn-icon notification-btn" id="notification-btn" onclick="showNotifications(event)" aria-label="Notificaciones" title="Notificaciones">
+        <i class="bi bi-bell-fill"></i>
+        <span class="notification-badge" id="notification-badge"></span>
+      </button>
+      <div class="profile-dropdown" id="profile-dropdown" onclick="toggleProfileMenu(event)" tabindex="0" role="button" aria-expanded="false" aria-haspopup="true">
+        <div class="user-avatar" id="nav-avatar">--</div>
+        <div class="profile-summary">
+          <div class="user-name" id="nav-username">Usuario</div>
+          <div class="user-role-pill" id="nav-role-pill">Alumno</div>
+        </div>
+        <i class="bi bi-chevron-down profile-dropdown-caret"></i>
+        <div class="profile-menu" id="profile-menu" onclick="event.stopPropagation()">
+          <div class="profile-menu-header">
+            <div class="profile-menu-avatar" id="pm-avatar">--</div>
+            <div>
+              <div class="profile-menu-name" id="pm-name">Usuario</div>
+              <div class="profile-menu-role" id="pm-role">Alumno</div>
+            </div>
+          </div>
+          <div class="profile-menu-divider"></div>
+          <button type="button" class="profile-menu-item" onclick="openProfileSettings()">
+            <i class="bi bi-person-fill"></i> Mi perfil
+          </button>
+          <div class="profile-menu-divider"></div>
+          <div class="profile-menu-darkrow">
+            <span><i class="bi bi-moon-fill"></i> Modo oscuro</span>
+            <label class="pm-switch">
+              <input type="checkbox" id="pm-dark-toggle" onchange="toggleDarkMode(this.checked)" />
+              <span class="pm-switch-track"></span>
+            </label>
+          </div>
+          <div class="profile-menu-divider"></div>
+          <button type="button" class="profile-menu-item danger" onclick="doLogout()">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
+  <aside class="mobile-sidebar" id="mobile-sidebar"><div id="mobile-sidebar-content"></div></aside>
+
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+
+      <div id="sidebar-alumno">
+        <button class="sidebar-item active" onclick="showPanel('dashboard')"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
+        <button class="sidebar-item" onclick="showPanel('courses')"><i class="bi bi-book-fill"></i>Mis Cursos</button>
+        <div class="sidebar-divider"></div>
+        <button class="sidebar-item" onclick="showPanel('leaderboard')"><i class="bi bi-trophy-fill"></i> Leaderboard</button>
+        <button class="sidebar-item" onclick="showPanel('progress')"><i class="bi bi-bar-chart-fill"></i> Mi progreso</button>
+        <div class="sidebar-divider"></div>
+        <button class="sidebar-item" onclick="showPanel('tutor')"><i class="bi bi-chat-dots-fill"></i> Tutor IA</button>
+        <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
+      </div>
+
+      <div id="sidebar-profesor" style="display:none">
+        <div class="sidebar-section-label">Panel</div>
+        <button class="sidebar-item active" onclick="showPanel('profe-dashboard')"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
+        <button class="sidebar-item" onclick="showPanel('profe-students')"><i class="bi bi-people-fill"></i> Alumnos</button>
+        <button class="sidebar-item" onclick="showPanel('profe-leaderboard')"><i class="bi bi-trophy-fill"></i> Leaderboard</button>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">Contenido</div>
+        <button class="sidebar-item" onclick="showPanel('profe-courses')"><i class="bi bi-collection-fill"></i> Mis Cursos</button>
+        <button class="sidebar-item" onclick="showPanel('activity-editor')"><i class="bi bi-pencil-square"></i> Editor actividades</button>
+        <div class="sidebar-divider"></div>
+        <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
+      </div>
+
+      <div id="sidebar-director" style="display:none">
+        <div class="sidebar-section-label">Director</div>
+        <button class="sidebar-item active" onclick="showPanel('director-dashboard')"><i class="bi bi-speedometer2"></i> Panel Director</button>
+        <a class="sidebar-item" href="TESTS_ALVARO/testGestionUsuarios.html" target="_blank" rel="noopener"><i class="bi bi-tools"></i> Test Gestión Usuarios</a>
+        <div class="sidebar-divider"></div>
+        <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="course-page-card">
+        <div class="course-page-header">
+          <div>
+            <div class="section-title">Ejercicios del curso</div>
+            <div class="course-page-intro">
+              <p>Responde unas preguntas rápidas para repasar el contenido del curso. Este panel está diseñado con la misma paleta suave y moderna de la app para mantener la experiencia uniforme.</p>
+            </div>
+          </div>
+          <button class="btn-course" onclick="window.location.href='index.html'">Volver al panel</button>
+        </div>
+
+        <div id="actividad-form-container" class="actividad-form-card"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="../js/script.js"></script>
+<script type="module">
+  import { generarFormularioActividad } from '../js/formularioActividades.js';
+  document.addEventListener('DOMContentLoaded', () => {
+    const preguntas = JSON.stringify([
+      '¿Cómo se dice "Hola" en francés?',
+      'Traduce "Gracias".',
+      '¿Cuál es el artículo definido masculino en francés?',
+      'Escribe la forma correcta: Je ___ étudiant.'
+    ]);
+    const respuestas = JSON.stringify(['Bonjour', 'Merci', 'Le', 'suis']);
+    generarFormularioActividad(preguntas, respuestas, 'actividad-form-container');
+  });
+</script>
+</body>
+</html>

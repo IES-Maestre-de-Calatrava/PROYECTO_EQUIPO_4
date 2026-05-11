@@ -71,8 +71,9 @@ async function renderGrupos() {
         html += `<div class="groups-grid">`;
 
         for (let grupo of grupos) {
+            const grupoId = grupo.idGrupo ?? grupo.id ?? grupo.id_grupo;
             html += `
-                <div class="grupo-card" onclick="openCourse(${grupo.idGrupo})">
+                <div class="grupo-card" onclick="openCourse('${grupoId}')">
                     <div class="grupo-title">${grupo.nombre}</div>
                     <div class="grupo-info">🏫 Centro: ${grupo.centro || '---'}</div>
                     <div class="grupo-info">👨‍🎓 Alumnos: ${grupo.numAlumnos ?? '---'}</div>
