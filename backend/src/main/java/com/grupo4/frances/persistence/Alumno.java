@@ -41,6 +41,9 @@ public class Alumno implements java.io.Serializable {
 		@Column(name="RANGO")
 		private String rango;
 
+		@Column(name="PUNTOS")
+		private int puntos;
+
 		@ManyToMany(mappedBy = "alumnos")
     	private Set<Grupo> grupos = new HashSet<>();
 
@@ -58,7 +61,7 @@ public class Alumno implements java.io.Serializable {
 
 		public Alumno(Long idAlumno, String nombreUsuario, String contrasena, String nombre,
 				String apellidos, String instituto, int telefono, String correo, String nivel, 
-				String rango) {
+				String rango, int puntos) {
 			this.idAlumno = idAlumno;
 			this.nombreUsuario = nombreUsuario;
 			this.contrasena = contrasena;
@@ -69,6 +72,7 @@ public class Alumno implements java.io.Serializable {
 			this.correo = correo;
 			this.nivel = nivel;
 			this.rango = rango;
+			this.puntos = puntos;
 		}
 
 		public Long getIdAlumno() {
@@ -167,4 +171,11 @@ public class Alumno implements java.io.Serializable {
 			this.actividades = actividades;
 		}
 
+	public int getPuntos() {
+		return puntos;
+	}
+
+	public void setPuntos(int puntos) {
+		this.puntos = puntos;
+	}
 }
