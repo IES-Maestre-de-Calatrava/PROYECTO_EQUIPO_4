@@ -56,17 +56,12 @@ public class GrupoController {
                 .orElseThrow(() -> new GrupoNotFoundException(id));
     }
 
-    @GetMapping("/nombre/{nombre}")
-    public ResponseEntity<List<GrupoDTO>> getGruposByNombre(@PathVariable String nombre) {
-        // 1. Buscamos en el repositorio
+    @GetMapping("/nombre")
+    public ResponseEntity<List<GrupoDTO>> getGruposByNombre(@RequestParam String nombre) {
         List<Grupo> grupos = repository.buscarPorNombre(nombre);
-        
-        // 2. Convertimos a DTO para el frontend
         List<GrupoDTO> respuesta = grupos.stream()
                 .map(GrupoMapper::toDTO)
                 .collect(Collectors.toList());
-        
-        // 3. Devolvemos la lista (aunque esté vacía, devolvemos 200 OK con [])
         return ResponseEntity.ok(respuesta);
     }
 
