@@ -23,6 +23,13 @@ export class PutGestionGrupos {
         return await this.#putJson(url, datos);
     }
 
+    async eliminarAlumnoDeGrupo(idGrupo, idAlumno, usuarioActual = this.#getUsuarioActual()) {
+        this.#validarProfesor(usuarioActual);
+
+        const url = `${API_GRUPOS}/${idGrupo}/alumnos/${idAlumno}`;
+        return await this.#deleteJson(url);
+    }
+
     esProfesor(usuarioActual = this.#getUsuarioActual()) {
         const rol = usuarioActual?.rol || usuarioActual?.role;
         return rol?.toLowerCase() === "profesor";
@@ -141,18 +148,27 @@ export class PutGestionGrupos {
         }
     }
 
-    #crearMensajeError(status, text) {
-        const mensajeApi = this.#leerMensajeError(text);
+    async #deleteJson(url) {
+        console.log("Enviando peticion DELETE grupo:", url);
 
-        if (status === 403) {
-            return `No se pudo crear el grupo: el usuario no tiene permisos. ${mensajeApi}`;
+        const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        const text = await response.text();
+
+        if (!response.ok) {
+            throw new Error(this.#crearMensajeError(response.status, text));
         }
 
-        if (status === 500) {
-            return `La API ha fallado al guardar el grupo. Comprueba que idGrupo no exista y que idCentro/idProfesor sean validos. ${mensajeApi}`;
+        if (!text) {
+            return true;
         }
 
-        return `Error al crear el grupo: ${status} ${mensajeApi}`;
+        return JSON.parse(text);
     }
 }
 

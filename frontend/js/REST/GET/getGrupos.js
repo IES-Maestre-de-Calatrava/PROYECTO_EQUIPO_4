@@ -36,6 +36,18 @@ export async function getGruposByNombre(nombre) {
     }
 }
 
+export async function getGruposByProfesor(idProfesor) {
+    const response = await fetch(`${API}/profesor/${idProfesor}`);
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return await response.json();
+}
+
+export async function getAlumnosByGrupo(idGrupo) {
+    const response = await fetch(`${API}/${idGrupo}/alumnos`);
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return await response.json();
+}
+
 function getUserIdFromSession() {
     let sessionData = sessionStorage.getItem('lf_session_api');
     if (!sessionData) {

@@ -1336,20 +1336,23 @@ function buildProfeLeaderboard() { buildLeaderboard('profe-leaderboard-content',
 
 /* ─── COURSE MANAGER ─── */
 function openCourseModal(courseId) {
-  state.editingCourseId = courseId || null;
-  if (courseId) {
-    const c = COURSES.find(x => x.id === courseId);
-    document.getElementById('mc-title').value = c.title;
-    document.getElementById('mc-level').value = c.level;
-    document.getElementById('mc-desc').value  = c.desc;
-    document.getElementById('modal-course-title').textContent = 'Editar Curso';
-  } else {
-    document.getElementById('mc-title').value = '';
-    document.getElementById('mc-level').value = 'A1';
-    document.getElementById('mc-desc').value  = '';
-    document.getElementById('modal-course-title').textContent = 'Nuevo Curso';
-  }
-  openModal('modal-course');
+    const mcTitle = document.getElementById('mc-title');
+    const mcLevel = document.getElementById('mc-level');
+    const mcDesc  = document.getElementById('mc-desc');
+
+    if (courseId && mcTitle && mcLevel && mcDesc) {
+        const c = COURSES.find(x => x.id === courseId);
+        mcTitle.value = c.title;
+        mcLevel.value = c.level;
+        mcDesc.value  = c.desc;
+        document.getElementById('modal-course-title').textContent = 'Editar Curso';
+    } else {
+        if (mcTitle) mcTitle.value = '';
+        if (mcLevel) mcLevel.value = 'A1';
+        if (mcDesc)  mcDesc.value  = '';
+        document.getElementById('modal-course-title').textContent = 'Nuevo Grupo';
+    }
+    openModal('modal-course');
 }
 function editCourse(id) { openCourseModal(id); }
 function saveCourse() {
