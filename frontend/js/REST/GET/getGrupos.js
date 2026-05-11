@@ -98,7 +98,6 @@ async function renderGrupos() {
             );
 
             html += `
-<<<<<<< HEAD
                 <div class="course-card">
 
                     <span class="course-level-badge beginner">
@@ -135,12 +134,6 @@ async function renderGrupos() {
                         Empezar →
                     </button>
 
-=======
-                <div class="grupo-card" onclick="openCourse('${grupoId}')">
-                    <div class="grupo-title">${grupo.nombre}</div>
-                    <div class="grupo-info">🏫 Centro: ${grupo.centro || '---'}</div>
-                    <div class="grupo-info">👨‍🎓 Alumnos: ${grupo.numAlumnos ?? '---'}</div>
->>>>>>> 4af22473d980d5170462ce52d562661b9d6d652f
                 </div>
             `;
         }
@@ -157,11 +150,4 @@ async function renderGrupos() {
     }
 }
 
-<<<<<<< HEAD
 document.addEventListener("DOMContentLoaded", renderGrupos);
-=======
-const coursesContainer = document.getElementById("courses-container");
-if (coursesContainer) {
-    document.addEventListener("DOMContentLoaded", renderGrupos);
-}
->>>>>>> 4af22473d980d5170462ce52d562661b9d6d652f
