@@ -1079,7 +1079,7 @@ async function buildLeaderboard(containerId, isTeacherView, tipo) {
 
   const periodoLabel = tipo === 'diaria' ? 'pts hoy' : tipo === 'semanal' ? 'pts esta semana' : 'pts totales';
   const metaInfo = {
-    general: { icon:'bi-globe2', label: studentsFromDB ? 'Clasificación en tiempo real (BD)' : 'Clasificación histórica', color:'#0055A4' },
+    general: { icon:'bi-globe2', label: studentsFromDB ? 'Clasificación en tiempo real' : 'Clasificación histórica', color:'#0055A4' },
     diaria:  { icon:'bi-sun-fill',           label:'Puntos obtenidos hoy',         color:'#f59e0b' },
     semanal: { icon:'bi-calendar-week-fill', label:'Puntos obtenidos esta semana', color:'#10b981' },
   }[tipo];
