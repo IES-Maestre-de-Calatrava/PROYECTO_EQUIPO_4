@@ -183,7 +183,7 @@ async function getActividades() {
                 </tbody>
             </table>
         `;
-        contenedor.innerHTML = tabla;
+        //contenedor.innerHTML = tabla;
         
         // Agregar eventos a los botones de responder
         const botonesResponder = document.querySelectorAll('.btn-responder');
@@ -201,7 +201,7 @@ async function getActividades() {
         
     } catch (error) {
         console.error("Error al obtener las actividades:", error);
-        document.getElementById("contenedor-tabla").innerHTML = "<p>Error al cargar datos.</p>";
+        //document.getElementById("contenedor-tabla").innerHTML = "<p>Error al cargar datos.</p>";
     }
 }
 

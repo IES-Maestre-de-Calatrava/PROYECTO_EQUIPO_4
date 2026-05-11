@@ -150,11 +150,6 @@
           <div class="level-progress-bar"><div class="level-progress-fill" id="level-progress-fill" style="width:0%"></div></div>
           <div class="level-next" id="level-next">Te faltan 2 000 puntos para Intermedio</div>
         </div>
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <div class="section-title mb-0">Continúa aprendiendo</div>
-          <button class="btn btn-sm btn-outline-primary" onclick="showPanel('courses')" style="border-radius:8px;font-size:.82rem;">Ver todos →</button>
-        </div>
-        <div class="row g-3" id="quick-courses"></div>
       </div>
 
       <!-- ── ALUMNO: CURSOS ── -->
@@ -421,8 +416,8 @@
       <div id="profe-courses" class="panel">
         <div id="course-manager">
           <div class="page-header">
-            <div class="section-title mb-0">Mis Grupos</div>
-            <button class="btn-primary-custom" onclick="window.location.href='TESTS_ALVARO/testGestionGrupos.html'"><i class="bi bi-plus-lg me-1"></i>Nuevo grupo</button>
+            <div class="section-title mb-0">Gestión de Cursos</div>
+            <button class="btn-primary-custom" onclick="openCourseModal()"><i class="bi bi-plus-lg me-1"></i>Nuevo curso</button>
           </div>
           <div id="courses-container"></div>
         </div>
@@ -491,14 +486,18 @@
 <!-- ── MODAL: CURSO ── -->
 <div class="modal-overlay" id="modal-course">
   <div class="modal-box">
-    <h5 id="modal-course-title">Nuevo Grupo</h5>
-    <div class="mb-3"><label class="form-label">ID del grupo</label><input type="number" class="form-control" id="mc-idGrupo" placeholder="ID único"/></div>
-    <div class="mb-3"><label class="form-label">Nombre del grupo</label><input type="text" class="form-control" id="mc-nombre" placeholder="Ej: Francés A1"/></div>
-    <div class="mb-3"><label class="form-label">Centro</label><select class="form-select" id="mc-centro"><option value="">Cargando...</option></select></div>
-    <div class="mb-3"><label class="form-label">Código (opcional)</label><input type="text" class="form-control" id="mc-codigo" placeholder="Código único"/></div>
+    <h5 id="modal-course-title">Nuevo Curso</h5>
+    <div class="mb-3"><label class="form-label">Título del curso</label><input type="text" class="form-control" id="mc-title" placeholder="Ej: Francés A1 Básico"/></div>
+    <div class="mb-3"><label class="form-label">Nivel</label>
+      <select class="form-select" id="mc-level">
+        <option value="A1">A1 — Básico</option><option value="A2">A2 — Elemental</option>
+        <option value="B1">B1 — Intermedio</option><option value="B2">B2 — Avanzado</option>
+      </select>
+    </div>
+    <div class="mb-3"><label class="form-label">Descripción</label><input type="text" class="form-control" id="mc-desc" placeholder="Breve descripción del curso"/></div>
     <div class="d-flex gap-2 justify-content-end">
       <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-course')">Cancelar</button>
-      <button class="btn-primary-custom" onclick="saveGroup()">Crear grupo</button>
+      <button class="btn-primary-custom" onclick="saveCourse()">Guardar curso</button>
     </div>
   </div>
 </div>
@@ -613,182 +612,6 @@
 <script src="../js/script.js"></script>
 <script src="../js/tutor/tutor-ia.js"></script>
 <script type="module" src="../js/REST/GET/getGrupos.js"></script>
-<script type="module">
-import { getGruposByProfesor, getAlumnosByGrupo } from '../js/REST/GET/getGrupos.js';
-import { getAllCentros } from '../js/REST/GET/getCentros.js';
-import { gestionGruposPut } from '../js/REST/PUT/putGestionGrupos.js';
-
-// Función para obtener usuario actual
-function getCurrentUser() {
-    let session = null;
-    try {
-        session = JSON.parse(localStorage.getItem('lf_session')) || JSON.parse(sessionStorage.getItem('lf_session'));
-    } catch (e) {}
-    if (!session) return null;
-    const user = { ...session };
-    if (user.role === 'profesor') {
-        user.idProfesor = 1; // Asumir ID para demo
-    }
-    return user;
-}
-
-// Funciones para profesor
-async function loadProfesorGrupos() {
-    const profesor = getCurrentUser();
-    if (!profesor || profesor.role !== 'profesor') return;
-
-    try {
-        const grupos = await getGruposByProfesor(profesor.idProfesor);
-        renderGruposProfesor(grupos);
-    } catch (error) {
-        console.error('Error cargando grupos del profesor:', error);
-    }
-}
-
-function renderGruposProfesor(grupos) {
-    const container = document.getElementById('courses-container');
-    container.innerHTML = '';
-
-    if (!grupos || grupos.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-muted);padding:20px;text-align:center;">No tienes grupos creados aún.</p>';
-        return;
-    }
-
-    grupos.forEach(grupo => {
-        const card = document.createElement('div');
-        card.className = 'stat-card';
-        card.innerHTML = `
-            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
-                <div>
-                    <h5 style="margin:0;color:var(--primary);">${grupo.nombre}</h5>
-                    <p style="margin:0.25rem 0;color:var(--text-muted);font-size:0.9rem;">ID: ${grupo.idGrupo} · Centro: ${grupo.idCentro}</p>
-                </div>
-                <div style="display:flex;gap:0.5rem;">
-                    <button class="btn btn-sm btn-outline-primary" onclick="gestionarAlumnos(${grupo.idGrupo})" style="border-radius:6px;">Gestionar Alumnos</button>
-                </div>
-            </div>
-            <div id="alumnos-grupo-${grupo.idGrupo}" style="display:none;margin-top:1rem;">
-                <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
-                    <select id="select-alumno-${grupo.idGrupo}" class="form-select form-select-sm" style="flex:1;">
-                        <option value="">Seleccionar alumno</option>
-                    </select>
-                    <button class="btn btn-sm btn-success" onclick="añadirAlumnoAGrupo(${grupo.idGrupo})" style="border-radius:6px;">Añadir</button>
-                </div>
-                <div id="lista-alumnos-${grupo.idGrupo}"></div>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-}
-
-async function gestionarAlumnos(idGrupo) {
-    const wrapper = document.getElementById(`alumnos-grupo-${idGrupo}`);
-    const lista = document.getElementById(`lista-alumnos-${idGrupo}`);
-    const select = document.getElementById(`select-alumno-${idGrupo}`);
-
-    if (wrapper.style.display === 'none') {
-        wrapper.style.display = 'block';
-        try {
-            const alumnos = await getAlumnosByGrupo(idGrupo);
-            lista.innerHTML = alumnos.map(a => `
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;border:1px solid var(--border);border-radius:6px;margin-bottom:0.25rem;">
-                    <span>${a.nombre} ${a.apellidos}</span>
-                    <button class="btn btn-sm btn-danger" onclick="eliminarAlumnoDeGrupo(${idGrupo}, ${a.idAlumno})" style="border-radius:6px;">Eliminar</button>
-                </div>
-            `).join('');
-
-            // Cargar lista de alumnos disponibles para añadir
-            const allAlumnos = await gestionGruposPut.obtenerListaAlumnos();
-            select.innerHTML = '<option value="">Seleccionar alumno</option>' + allAlumnos.map(a => `<option value="${a.idAlumno}">${a.nombre} ${a.apellidos}</option>`).join('');
-        } catch (error) {
-            console.error('Error cargando alumnos:', error);
-        }
-    } else {
-        wrapper.style.display = 'none';
-    }
-}
-
-async function añadirAlumnoAGrupo(idGrupo) {
-    const select = document.getElementById(`select-alumno-${idGrupo}`);
-    const idAlumno = select.value;
-    if (!idAlumno) return;
-
-    const profesor = getCurrentUser();
-    try {
-        await gestionGruposPut.añadirAlumnoAGrupo(idGrupo, idAlumno, profesor);
-        alert('Alumno añadido correctamente');
-        gestionarAlumnos(idGrupo); // Recargar
-    } catch (error) {
-        alert('Error añadiendo alumno: ' + error.message);
-    }
-}
-
-async function eliminarAlumnoDeGrupo(idGrupo, idAlumno) {
-    const profesor = getCurrentUser();
-    try {
-        await gestionGruposPut.eliminarAlumnoDeGrupo(idGrupo, idAlumno, profesor);
-        alert('Alumno eliminado correctamente');
-        gestionarAlumnos(idGrupo); // Recargar
-    } catch (error) {
-        alert('Error eliminando alumno: ' + error.message);
-    }
-}
-
-async function saveGroup() {
-    const profesor = getCurrentUser();
-    if (!profesor) return;
-
-    const datos = {
-        idGrupo: Number(document.getElementById('mc-idGrupo').value),
-        nombre: document.getElementById('mc-nombre').value.trim(),
-        idCentro: Number(document.getElementById('mc-centro').value),
-        idProfesor: profesor.idProfesor,
-        codigo: document.getElementById('mc-codigo').value.trim() || null
-    };
-
-    try {
-        await gestionGruposPut.crearGrupo(datos, profesor);
-        closeModal('modal-course');
-        loadProfesorGrupos(); // Recargar
-        alert('Grupo creado correctamente');
-    } catch (error) {
-        alert('Error creando grupo: ' + error.message);
-    }
-}
-
-async function loadCentrosForModal() {
-    const select = document.getElementById('mc-centro');
-    try {
-        const centros = await getAllCentros();
-        select.innerHTML = '<option value="">Seleccionar centro</option>' + centros.map(c => `<option value="${c.idCentro}">${c.nombre}</option>`).join('');
-    } catch (error) {
-        select.innerHTML = '<option value="">Error cargando centros</option>';
-    }
-}
-
-function openCourseModal() {
-    loadCentrosForModal();
-    document.getElementById('modal-course').classList.add('active');
-}
-
-// Hacer funciones globales
-window.gestionarAlumnos = gestionarAlumnos;
-window.añadirAlumnoAGrupo = añadirAlumnoAGrupo;
-window.eliminarAlumnoDeGrupo = eliminarAlumnoDeGrupo;
-window.saveGroup = saveGroup;
-window.openCourseModal = openCourseModal;
-
-// Cargar cuando se muestra el panel
-document.addEventListener('DOMContentLoaded', () => {
-    // Cuando se cambia a profe-courses, cargar grupos
-    const observer = new MutationObserver(() => {
-        if (document.getElementById('profe-courses').classList.contains('active')) {
-            loadProfesorGrupos();
-        }
-    });
-    observer.observe(document.getElementById('profe-courses'), { attributes: true, attributeFilter: ['class'] });
-});
-</script>
 
 
 <!--

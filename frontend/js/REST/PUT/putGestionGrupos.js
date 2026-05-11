@@ -23,11 +23,13 @@ export class PutGestionGrupos {
         return await this.#putJson(url, datos);
     }
 
-    async eliminarAlumnoDeGrupo(idGrupo, idAlumno, usuarioActual = this.#getUsuarioActual()) {
+    async enviarInvitacion(idAlumno, idGrupo, usuarioActual = this.#getUsuarioActual()) {
         this.#validarProfesor(usuarioActual);
 
-        const url = `${API_GRUPOS}/${idGrupo}/alumnos/${idAlumno}`;
-        return await this.#deleteJson(url);
+        const url = `${API_GRUPOS}/${idGrupo}/alumnos/${idAlumno}/invitacion`;
+        const datos = { idAlumno: Number(idAlumno), idGrupo: Number(idGrupo) };
+
+        return await this.#putJson(url, datos);
     }
 
     esProfesor(usuarioActual = this.#getUsuarioActual()) {
@@ -135,6 +137,11 @@ export class PutGestionGrupos {
         return JSON.parse(text);
     }
 
+    #crearMensajeError(status, text) {
+        const msg = this.#leerMensajeError(text);
+        return msg || `Error ${status}`;
+    }
+
     #leerMensajeError(text) {
         if (!text) {
             return "";
@@ -156,24 +163,15 @@ export class PutGestionGrupos {
     async #deleteJson(url) {
         console.log("Enviando peticion DELETE grupo:", url);
 
-        const response = await fetch(url, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-
-        const text = await response.text();
-
-        if (!response.ok) {
-            throw new Error(this.#crearMensajeError(response.status, text));
+        if (status === 403) {
+            return `No se pudo crear el grupo: el usuario no tiene permisos. ${mensajeApi}`;
         }
 
-        if (!text) {
-            return true;
+        if (status === 500) {
+            return `La API ha fallado al guardar el grupo. Comprueba que idGrupo no exista y que idCentro/idProfesor sean validos. ${mensajeApi}`;
         }
 
-        return JSON.parse(text);
+        return `Error al crear el grupo: ${status} ${mensajeApi}`;
     }
 }
 

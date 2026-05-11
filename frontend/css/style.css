@@ -263,7 +263,15 @@ body.dark-mode .grupo-card {
     background-color: var(--white) !important; /* Este es el azul oscuro #1e293b */
     border: 1px solid var(--border) !important;
 }
+body.dark-mode .campo-pregunta {
+    background-color: #0f172a !important; /* Fondo profundo */
+    color: #ffffff !important;           /* Texto blanco */
+    border-color: var(--border) !important; /* Borde Slate 700 (#334155) */
+}
 
+body.dark-mode .campo-pregunta::placeholder {
+    color: #94a3b8 !important; /* Gris azulado claro para el placeholder */
+}
 /* ── FIN MODO OSCURO ── */
 
 /* =============================================
@@ -340,6 +348,24 @@ body.dark-mode .grupo-card {
 }
 .form-control:focus, .form-select:focus {
   border-color:var(--primary); box-shadow:0 0 0 3px rgba(0,85,164,.12);
+}
+.campo-pregunta {
+  background-color: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.9rem;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  transition: var(--transition);
+  width: 100%;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.campo-pregunta:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 85, 164, 0.12);
 }
 .btn-login {
   background:linear-gradient(135deg,var(--primary),#1a7fd4);
