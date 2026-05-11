@@ -148,6 +148,38 @@ body.dark-mode textarea::placeholder {
     opacity: 1; /* Firefox requiere esto */
 }
 
+/* 7. AJUSTES PARA CURSOS Y GRUPOS */
+body.dark-mode #courses-container,
+body.dark-mode .courses-container {
+    background-color: var(--bg) !important; /* Fondo general oscuro */
+    color: var(--text-main) !important;
+}
+
+/* Estilo para las tarjetas de cursos y grupos */
+body.dark-mode .grupo-card,
+body.dark-mode .course-card,
+body.dark-mode .card {
+    background-color: var(--white) !important; /* Azul grisáceo #1e293b */
+    border: 1px solid var(--border) !important;  /* Borde suave #334155 */
+    color: var(--text-main) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Títulos dentro de las tarjetas */
+body.dark-mode .grupo-card h3,
+body.dark-mode .grupo-card .title,
+body.dark-mode #courses-container h2 {
+    color: #a5b4fc !important; /* Color lavanda para destacar */
+}
+
+/* Ajuste de textos secundarios en las tarjetas */
+body.dark-mode .grupo-card p,
+body.dark-mode .grupo-card .text-muted {
+    color: var(--text-muted) !important; /* Gris azulado claro */
+}
+
+
+
 /* Internet Explorer 10-11 */
 body.dark-mode input:-ms-input-placeholder,
 body.dark-mode textarea:-ms-input-placeholder {
@@ -159,6 +191,79 @@ body.dark-mode input::-ms-input-placeholder,
 body.dark-mode textarea::-ms-input-placeholder {
     color: #94a3b8 !important;
 }
+/* ── DARK MODE: TUTOR IA ── */
+body.dark-mode .tutor-chat { background: #1a2535 !important; }
+body.dark-mode .tutor-message-bot .tutor-msg-content { background: #2e4460 !important; border-color: #4a6580 !important; color: #edf2f8 !important; }
+body.dark-mode .tutor-message-user .tutor-msg-content { background: var(--primary) !important; color: #fff !important; }
+body.dark-mode .tutor-msg-content p { color: #edf2f8 !important; }
+body.dark-mode .tutor-msg-correction { background: rgba(126,184,247,.15) !important; border-left-color: #7eb8f7 !important; color: #edf2f8 !important; }
+body.dark-mode .tutor-msg-correction strong { color: #7eb8f7 !important; }
+body.dark-mode .tutor-msg-pronunciation { background: rgba(251,191,36,.13) !important; border-left-color: #fbbf24 !important; color: #edf2f8 !important; }
+body.dark-mode .tutor-msg-tip { background: rgba(72,187,120,.13) !important; border-left-color: #48bb78 !important; color: #edf2f8 !important; }
+body.dark-mode .tutor-input-wrap { background: var(--white) !important; border-top-color: var(--border) !important; }
+body.dark-mode .tutor-input { background: #1a2535 !important; border-color: #4a6580 !important; color: #edf2f8 !important; }
+body.dark-mode .tutor-input::placeholder { color: #6a8aaa !important; }
+body.dark-mode .tutor-input:focus { border-color: var(--primary) !important; }
+body.dark-mode .tutor-hint { color: #9bb0c9 !important; }
+body.dark-mode .tutor-message-bot .tutor-msg-avatar { background: rgba(126,184,247,.2) !important; color: #7eb8f7 !important; }
+#courses-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #f5f7fb;
+}
+
+/* --- AJUSTE ESPECÍFICO PARA GRUPOS Y TARJETAS --- */
+
+/* Contenedor y tarjeta principal */
+body.dark-mode #courses-container,
+body.dark-mode .grupo-card {
+    background-color: var(--white) !important; /* Azul oscuro #1e293b */
+    border: 1px solid var(--border) !important;
+    color: var(--text-main) !important;
+}
+
+/* Ajuste para la clase grupo-info y sus textos internos */
+body.dark-mode .grupo-info {
+    color: var(--text-main) !important;
+}
+
+/* Nombre del grupo (Título) */
+body.dark-mode .grupo-card h3,
+body.dark-mode .grupo-info .grupo-nombre,
+body.dark-mode .grupo-info h4 {
+    color: #a5b4fc !important; /* Lavanda para resaltar */
+}
+
+/* Detalles secundarios dentro de grupo-info (miembros, nivel, etc.) */
+body.dark-mode .grupo-info p,
+body.dark-mode .grupo-info span,
+body.dark-mode .grupo-info .text-muted,
+body.dark-mode .grupo-detalles {
+    color: var(--text-muted) !important; /* Gris azulado #cbd5e1 */
+}
+
+/* Iconos dentro de la información del grupo */
+body.dark-mode .grupo-info i {
+    color: #a5b4fc !important;
+}
+/* Asegura que el contenedor de cursos tenga el mismo fondo que el body */
+body.dark-mode #courses-container {
+    background-color: var(--bg) !important; /* #0f172a en tu configuración */
+    border: none !important;               /* Quitamos bordes si los tuviera para que se funda con el fondo */
+}
+
+/* Si quieres que la información dentro (grupo-info) también sea transparente o del mismo color */
+body.dark-mode .grupo-info {
+    background-color: transparent !important;
+    color: var(--text-main) !important;
+}
+
+/* Las tarjetas individuales sí deberían mantener un color ligeramente distinto para resaltar */
+body.dark-mode .grupo-card {
+    background-color: var(--white) !important; /* Este es el azul oscuro #1e293b */
+    border: 1px solid var(--border) !important;
+}
+
 /* ── FIN MODO OSCURO ── */
 
 /* =============================================
@@ -1382,26 +1487,6 @@ body.dark-mode .lb-last-updated { background: #2a3a4e; border-color: #4e6680; }
   border: none;
   border-top: 2px solid #ddd;
   margin: 20px 0;
-}
-/* ── DARK MODE: TUTOR IA ── */
-body.dark-mode .tutor-chat { background: #1a2535 !important; }
-body.dark-mode .tutor-message-bot .tutor-msg-content { background: #2e4460 !important; border-color: #4a6580 !important; color: #edf2f8 !important; }
-body.dark-mode .tutor-message-user .tutor-msg-content { background: var(--primary) !important; color: #fff !important; }
-body.dark-mode .tutor-msg-content p { color: #edf2f8 !important; }
-body.dark-mode .tutor-msg-correction { background: rgba(126,184,247,.15) !important; border-left-color: #7eb8f7 !important; color: #edf2f8 !important; }
-body.dark-mode .tutor-msg-correction strong { color: #7eb8f7 !important; }
-body.dark-mode .tutor-msg-pronunciation { background: rgba(251,191,36,.13) !important; border-left-color: #fbbf24 !important; color: #edf2f8 !important; }
-body.dark-mode .tutor-msg-tip { background: rgba(72,187,120,.13) !important; border-left-color: #48bb78 !important; color: #edf2f8 !important; }
-body.dark-mode .tutor-input-wrap { background: var(--white) !important; border-top-color: var(--border) !important; }
-body.dark-mode .tutor-input { background: #1a2535 !important; border-color: #4a6580 !important; color: #edf2f8 !important; }
-body.dark-mode .tutor-input::placeholder { color: #6a8aaa !important; }
-body.dark-mode .tutor-input:focus { border-color: var(--primary) !important; }
-body.dark-mode .tutor-hint { color: #9bb0c9 !important; }
-body.dark-mode .tutor-message-bot .tutor-msg-avatar { background: rgba(126,184,247,.2) !important; color: #7eb8f7 !important; }
-#courses-container {
-    padding: 20px;
-    font-family: Arial, sans-serif;
-    background: #f5f7fb;
 }
 
 /* GRID PRINCIPAL */
