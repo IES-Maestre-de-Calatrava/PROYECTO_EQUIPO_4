@@ -21,7 +21,22 @@ export async function getGrupoById(id) {
     return grupo;
 }
 
-//si no va borrar el codigo de aqui para abajo
+export async function getGruposByNombre(nombre) {
+    try {
+        const response = await fetch(`${API}/nombre/${encodeURIComponent(nombre)}`);
+        
+        if (!response.ok) {
+            // Si no se encuentra, devolvemos lista vacía en lugar de dejar que el JSON falle
+            if (response.status === 404) return []; 
+            throw new Error(`Error ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error en getGruposByNombre:", error);
+        return []; // Siempre devolvemos un array
+    }
+}
 
 function getUserIdFromSession() {
     let sessionData = sessionStorage.getItem('lf_session_api');
@@ -84,6 +99,7 @@ async function renderGrupos() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", renderGrupos);
-
-document.addEventListener("DOMContentLoaded", function() {renderGrupos()});
+const coursesContainer = document.getElementById("courses-container");
+if (coursesContainer) {
+    document.addEventListener("DOMContentLoaded", renderGrupos);
+}

@@ -23,15 +23,6 @@ export class PutGestionGrupos {
         return await this.#putJson(url, datos);
     }
 
-    async enviarInvitacion(idAlumno, idGrupo, usuarioActual = this.#getUsuarioActual()) {
-        this.#validarProfesor(usuarioActual);
-
-        const url = `${API_GRUPOS}/${idGrupo}/alumnos/${idAlumno}/invitacion`;
-        const datos = { idAlumno: Number(idAlumno), idGrupo: Number(idGrupo) };
-
-        return await this.#putJson(url, datos);
-    }
-
     esProfesor(usuarioActual = this.#getUsuarioActual()) {
         const rol = usuarioActual?.rol || usuarioActual?.role;
         return rol?.toLowerCase() === "profesor";
