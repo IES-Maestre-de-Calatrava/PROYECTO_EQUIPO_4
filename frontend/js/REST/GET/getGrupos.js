@@ -1,40 +1,38 @@
     const API = "http://192.168.150.74:8085/api/grupos";
 
-export async function getAllGrupos(){
+export async function getAllGrupos() {
     const response = await fetch(`${API}`);
-    const grupos = await response.json();
-
-    return grupos;
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return await response.json();
 }
 
-export async function getGruposByAlumno(id){
+export async function getGruposByAlumno(id) {
     const response = await fetch(`${API}/alumno/${id}`);
-    const grupos = await response.json();
-
-    return grupos;
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return await response.json();
 }
 
 export async function getGrupoById(id) {
     const response = await fetch(`${API}/${id}`);
-    const grupo = await response.json();
-
-    return grupo;
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return await response.json();
 }
 
+// ✅ Usa ?nombre= en lugar de /nombre/{nombre} para evitar problemas con tildes y espacios
 export async function getGruposByNombre(nombre) {
     try {
-        const response = await fetch(`${API}/nombre?nombre=${encodeURIComponent(nombre)}`);
-        
+        const url = `${API}/nombre?nombre=${encodeURIComponent(nombre)}`;
+        const response = await fetch(url);
+
         if (!response.ok) {
-            // Si no se encuentra, devolvemos lista vacía en lugar de dejar que el JSON falle
-            if (response.status === 404) return []; 
+            if (response.status === 404) return [];
             throw new Error(`Error ${response.status}`);
         }
 
         return await response.json();
     } catch (error) {
         console.error("Error en getGruposByNombre:", error);
-        return []; // Siempre devolvemos un array
+        return [];
     }
 }
 
@@ -43,7 +41,7 @@ function getUserIdFromSession() {
     if (!sessionData) {
         sessionData = localStorage.getItem('lf_session_api');
     }
-    
+
     if (sessionData) {
         try {
             const data = JSON.parse(sessionData);
@@ -65,31 +63,24 @@ async function renderGrupos() {
                 "<p>Error: Usuario no autenticado.</p>";
             return;
         }
+
         const grupos = await getGruposByAlumno(userId);
         const contenedor = document.getElementById("courses-container");
 
         let html = `<h2 style="text-align:center;color:#333">GRUPOS</h2>`;
-
         html += `<div class="groups-grid">`;
 
         for (let grupo of grupos) {
             html += `
                 <div class="grupo-card" onclick="openCourse(${grupo.idGrupo})">
                     <div class="grupo-title">${grupo.nombre}</div>
-
-                    <div class="grupo-info">
-                        🏫 Centro: ${grupo.centro || '---'}
-                    </div>
-
-                    <div class="grupo-info">
-                        👨‍🎓 Alumnos: ${grupo.numAlumnos ?? '---'}
-                    </div>
+                    <div class="grupo-info">🏫 Centro: ${grupo.centro || '---'}</div>
+                    <div class="grupo-info">👨‍🎓 Alumnos: ${grupo.numAlumnos ?? '---'}</div>
                 </div>
             `;
         }
 
         html += `</div>`;
-
         contenedor.innerHTML = html;
 
     } catch (error) {
