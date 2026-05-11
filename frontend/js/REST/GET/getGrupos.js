@@ -1,34 +1,59 @@
     const API = "http://192.168.150.74:8085/api/grupos";
 
-export async function getAllGrupos(){
+export async function getAllGrupos() {
     const response = await fetch(`${API}`);
-    const grupos = await response.json();
-
-    return grupos;
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return await response.json();
 }
 
-export async function getGruposByAlumno(id){
+export async function getGruposByAlumno(id) {
     const response = await fetch(`${API}/alumno/${id}`);
-    const grupos = await response.json();
-
-    return grupos;
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return await response.json();
 }
 
 export async function getGrupoById(id) {
     const response = await fetch(`${API}/${id}`);
-    const grupo = await response.json();
-
-    return grupo;
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return await response.json();
 }
 
-//si no va borrar el codigo de aqui para abajo
+// ✅ Usa ?nombre= en lugar de /nombre/{nombre} para evitar problemas con tildes y espacios
+export async function getGruposByNombre(nombre) {
+    try {
+        const url = `${API}/nombre?nombre=${encodeURIComponent(nombre)}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            if (response.status === 404) return [];
+            throw new Error(`Error ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error en getGruposByNombre:", error);
+        return [];
+    }
+}
+
+export async function getGruposByProfesor(idProfesor) {
+    const response = await fetch(`${API}/profesor/${idProfesor}`);
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return await response.json();
+}
+
+export async function getAlumnosByGrupo(idGrupo) {
+    const response = await fetch(`${API}/${idGrupo}/alumnos`);
+    if (!response.ok) throw new Error(`Error ${response.status}`);
+    return await response.json();
+}
 
 function getUserIdFromSession() {
     let sessionData = sessionStorage.getItem('lf_session_api');
     if (!sessionData) {
         sessionData = localStorage.getItem('lf_session_api');
     }
-    
+
     if (sessionData) {
         try {
             const data = JSON.parse(sessionData);
@@ -73,6 +98,7 @@ async function renderGrupos() {
             );
 
             html += `
+<<<<<<< HEAD
                 <div class="course-card">
 
                     <span class="course-level-badge beginner">
@@ -109,12 +135,17 @@ async function renderGrupos() {
                         Empezar →
                     </button>
 
+=======
+                <div class="grupo-card" onclick="openCourse('${grupoId}')">
+                    <div class="grupo-title">${grupo.nombre}</div>
+                    <div class="grupo-info">🏫 Centro: ${grupo.centro || '---'}</div>
+                    <div class="grupo-info">👨‍🎓 Alumnos: ${grupo.numAlumnos ?? '---'}</div>
+>>>>>>> 4af22473d980d5170462ce52d562661b9d6d652f
                 </div>
             `;
         }
 
         html += `</div>`;
-
         contenedor.innerHTML = html;
 
     } catch (error) {
@@ -126,4 +157,11 @@ async function renderGrupos() {
     }
 }
 
+<<<<<<< HEAD
 document.addEventListener("DOMContentLoaded", renderGrupos);
+=======
+const coursesContainer = document.getElementById("courses-container");
+if (coursesContainer) {
+    document.addEventListener("DOMContentLoaded", renderGrupos);
+}
+>>>>>>> 4af22473d980d5170462ce52d562661b9d6d652f
