@@ -4,9 +4,11 @@ import com.grupo4.frances.JSON.LoginCredentials;
 import com.grupo4.frances.Mappers.GrupoMapper;
 import com.grupo4.frances.Repositories.AlumnoRepository;
 import com.grupo4.frances.Repositories.ConexionRepository;
+import com.grupo4.frances.Repositories.GrupoRepository;
 import com.grupo4.frances.Repositories.ProfesorRepository;
 import com.grupo4.frances.persistence.Alumno;
 import com.grupo4.frances.persistence.Conexion;
+import com.grupo4.frances.persistence.Grupo;
 import com.grupo4.frances.persistence.Profesor;
 import jakarta.transaction.Transactional;
 import org.apache.coyote.Response;
@@ -19,6 +21,7 @@ import static com.grupo4.frances.utilidades.Seguridad.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -30,12 +33,14 @@ public class AuthController {
     private final AlumnoRepository alumnoRepository;
     private final ConexionRepository conexionRepository;
     private final ProfesorRepository profesorRepository;
+    private final GrupoRepository grupoRepository;
 
     public AuthController(AlumnoRepository alumnoRepository, ConexionRepository conexionRepository,
-                          ProfesorRepository profesorRepository) {
+                          ProfesorRepository profesorRepository, GrupoRepository grupoRepository) {
         this.alumnoRepository = alumnoRepository;
         this.conexionRepository = conexionRepository;
         this.profesorRepository = profesorRepository;
+        this.grupoRepository = grupoRepository;
     }
 
     @PostMapping("/login")
@@ -56,6 +61,7 @@ public class AuthController {
             registrarConexion(alumno);
 
             Conexion conexion = conexionRepository.buscarPorIdAlumno(alumno.getIdAlumno()).orElse(null);
+            List<Grupo> grupo = grupoRepository.buscarGruposPorAlumno(alumno.getIdAlumno());
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("id",        alumno.getIdAlumno());
@@ -66,6 +72,7 @@ public class AuthController {
             respuesta.put("nivel",     alumno.getNivel());
             respuesta.put("rango",     alumno.getRango());
             respuesta.put("id_sesion", conexion.getIdsesion());
+            respuesta.put("id_grupo", grupo.get(0).getIdGrupo());
             return ResponseEntity.ok(respuesta);
         }
 
