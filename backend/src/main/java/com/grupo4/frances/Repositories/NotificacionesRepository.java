@@ -10,12 +10,12 @@ import com.grupo4.frances.persistence.Notificaciones;
 
 public interface NotificacionesRepository extends JpaRepository<Notificaciones, Long> {
 
-    @Query("SELECT N FROM NOTIFICACIONES n WHERE N.ID_ALUMNO = :idAlumno")
-    List<Notificaciones> buscarPorIdAlumno(@Param("idAlumno") String idAlumno);
+    @Query("SELECT n FROM Notificaciones n WHERE n.idAlumno = :idAlumno")
+    List<Notificaciones> buscarPorIdAlumno(@Param("idAlumno") Long idAlumno);
 
-    @Query("SELECT N FROM NOTIFICACIONES n WHERE N.TITULO = :titulo")
+    @Query("SELECT n FROM Notificaciones n WHERE n.titulo = :titulo")
     List<Notificaciones> buscarPorTitulo(@Param("titulo") String titulo);
 
-    @Query("SELECT N FROM NOTIFICACIONES n WHERE N.CODIGO = :codigo")
+    @Query("SELECT n FROM Notificaciones n WHERE n.codigo = :codigo")
     List<Notificaciones> buscarPorCodigo(@Param("codigo") String codigo);
 }

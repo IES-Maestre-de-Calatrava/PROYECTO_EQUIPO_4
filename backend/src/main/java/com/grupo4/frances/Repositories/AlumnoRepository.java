@@ -1,5 +1,6 @@
 package com.grupo4.frances.Repositories;
 
+import com.grupo4.frances.persistence.Actividad;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.grupo4.frances.persistence.Alumno;
 import org.springframework.data.jpa.repository.Query;
@@ -21,8 +22,8 @@ public interface AlumnoRepository extends JpaRepository<Alumno, Long> {
     @Query("SELECT a FROM Alumno a WHERE a.correo = :correo")
     Alumno buscarPorCorreo(@Param("correo") String correo);
 
-    @Query(value = "SELECT * FROM VISTA_ALUMNOS_PUNTOS", nativeQuery = true)
-    List<AlumnoPuntosView> findAlumnosPuntos();
+    @Query(value = "SELECT PUNTOS FROM ACTIVIDAD WHERE ID_ALUMNO = :idAlumno", nativeQuery = true)
+    List<Actividad> findPuntosAlumno(Long idAlumno);
 
     Optional<Alumno> findByCorreo(String correo);
 

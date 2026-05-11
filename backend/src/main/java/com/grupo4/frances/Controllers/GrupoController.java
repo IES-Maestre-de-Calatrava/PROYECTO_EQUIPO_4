@@ -13,10 +13,9 @@ import com.grupo4.frances.persistence.Grupo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-@CrossOrigin(origins="*")
+
 @RestController
 @RequestMapping("/api/grupos")
 public class GrupoController {
@@ -44,6 +43,27 @@ public class GrupoController {
         return repository.findById(id)
                 .map(GrupoMapper::toDTO)
                 .orElseThrow(() -> new GrupoNotFoundException(id));
+    }
+
+    @GetMapping("/alumno/{idAlumno}")
+    public ResponseEntity<?> getGruposFromAlumno(@PathVariable Long idAlumno) {
+        List<Grupo> grupos = repository.buscarGruposPorAlumno(idAlumno);
+
+        if (grupos.isEmpty()) {
+            return ResponseEntity.ok(Map.of("mensaje", "El alumno no pertenece a ningún grupo"));
+        }
+        List<Map<String, Object>> respuesta = new ArrayList<>();
+        for (Grupo g : grupos) {
+            Map<String, Object> datosGrupo = new HashMap<>();
+            datosGrupo.put("id", g.getIdGrupo());
+            datosGrupo.put("nombre", g.getNombre());
+            datosGrupo.put("codigo", g.getCodigo());
+            datosGrupo.put("id_centro", g.getCentro());
+            datosGrupo.put("id_tutor", g.getProfesor());
+
+            respuesta.add(datosGrupo);
+        }
+        return ResponseEntity.ok(respuesta);
     }
 
     @PostMapping

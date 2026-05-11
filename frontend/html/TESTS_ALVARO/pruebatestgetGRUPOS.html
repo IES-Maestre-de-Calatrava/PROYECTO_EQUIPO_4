@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Gestion Grupos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 24px;
+        }
+
+        button {
+            margin: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        input {
+            margin: 4px;
+            padding: 7px;
+            width: 280px;
+        }
+
+        label {
+            display: block;
+            margin-top: 8px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 12px;
+            white-space: pre-wrap;
+        }
+
+        .error {
+            color: #b00020;
+            font-weight: bold;
+        }
+
+        .ok {
+            color: #0a7a22;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Test Gestion Grupos</h1>
+
+    <h2>GET grupos</h2>
+    <button id="btnGrupos">Obtener todos los grupos</button>
+
+    <label for="buscarIdGrupo">ID grupo</label>
+    <input type="number" id="buscarIdGrupo" placeholder="ID grupo">
+    <button id="btnGrupoId">Buscar grupo por ID</button>
+
+    <hr>
+
+    <h2>Crear grupo como profesor</h2>
+
+    <button id="btnSesionProfesor">Simular sesion profesor</button>
+    <button id="btnBorrarSesion">Borrar sesion</button>
+
+    <label for="idGrupo">ID grupo nuevo</label>
+    <input type="number" id="idGrupo">
+
+    <label for="nombreGrupo">Nombre grupo</label>
+    <input type="text" id="nombreGrupo" value="Grupo prueba">
+
+    <label for="idCentro">ID centro</label>
+    <input type="number" id="idCentro" value="1">
+
+    <label for="idProfesor">ID profesor</label>
+    <input type="number" id="idProfesor" value="2">
+
+    <label for="codigo">Codigo opcional</label>
+    <input type="text" id="codigo" placeholder="Opcional">
+
+    <div>
+        <button id="btnCrearGrupo">Crear grupo con API</button>
+    </div>
+
+    <p id="estado"></p>
+    <pre id="resultado">Pulsa un boton para probar la API de grupos.</pre>
+
+    <script type="module">
+        import { getAllGrupos, getGrupoById } from "../../js/REST/GET/getGrupos.js";
+        //import { gestionGruposPut } from "../../js/REST/PUT/putGestionGrupos.js";
+
+        document.getElementById("btnGrupos").addEventListener("click", async () => {
+            try {
+                const grupos = await getAllGrupos();
+                document.getElementById("estado").innerHTML = '<span class="ok">✓ Carga exitosa</span>';
+                
+                let tabla = `
+                <h3>GRUPOS</h3>
+                <table border="1" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">
+                    <thead style="background-color: #f2f2f2;">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Curso</th>
+                            <th>Centro</th>
+                            <th>Nº Alumnos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+                
+                for (let grupo of grupos) {
+                    tabla += `
+                        <tr>
+                            <td style="padding: 8px; text-align: center;">${grupo.idGrupo}</td>
+                            <td style="padding: 8px;"><strong>${grupo.nombre}</strong></td>
+                            <td style="padding: 8px;">${grupo.curso || '---'}</td>
+                            <td style="padding: 8px;">${grupo.centro || grupo.idCentro || '---'}</td>
+                            <td style="padding: 8px; text-align: center;">${grupo.numAlumnos ?? '---'}</td>
+                        </tr>
+                    `;
+                }
+                
+                tabla += `</tbody></table>`;
+                document.getElementById("resultado").innerHTML = tabla;
+            } catch (error) {
+                document.getElementById("estado").innerHTML = '<span class="error">✗ Error: ' + error.message + '</span>';
+                document.getElementById("resultado").textContent = error.message;
+            }
+        });
+
+        document.getElementById("btnGrupoId").addEventListener("click", async () => {
+            const id = document.getElementById("buscarIdGrupo").value;
+            if (!id) {
+                document.getElementById("estado").innerHTML = '<span class="error">✗ Ingresa un ID</span>';
+                return;
+            }
+            try {
+                const resultado = await getGrupoById(id);
+                document.getElementById("estado").innerHTML = '<span class="ok">✓ Grupo encontrado</span>';
+                document.getElementById("resultado").textContent = JSON.stringify(resultado, null, 2);
+            } catch (error) {
+                document.getElementById("estado").innerHTML = '<span class="error">✗ Error: ' + error.message + '</span>';
+                document.getElementById("resultado").textContent = error.message;
+            }
+        });
+    </script>
+</body>
+
+</html>

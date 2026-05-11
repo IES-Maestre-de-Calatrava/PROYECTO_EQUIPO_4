@@ -1,15 +1,15 @@
 package com.grupo4.frances.DTO;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class NotificacionesDTO {
 
     private Long idNotificacion;
 
-    @NotBlank
-    @Size(max = 20)
-    private String idAlumno;
+    @NotNull
+    private Long idAlumno;
 
     @NotBlank
     @Size(max = 100)
@@ -26,7 +26,7 @@ public class NotificacionesDTO {
     }
 
     // Constructor completo
-    public NotificacionesDTO(Long idNotificacion, String idAlumno, String titulo, String mensaje, String codigo) {
+    public NotificacionesDTO(Long idNotificacion, Long idAlumno, String titulo, String mensaje, String codigo) {
         this.idNotificacion = idNotificacion;
         this.idAlumno = idAlumno;
         this.titulo = titulo;
@@ -43,11 +43,11 @@ public class NotificacionesDTO {
         this.idNotificacion = idNotificacion;
     }
 
-    public String getIdAlumno() {
+    public Long getIdAlumno() {
         return idAlumno;
     }
 
-    public void setIdAlumno(String idAlumno) {
+    public void setIdAlumno(Long idAlumno) {
         this.idAlumno = idAlumno;
     }
 

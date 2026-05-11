@@ -1,0 +1,2005 @@
+/* =============================================================
+   Le Français
+   ✓ Login: sin registro visible, sin hint demo en UI
+   ✓ Leaderboard: podio visual, solo alumnos, profesor excluido
+   ✓ % acierto: añadido al alumno, eliminado del panel profesor
+   ✓ Settings: dark mode toggle + cambio contraseña
+   ✓ Editor ejercicios: 4 tipos (test, fill, match, image)
+   ✓ Rol Director: estructura lista para backend
+   ✓ Generación automática username + contraseña (Director)
+   ✓ Modo oscuro: clase body.dark-mode, persistido en localStorage
+============================================================= */
+
+/* ─── DATA ─── */
+const LEVELS = [
+  { id:'basico',     label:'A1 — Básico',     min:0,    max:2000,    icon:'🔵', class:''          ,          desc:'Empezando tu aventura en francés' },
+  { id:'elemental',  label:'A2 — Elemental',  min:2000, max:5000,    icon:'🟡', class:'elemental',  desc:'Construyendo bases sólidas' },
+  { id:'intermedio', label:'B1 — Intermedio', min:5000, max:9000,    icon:'🟢', class:'intermedio', desc:'Comunicándote con fluidez' },
+  { id:'avanzado',   label:'B2 — Avanzado',   min:9000, max:Infinity,icon:'🏆', class:'avanzado',   desc:'¡Maestro del francés!' },
+];
+
+const MOTIVATIONAL_MSGS = [
+  { icon:'🎯', msg:'¡Vas genial! Sigue así 🔥' },
+  { icon:'💪', msg:'Cada ejercicio te acerca a la fluidez' },
+  { icon:'🌟', msg:'¡Increíble progreso! No pares ahora' },
+  { icon:'🚀', msg:'¡Nivel desbloqueado... casi ahí! 👀' },
+  { icon:'🎉', msg:'¡Eres una máquina del francés!' },
+  { icon:'⚡', msg:'¡Racha perfecta! Mantén el ritmo' },
+];
+
+/* Usuarios demo — en código, nunca en la UI */
+const MOCK_USERS = [
+  { email:'alumno@test.com',   password:'1234',  name:'Alumno Demo',   role:'alumno'   },
+  { email:'profesor@test.com', password:'1234',  name:'Profesor Demo', role:'profesor' },
+  { email:'director@test.com', password:'admin', name:'Director Demo', role:'director' },
+];
+
+/* Solo alumnos en el leaderboard */
+const MOCK_STUDENTS = [
+  { name:'Ana García',     initials:'AG', color:'#0055A4', points:3400, level:'elemental',  exercises:28, lastSeen:'Hace 2h',    time:'4h 30m', course:'A2', role:'alumno' },
+  { name:'Carlos López',   initials:'CL', color:'#059669', points:890,  level:'basico',     exercises:12, lastSeen:'Hace 1 día', time:'1h 15m', course:'A1', role:'alumno' },
+  { name:'Marta Ruiz',     initials:'MR', color:'#d97706', points:9200, level:'intermedio', exercises:76, lastSeen:'Hace 30min', time:'12h',    course:'B1', role:'alumno' },
+  { name:'Luis Fernández', initials:'LF', color:'#7c3aed', points:1750, level:'basico',     exercises:19, lastSeen:'Hace 3 días',time:'2h 45m', course:'A1', role:'alumno' },
+  { name:'Sofía Jiménez',  initials:'SJ', color:'#EF4135', points:5100, level:'elemental',  exercises:41, lastSeen:'Ayer',       time:'7h 20m', course:'A2', role:'alumno' },
+];
+
+/* Lista de todos los usuarios del sistema (para panel director) */
+let SYSTEM_USERS = [
+  ...MOCK_STUDENTS.map(s => ({ ...s, email: s.name.toLowerCase().replace(' ','.')+  '@centro.es', username: s.initials.toLowerCase() })),
+  { name:'Profesor Demo', initials:'PD', color:'#1a70c1', role:'profesor', email:'profesor@test.com', username:'pdemo', points:0, level:'—', exercises:0, lastSeen:'—', time:'—', course:'—' },
+];
+
+/**
+ * COURSES se carga desde la BD al iniciar la app (enterApp).
+ * No contiene datos hardcodeados.
+ * Estructura: [{ id, title, level, badge, desc, activities:[{id, title, subtitle, icon, deadline, maxTime, exercises:[]}] }]
+ */
+let COURSES = [];
+/* ─── STATE ─── */
+const state = {
+  currentUser: null, selectedRole: 'alumno',
+  isImpersonating: false, savedProfePanel: null,
+  score: 0, exercisesDone: 0, activitiesDone: 0,
+  correctAnswers: 0, totalAnswers: 0, currentLevel: 'basico',
+  currentCourseId: null, currentActivityId: null,
+  currentExerciseIndex: 0, exerciseSessionScore: 0,
+  exerciseAnswered: false, completedActivities: new Set(),
+  activityTimer: null, activityTimeLeft: 0,
+  sessionStart: null, sessionTimerInterval: null,
+  editorActivityId: null, editorCourseId: null,
+  editingCourseId: null, editingActivityId: null, editingExerciseIndex: null,
+  courseNotes: {},
+  /* match exercise state */
+  matchSelected: null,
+  matchPairs: [],
+  matchMatched: new Set(),
+};
+
+/* ─── AUTH ─── */
+function selectRole(role) {
+  state.selectedRole = role;
+  ['alumno','profesor','director'].forEach(r => {
+    document.getElementById('role-'+r)?.classList.toggle('active', r === role);
+  });
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value.trim();
+  if (!email || !pass) { showLoginError('Por favor completa todos los campos.'); return; }
+
+  let user = MOCK_USERS.find(u => u.email === email && u.password === pass);
+  if (!user) {
+    if (email.includes('@') && pass.length >= 4) {
+      user = { email, password:pass, name:email.split('@')[0], role:state.selectedRole };
+    } else {
+      showLoginError('Credenciales incorrectas.');
+      return;
+    }
+  }
+  /* El role del mock tiene prioridad sobre el selector, excepto para usuarios genéricos */
+  if (MOCK_USERS.find(u => u.email === email)) {
+    state.currentUser = { ...user }; // mantiene role del mock
+  } else {
+    state.currentUser = { ...user, role: state.selectedRole };
+  }
+
+  if (document.getElementById('remember-me').checked) {
+    try { localStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role, name: state.currentUser.name })); } catch(e) {}
+  } else {
+    try { sessionStorage.setItem('lf_session', JSON.stringify({ email, role: state.currentUser.role, name: state.currentUser.name })); } catch(e) {}
+  }
+  document.getElementById('login-error').classList.add('d-none');
+  //REDIRIGIR A LA PAGINA INDEX
+
+  console.log("Login correcto, redirigiendo...");
+  window.location.href="./index.html";
+}
+async function doRegister() {
+    const nombre        = document.getElementById('reg-nombre').value.trim();
+    const apellidos     = document.getElementById('reg-apellidos').value.trim();
+    const correo        = document.getElementById('reg-correo').value.trim();
+    const contrasena    = document.getElementById('reg-contrasena').value.trim();
+    const confirmPass   = document.getElementById('reg-confirmar').value.trim();
+
+    if (!nombre || !apellidos || !correo || !contrasena) {
+        showRegMsg('Por favor, rellena todos los campos.', 'danger');
+        return;
+    }
+    if (contrasena !== confirmPass) {
+        showRegMsg('Las contraseñas no coinciden.', 'danger');
+        return;
+    }
+    if (contrasena.length < 4) {
+        showRegMsg('La contraseña debe tener al menos 4 caracteres.', 'danger');
+        return;
+    }
+
+ try {
+    const response = await fetch('http://192.168.150.74:8085/api/admin/alumnos?idDirector=1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+        nombreUsuario: generarUsernameDesdeNombre(nombre, apellidos),
+        contrasena: contrasena,
+        nombre: nombre,
+        apellidos: apellidos,
+        instituto: "",
+        telefono: 0,
+        correo: correo,
+        nivel: "A1",
+        rango: "Bronce",
+        grupos: []
+})
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        // manejar error
+        console.error(data.error);
+        return;
+    }
+
+    // éxito
+    console.log('Alumno creado:', data);
+
+} catch (err) {
+    console.error('Error de conexión:', err);
+}
+  try{
+        const data = await response.json();
+
+        if (!response.ok) {
+            showRegMsg(data.error || 'Error al crear la cuenta.', 'danger');
+            return;
+        }
+
+        showRegMsg('✅ Cuenta creada correctamente. Ya puedes iniciar sesión.', 'success');
+        setTimeout(() => window.location.href = 'login.html', 1500);
+
+    } catch (err) {
+        showRegMsg('No se pudo conectar con el servidor.', 'danger');
+    }
+}
+
+function showRegMsg(msg, tipo) {
+    const div = document.getElementById('reg-error');
+    div.textContent = msg;
+    div.className = `alert alert-${tipo} py-2 px-3`;
+    div.style.fontSize = '.85rem';
+    div.style.borderRadius = '8px';
+    div.classList.remove('d-none');
+}
+
+function generarUsernameDesdeNombre(nombre, apellidos) {
+    const n = nombre.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
+    const a = apellidos.split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
+    return n + '.' + a + Math.floor(Math.random() * 99);
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.classList.remove('d-none');
+}
+
+function doLogout() {
+  clearActivityTimer();
+  clearInterval(state.sessionTimerInterval);
+  try { localStorage.removeItem('lf_session'); } catch(e) {}
+  Object.assign(state, {
+    currentUser:null, score:0, exercisesDone:0, activitiesDone:0,
+    correctAnswers:0, totalAnswers:0, completedActivities:new Set(),
+    isImpersonating:false, courseNotes:{},
+  });
+  showScreen('screen-login');
+  document.getElementById('login-email').value    = '';
+  document.getElementById('login-password').value = '';
+}
+
+function enterApp() {
+  const user = state.currentUser;
+  document.getElementById('nav-avatar').textContent   = user.name.substring(0,2).toUpperCase();
+  document.getElementById('nav-username').textContent = user.name;
+  const pmAvatar = document.getElementById('pm-avatar');
+  const pmName   = document.getElementById('pm-name');
+  const pmRole   = document.getElementById('pm-role');
+  const pmDark   = document.getElementById('pm-dark-toggle');
+  if (pmAvatar) pmAvatar.textContent = user.name.substring(0,2).toUpperCase();
+  if (pmName)   pmName.textContent   = user.name;
+  if (pmRole)   pmRole.textContent   = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+  if (pmDark)   pmDark.checked       = localStorage.getItem('lf_darkmode') === '1';
+  const pill = document.getElementById('nav-role-pill');
+
+  ['sidebar-alumno','sidebar-profesor','sidebar-director'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+
+  if (user.role === 'alumno') {
+    pill.textContent = 'Alumno';
+    pill.className   = 'user-role-pill';
+    document.getElementById('sidebar-alumno').style.display = '';
+    buildCourses().then(() => updateDashboard()); showPanel('dashboard'); startSessionTimer();
+  } else if (user.role === 'profesor') {
+    pill.textContent = 'Profesor';
+    pill.className   = 'user-role-pill profesor';
+    document.getElementById('sidebar-profesor').style.display = '';
+    buildProfeDashboard(); buildStudents(); buildProfeCourses(); buildProfeLeaderboard();
+    showPanel('profe-dashboard');
+  } else if (user.role === 'director') {
+    pill.textContent = 'Director';
+    pill.className   = 'user-role-pill director';
+    document.getElementById('sidebar-director').style.display = '';
+    buildDirectorUsers(); showPanel('director-dashboard');
+  }
+  seedChat();
+  showScreen('screen-app');
+}
+
+function showNotifications(event) {
+  if (event) event.stopPropagation();
+  showToastAlert('No tienes notificaciones nuevas.', 'info');
+}
+
+function toggleProfileMenu(event) {
+  event.stopPropagation();
+  const menu = document.getElementById('profile-menu');
+  const dropdown = document.getElementById('profile-dropdown');
+  if (!menu) return;
+  const isOpen = menu.classList.toggle('active');
+  if (dropdown) dropdown.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+
+function closeProfileMenu() {
+  const menu = document.getElementById('profile-menu');
+  const dropdown = document.getElementById('profile-dropdown');
+  if (!menu) return;
+  menu.classList.remove('active');
+  if (dropdown) dropdown.setAttribute('aria-expanded', 'false');
+}
+
+document.addEventListener('click', closeProfileMenu);
+
+function openProfileSettings() {
+  closeProfileMenu();
+  populateProfileModal();
+  openModal('modal-profile');
+}
+
+function populateProfileModal() {
+  const user = state.currentUser;
+  if (!user) return;
+  document.getElementById('profile-username').value = user.email ? user.email.split('@')[0] : 'usuario';
+  document.getElementById('profile-name').value = user.name || '';
+  document.getElementById('profile-email').value = user.email || '';
+  const msg = document.getElementById('profile-msg');
+  if (msg) msg.classList.add('d-none');
+}
+
+function saveProfileChanges() {
+  const name = document.getElementById('profile-name').value.trim();
+  const email = document.getElementById('profile-email').value.trim();
+  const msg = document.getElementById('profile-msg');
+  if (!name || !email) {
+    msg.textContent = 'Nombre y correo son obligatorios.';
+    msg.className = 'alert alert-danger py-2 px-3';
+    msg.classList.remove('d-none');
+    return;
+  }
+  const user = state.currentUser;
+  if (!user) return;
+  user.name = name;
+  user.email = email;
+  document.getElementById('nav-avatar').textContent = name.substring(0,2).toUpperCase();
+  document.getElementById('nav-username').textContent = name;
+  const dashName = document.getElementById('dash-name');
+  if (dashName) dashName.textContent = name.split(' ')[0];
+  try {
+    const saved = localStorage.getItem('lf_session');
+    if (saved) {
+      const session = JSON.parse(saved);
+      session.email = email;
+      localStorage.setItem('lf_session', JSON.stringify(session));
+    }
+  } catch(e) {}
+  showToastAlert('Perfil actualizado.', 'info');
+  closeModal('modal-profile');
+}
+
+/* ─── IMPERSONATION ─── */
+function startImpersonation() {
+  state.isImpersonating = true;
+  document.getElementById('teacher-impersonation-mode').classList.add('visible');
+  document.getElementById('sidebar-profesor').style.display = 'none';
+  document.getElementById('sidebar-alumno').style.display   = '';
+  const pill = document.getElementById('nav-role-pill');
+  pill.textContent = 'Vista Alumno';
+  pill.className   = 'user-role-pill';
+  buildCourses().then(() => updateDashboard()); showPanel('dashboard');
+}
+
+function exitImpersonation() {
+  state.isImpersonating = false;
+  document.getElementById('teacher-impersonation-mode').classList.remove('visible');
+  document.getElementById('sidebar-alumno').style.display   = 'none';
+  document.getElementById('sidebar-profesor').style.display = '';
+  const pill = document.getElementById('nav-role-pill');
+  pill.textContent = 'Profesor';
+  pill.className   = 'user-role-pill profesor';
+  showPanel('profe-dashboard');
+}
+
+/* ─── SCREEN / PANEL NAV ─── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  const map = {
+    'dashboard':'Inicio','courses':'Cursos','leaderboard':'Leaderboard',
+    'progress':'Mi progreso','messages':'Mensajes','tutor':'Tutor IA','settings':'Configuración',
+    'profe-dashboard':'Inicio','profe-students':'Alumnos',
+    'profe-leaderboard':'Leaderboard','profe-courses':'Cursos',
+    'activity-editor':'Editor actividades',
+    'director-dashboard':'Panel Director','director-users':'Usuarios',
+  };
+  const label = map[id];
+  if (label) {
+    document.querySelectorAll('.sidebar-item').forEach(b => {
+      if (b.textContent.trim().startsWith(label)) b.classList.add('active');
+    });
+  }
+  if (id === 'leaderboard')       buildLeaderboard('leaderboard-content', false, _lbTabAlumno);
+  if (id === 'profe-leaderboard') buildLeaderboard('profe-leaderboard-content', true, _lbTabProfe);
+  if (id === 'progress')          buildProgressCourseList();
+}
+
+/* ─── TIMERS ─── */
+function startSessionTimer() {
+  state.sessionStart = Date.now();
+  clearInterval(state.sessionTimerInterval);
+  state.sessionTimerInterval = setInterval(() => {
+    const mins = Math.floor((Date.now() - state.sessionStart) / 60000);
+    const el = document.getElementById('prog-session-time');
+    if (el) el.textContent = mins < 1 ? 'Menos de 1 min' : `${mins} min`;
+  }, 10000);
+}
+
+function startActivityTimer(minutes) {
+  clearActivityTimer();
+  if (!minutes || minutes <= 0) return;
+  state.activityTimeLeft = minutes * 60;
+  const display = document.getElementById('global-timer');
+  const valEl   = document.getElementById('timer-val');
+  display.classList.add('visible');
+  state.activityTimer = setInterval(() => {
+    state.activityTimeLeft--;
+    const m = String(Math.floor(state.activityTimeLeft / 60)).padStart(2,'0');
+    const s = String(state.activityTimeLeft % 60).padStart(2,'0');
+    valEl.textContent = `${m}:${s}`;
+    if (state.activityTimeLeft <= 30) display.classList.add('urgent');
+    if (state.activityTimeLeft <= 0) {
+      clearActivityTimer();
+      showToastAlert('⏰ ¡Tiempo agotado!', 'warning');
+      setTimeout(() => showPanel('activity-container'), 2000);
+    }
+  }, 1000);
+}
+
+function clearActivityTimer() {
+  clearInterval(state.activityTimer);
+  document.getElementById('global-timer').classList.remove('visible','urgent');
+  document.getElementById('timer-val').textContent = '00:00';
+}
+
+function showToastAlert(msg, type) {
+  const t = document.getElementById('feedback-toast');
+  t.querySelector('#toast-icon').textContent    = type === 'warning' ? '⏰' : 'ℹ️';
+  t.querySelector('#toast-msg').textContent     = msg;
+  t.querySelector('#toast-points').textContent  = '';
+  t.className = 'feedback-toast show';
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ─── DASHBOARD ─── */
+function updateDashboard() {
+  const acc = state.totalAnswers > 0
+    ? Math.round((state.correctAnswers / state.totalAnswers) * 100) + '%' : '—';
+
+  document.getElementById('user-score').textContent           = state.score.toLocaleString();
+  document.getElementById('dash-exercises-done').textContent  = state.exercisesDone;
+  document.getElementById('dash-activities-done').textContent = state.activitiesDone;
+  document.getElementById('dash-accuracy').textContent        = acc;
+  document.getElementById('prog-score').textContent           = state.score.toLocaleString();
+  const progAcc = document.getElementById('prog-accuracy');
+  if (progAcc) progAcc.textContent = acc;
+
+  const lvl = getLevelData();
+  state.currentLevel = lvl.id;
+  document.getElementById('level-indicator').textContent      = lvl.label;
+  document.getElementById('prog-level').textContent           = lvl.label;
+  document.getElementById('level-desc').textContent           = lvl.desc;
+  document.getElementById('level-icon').textContent           = lvl.icon;
+  document.getElementById('level-card').className             = 'level-card mb-4 ' + lvl.class;
+
+  const range = lvl.max === Infinity ? state.score - lvl.min : lvl.max - lvl.min;
+  const done  = lvl.max === Infinity ? range : state.score - lvl.min;
+  const pct   = Math.min(100, Math.round((done / range) * 100));
+  document.getElementById('level-progress-fill').style.width = pct + '%';
+
+  const nextLvl = LEVELS.find(l => l.min > lvl.min);
+  if (nextLvl) {
+    const rem = nextLvl.min - state.score;
+    document.getElementById('level-progress-label').textContent = `Progreso hacia ${nextLvl.label}`;
+    document.getElementById('level-next').textContent = `Te faltan ${rem.toLocaleString()} puntos para ${nextLvl.label}`;
+  } else {
+    document.getElementById('level-progress-label').textContent = '¡Nivel máximo alcanzado! 🏆';
+    document.getElementById('level-next').textContent = 'Eres un maestro del francés';
+  }
+
+  const m = MOTIVATIONAL_MSGS[Math.floor(Math.random() * MOTIVATIONAL_MSGS.length)];
+  document.getElementById('motivational-banner').querySelector('.msg-icon').textContent = m.icon;
+  document.getElementById('motivational-msg').textContent = m.msg;
+  document.getElementById('dash-name').textContent = state.currentUser.name.split(' ')[0];
+
+  buildQuickCourses();
+  buildProgressCourseList();
+}
+
+function getLevelData() {
+  return LEVELS.slice().reverse().find(l => state.score >= l.min) || LEVELS[0];
+}
+
+function buildQuickCourses() {
+  document.getElementById('quick-courses').innerHTML =
+    COURSES.slice(0,3).map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('');
+}
+
+/* ─── COURSES ─── */
+async function buildCourses() {
+  const container = document.getElementById('courses-container');
+  if (!container) return;
+  container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">Cargando grupos...</p>';
+  try {
+    // Obtener grupos del alumno desde la BD
+    const sessionRaw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
+    let grupos = [];
+    if (sessionRaw) {
+      const session = JSON.parse(sessionRaw);
+      const idAlumno = session.id_user || session.id;
+      if (idAlumno) {
+        const res = await fetch(`http://192.168.150.74:8085/api/grupos/alumno/${idAlumno}`);
+        if (res.ok) {
+          const data = await res.json();
+          grupos = Array.isArray(data) ? data : [];
+        }
+      }
+    }
+    if (grupos.length === 0) {
+      // Fallback: mostrar todos los grupos si no hay por alumno
+      const res = await fetch('http://192.168.150.74:8085/api/grupos');
+      if (res.ok) grupos = await res.json();
+    }
+    // Mapear grupos de BD al formato COURSES y actualizar estado global
+    COURSES = grupos.map(g => _mapGrupoToCourse(g));
+    container.innerHTML = COURSES.length
+      ? COURSES.map(c => `<div class="col-md-4 col-sm-6">${courseCardHTML(c)}</div>`).join('')
+      : '<p style="text-align:center;color:var(--text-muted);padding:2rem;">No perteneces a ningún grupo todavía.</p>';
+  } catch (err) {
+    console.error('buildCourses error:', err);
+    container.innerHTML = '<p style="color:red;text-align:center;">Error al cargar grupos.</p>';
+  }
+}
+
+/**
+ * Convierte un grupo de la BD al formato interno de COURSES.
+ * Las actividades se cargan bajo demanda al abrir el grupo (openCourse).
+ */
+function _mapGrupoToCourse(g) {
+  const badgeMap = { A1:'badge-a1', A2:'badge-a2', B1:'badge-b1', B2:'badge-b1' };
+  const nivel = g.nivel || g.level || 'A1';
+  return {
+    id: String(g.id || g.idGrupo),
+    _idBD: g.id || g.idGrupo,   // ID real de BD para llamadas API
+    title: g.nombre || g.title || 'Grupo',
+    level: nivel,
+    badge: badgeMap[nivel] || 'badge-a1',
+    desc: g.descripcion || g.desc || '',
+    centro: g.id_centro || g.idCentro || null,
+    activities: [],              // Se cargan al abrir el grupo
+    _actividadesCargadas: false,
+  };
+}
+
+function courseCardHTML(c) {
+  const total = c.activities.reduce((s,a) => s + a.exercises.length, 0);
+  const done  = c.activities.filter(a => state.completedActivities.has(a.id)).length;
+  const pct   = Math.round((done / Math.max(1, c.activities.length)) * 100);
+  return `<div class="course-card">
+    <span class="course-level-badge ${c.badge}">${c.level}</span>
+    <div class="course-title">${c.title}</div>
+    <div class="course-meta">${c.desc}</div>
+    <div class="course-meta mt-1">${c.activities.length} actividades · ${total} ejercicios</div>
+    <div class="course-progress-bar"><div class="course-progress-fill" style="width:${pct}%"></div></div>
+    <div class="course-progress-text">${done}/${c.activities.length} actividades completadas</div>
+    <button class="btn-course" onclick="openCourse('${c.id}')">
+      ${done === 0 ? 'Empezar' : done < c.activities.length ? 'Continuar' : 'Revisar'} →
+    </button>
+  </div>`;
+}
+
+async function openCourse(courseId) {
+  const course = COURSES.find(c => c.id === courseId);
+  if (!course) return;
+  state.currentCourseId = courseId;
+  document.getElementById('activity-course-title').textContent = course.title;
+  const notesWrap = document.getElementById('activity-notes-wrap');
+  const notesTA   = document.getElementById('activity-notes');
+  notesWrap.style.display = '';
+  notesTA.value = state.courseNotes[courseId] || '';
+  showPanel('activity-container');
+
+  // Cargar actividades reales desde la BD si aún no se han cargado
+  if (!course._actividadesCargadas && course._idBD) {
+    const listEl = document.getElementById('activity-list');
+    if (listEl) listEl.innerHTML = '<p style="padding:1rem;color:var(--text-muted);">Cargando actividades...</p>';
+    try {
+      const res = await fetch(`http://192.168.150.74:8085/actividad/grupo/${course._idBD}`);
+      if (res.ok) {
+        const actividades = await res.json();
+        course.activities = actividades.map(a => _mapActividadToActivity(a));
+        course._actividadesCargadas = true;
+      } else {
+        console.warn(`No se pudieron cargar actividades para grupo ${course._idBD}: HTTP ${res.status}`);
+        course.activities = [];
+        course._actividadesCargadas = true;
+      }
+    } catch (err) {
+      console.error('Error cargando actividades:', err);
+      course.activities = [];
+      course._actividadesCargadas = true;
+    }
+  }
+  buildActivityList(course);
+}
+
+/**
+ * Convierte una actividad de la BD al formato interno de exercises.
+ * Las preguntas/respuestas se almacenan como JSON en la BD.
+ */
+function _mapActividadToActivity(a) {
+  let exercises = [];
+  try {
+    const preguntas  = a.preguntas  ? JSON.parse(a.preguntas)  : [];
+    const respuestas = a.respuestas ? JSON.parse(a.respuestas) : [];
+    // Construir ejercicios tipo "fill" con cada pregunta/respuesta
+    exercises = preguntas.map((q, i) => ({
+      type: 'fill',
+      question: q,
+      correct: respuestas[i] || '',
+      hint: '',
+      _puntosPorPregunta: Math.max(1, Math.round((a.puntos || 10) / Math.max(1, preguntas.length))),
+    }));
+  } catch {}
+  return {
+    id: String(a.idActividad),
+    _idBD: a.idActividad,
+    title: a.nombre || 'Actividad',
+    subtitle: `Dificultad: ${a.dificultad || '---'} · Entrega: ${a.fechaEntrega || '---'}`,
+    icon: 'bi-book-fill',
+    deadline: a.fechaEntrega || '',
+    maxTime: _parseDuracion(a.duracion),
+    puntosBD: a.puntos || 10,
+    exercises,
+  };
+}
+
+function _parseDuracion(duracion) {
+  if (!duracion) return 0;
+  const n = parseInt(duracion);
+  return isNaN(n) ? 0 : n;
+}
+
+function saveNotes() {
+  if (state.currentCourseId) {
+    state.courseNotes[state.currentCourseId] = document.getElementById('activity-notes').value;
+    try { localStorage.setItem('lf_notes', JSON.stringify(state.courseNotes)); } catch(e) {}
+  }
+}
+
+/* ─── ACTIVITIES ─── */
+function buildActivityList(course) {
+  const isTeacher = state.currentUser.role === 'profesor' && !state.isImpersonating;
+  document.getElementById('activity-list').innerHTML = course.activities.map((act, i) => {
+    const done      = state.completedActivities.has(act.id);
+    const statusCls = done ? 'status-done' : 'status-pending';
+    const statusTxt = done ? '✓ Completada' : 'Pendiente';
+    const deadline  = act.deadline ? `<span class="activity-deadline"><i class="bi bi-calendar3 me-1"></i>Límite: ${act.deadline}</span>` : '';
+    const timerBadge= act.maxTime  ? `<span class="activity-timer-badge"><i class="bi bi-stopwatch me-1"></i>${act.maxTime} min</span>` : '';
+    const teacherBtns = isTeacher ? `
+      <div class="activity-teacher-actions ms-2">
+        <button class="btn btn-sm btn-outline-primary" style="border-radius:6px;font-size:.75rem;" onclick="event.stopPropagation();editActivity('${course.id}','${act.id}')"><i class="bi bi-pencil"></i></button>
+        <button class="btn-danger-custom" style="padding:.3rem .55rem;font-size:.72rem;" onclick="event.stopPropagation();deleteActivity('${course.id}','${act.id}')"><i class="bi bi-trash"></i></button>
+      </div>` : '';
+    return `<div class="activity-item ${isTeacher ? 'teacher-item' : ''}" onclick="${isTeacher ? '' : `openActivity('${course.id}','${act.id}')`}">
+      <div class="activity-icon"><i class="bi ${act.icon || 'bi-book'}"></i></div>
+      <div class="activity-info">
+        <div class="activity-title">${i+1}. ${act.title}</div>
+        <div class="activity-subtitle">${act.subtitle} · ${act.exercises.length} ejercicios</div>
+        <div class="activity-meta-row">${deadline}${timerBadge}</div>
+      </div>
+      <span class="activity-status ${statusCls}">${statusTxt}</span>
+      ${teacherBtns}
+    </div>`;
+  }).join('');
+}
+
+function openActivity(courseId, activityId) {
+  const course   = COURSES.find(c => c.id === courseId);
+  const activity = course.activities.find(a => a.id === activityId);
+  state.currentCourseId      = courseId;
+  state.currentActivityId    = activityId;
+  state.exerciseSessionScore = 0;
+  state.currentExerciseIndex = 0;
+  if (activity.maxTime > 0) startActivityTimer(activity.maxTime);
+  document.getElementById('exercise-back-btn').onclick = () => { clearActivityTimer(); showPanel('activity-container'); };
+  loadExercise(activity, 0);
+  showPanel('exercise-panel');
+}
+
+/* ─── SCORING ─── */
+function applyPoints(pts) {
+  const prevLevel = getLevelData().id;
+  state.score = Math.max(0, state.score + pts);
+  state.exerciseSessionScore += pts;
+  state.exercisesDone++;
+  document.getElementById('ex-points-live').textContent = state.exerciseSessionScore;
+  const pop = document.createElement('div');
+  pop.className = pts >= 0 ? 'points-pop' : 'points-pop points-pop--neg';
+  pop.textContent = pts >= 0 ? `+${pts}` : `${pts}`;
+  pop.style.cssText = `top:${Math.random()*30+35}%;left:${Math.random()*30+35}%;`;
+  document.body.appendChild(pop);
+  setTimeout(() => pop.remove(), 1000);
+  const newLevel = getLevelData().id;
+  if (newLevel !== prevLevel) setTimeout(() => showLevelUp(newLevel), 700);
+  updateDashboard();
+}
+
+/* ─── EXERCISE ENGINE ─── */
+function loadExercise(activity, index) {
+  state.exerciseAnswered = false;
+  const ex    = activity.exercises[index];
+  const total = activity.exercises.length;
+  const pct   = Math.round((index / total) * 100);
+  document.getElementById('ex-counter').textContent       = `Ejercicio ${index+1}/${total}`;
+  document.getElementById('ex-progress-fill').style.width = pct + '%';
+  const card = document.getElementById('exercise-list');
+
+  if (ex.type === 'test') {
+    const letters = ['A','B','C','D'];
+    const opts = ex.options.map((o, i) => `
+      <button class="option-btn" onclick="checkTest(${i}, ${ex.correct}, '${activity.id}', ${index})">
+        <span class="option-letter">${letters[i]}</span>${o}
+      </button>`).join('');
+    card.innerHTML = `<span class="exercise-type-badge">Opción múltiple</span>
+      <div class="exercise-question">${ex.question}</div>
+      <div>${opts}</div><div id="ex-feedback" class="mt-3"></div>`;
+
+  } else if (ex.type === 'fill') {
+    card.innerHTML = `<span class="exercise-type-badge">Rellena el hueco</span>
+      <div class="exercise-question">${ex.question}</div>
+      <div class="fill-blank-wrap mt-2">
+        <input class="fill-input" id="fill-input" type="text" placeholder="${ex.hint || 'Tu respuesta…'}" autocomplete="off"/>
+        <button class="btn-check" id="fill-btn" onclick="checkFill('${ex.correct}','${activity.id}',${index})">Comprobar →</button>
+      </div><div id="ex-feedback" class="mt-3"></div>`;
+    document.getElementById('fill-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('fill-btn').click();
+    });
+
+  } else if (ex.type === 'match') {
+    loadMatchExercise(ex, activity, index);
+
+  } else if (ex.type === 'image') {
+    card.innerHTML = `<span class="exercise-type-badge">Actividad con imagen</span>
+      <div class="exercise-question">${ex.question}</div>
+      <img src="${ex.imageUrl || ''}" alt="Imagen del ejercicio" class="image-exercise-img"/>
+      <div class="fill-blank-wrap mt-2">
+        <input class="fill-input" id="fill-input" type="text" placeholder="${ex.hint || 'Tu respuesta…'}" autocomplete="off"/>
+        <button class="btn-check" id="fill-btn" onclick="checkFill('${ex.correct}','${activity.id}',${index})">Comprobar →</button>
+      </div><div id="ex-feedback" class="mt-3"></div>`;
+    document.getElementById('fill-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('fill-btn').click();
+    });
+  }
+}
+
+/* ─── MATCH EXERCISE ENGINE ─── */
+function loadMatchExercise(ex, activity, index) {
+  const card = document.getElementById('exercise-list');
+  state.matchPairs   = [...ex.pairs];
+  state.matchMatched = new Set();
+  state.matchSelected = null;
+
+  const shuffledRight = [...ex.pairs.map(p => p[1])].sort(() => Math.random() - .5);
+
+  const leftHTML  = ex.pairs.map((p, i) => `<div class="match-item" id="ml-${i}" onclick="selectMatch('left',${i})">${p[0]}</div>`).join('');
+  const rightHTML = shuffledRight.map((val, i) => {
+    const origIdx = ex.pairs.findIndex(p => p[1] === val);
+    return `<div class="match-item" id="mr-${origIdx}" data-val="${val}" onclick="selectMatch('right',${origIdx})">${val}</div>`;
+  }).join('');
+
+  card.innerHTML = `<span class="exercise-type-badge">Unir elementos</span>
+    <div class="exercise-question">${ex.question}</div>
+    <div class="match-exercise-wrap">
+      <div class="match-col" id="match-left">${leftHTML}</div>
+      <div class="match-col" id="match-right">${rightHTML}</div>
+    </div>
+    <div id="ex-feedback" class="mt-3"></div>`;
+
+  card._matchActivity = activity;
+  card._matchIndex    = index;
+}
+
+function selectMatch(side, idx) {
+  if (state.matchMatched.has(idx)) return;
+  const el = document.getElementById(side === 'left' ? `ml-${idx}` : `mr-${idx}`);
+  if (el.classList.contains('matched')) return;
+
+  if (!state.matchSelected) {
+    state.matchSelected = { side, idx };
+    el.classList.add('selected');
+    return;
+  }
+
+  const prev = state.matchSelected;
+  if (prev.side === side) {
+    // Deselect previous, select new
+    document.getElementById(prev.side === 'left' ? `ml-${prev.idx}` : `mr-${prev.idx}`).classList.remove('selected');
+    state.matchSelected = { side, idx };
+    el.classList.add('selected');
+    return;
+  }
+
+  // Try to match
+  const leftIdx  = prev.side === 'left' ? prev.idx : idx;
+  const rightIdx = prev.side === 'right'? prev.idx : idx;
+  const prevEl   = document.getElementById(prev.side === 'left' ? `ml-${prev.idx}` : `mr-${prev.idx}`);
+  prevEl.classList.remove('selected');
+  state.matchSelected = null;
+
+  const isCorrect = state.matchPairs[leftIdx][1] === state.matchPairs[rightIdx][1];
+  if (isCorrect) {
+    document.getElementById(`ml-${leftIdx}`).classList.add('matched');
+    document.getElementById(`mr-${rightIdx}`).classList.add('matched');
+    state.matchMatched.add(leftIdx);
+    state.totalAnswers++;
+    state.correctAnswers++;
+    applyPoints(100);
+    if (state.matchMatched.size === state.matchPairs.length) {
+      showFeedback(true, 0);
+      const card = document.getElementById('exercise-list');
+      scheduleNextExercise(card._matchActivity.id, card._matchIndex);
+    }
+  } else {
+    document.getElementById(`ml-${leftIdx}`).classList.add('wrong');
+    document.getElementById(`mr-${rightIdx}`).classList.add('wrong');
+    state.totalAnswers++;
+    applyPoints(-20);
+    showFeedback(false, -20);
+    setTimeout(() => {
+      document.getElementById(`ml-${leftIdx}`)?.classList.remove('wrong');
+      document.getElementById(`mr-${rightIdx}`)?.classList.remove('wrong');
+    }, 600);
+  }
+}
+
+/* ─── CHECK ANSWERS ─── */
+function checkTest(chosen, correct, actId, exIndex) {
+  if (state.exerciseAnswered) return;
+  state.exerciseAnswered = true;
+  state.totalAnswers++;
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  const isCorrect = chosen === correct;
+  const pts = isCorrect ? 100 : -20;
+  btns[chosen].classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) btns[correct].classList.add('correct');
+  if (isCorrect) state.correctAnswers++;
+  applyPoints(pts);
+  showFeedback(isCorrect, pts);
+  scheduleNextExercise(actId, exIndex);
+}
+
+function checkFill(correct, actId, exIndex) {
+  if (state.exerciseAnswered) return;
+  const input = document.getElementById('fill-input');
+  const val   = input.value.trim();
+  if (!val) return;
+  state.exerciseAnswered = true;
+  state.totalAnswers++;
+  const isCorrect = val.toLowerCase() === correct.toLowerCase();
+  const pts = isCorrect ? 100 : -20;
+  input.disabled = true;
+  document.getElementById('fill-btn').disabled = true;
+  input.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) {
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:.82rem;color:#059669;margin-top:.4rem;font-weight:500;';
+    hint.textContent = `Respuesta correcta: ${correct}`;
+    input.parentElement.appendChild(hint);
+  }
+  if (isCorrect) state.correctAnswers++;
+  applyPoints(pts);
+  showFeedback(isCorrect, pts);
+  scheduleNextExercise(actId, exIndex);
+}
+
+function showFeedback(isCorrect, pts) {
+  const t = document.getElementById('feedback-toast');
+  const msgs = isCorrect
+    ? ['¡Perfecto! 🔥','¡Excelente! ⭐','¡Correcto! 💪','¡Brillante! ✨','¡Muy bien! 🎯','¡Genial! 🚀']
+    : ['¡Casi! Sigue intentándolo 💪','¡No te rindas! La práctica hace al maestro 📚','¡Buen intento! Revisa la respuesta correcta 🎯','¡Error! Pero aprendemos de los fallos 💡'];
+  t.querySelector('#toast-msg').textContent    = msgs[Math.floor(Math.random()*msgs.length)];
+  t.querySelector('#toast-points').textContent = pts > 0 ? `+${pts} pts` : `${pts} pts`;
+  t.querySelector('#toast-icon').textContent   = isCorrect ? '🎉' : '😅';
+  t.className = `feedback-toast show ${isCorrect ? 'toast-correct' : 'toast-wrong'}`;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function scheduleNextExercise(actId, exIndex) {
+  const course   = COURSES.find(c => c.id === state.currentCourseId);
+  const activity = course.activities.find(a => a.id === actId);
+  setTimeout(() => {
+    const nextIdx = exIndex + 1;
+    if (nextIdx < activity.exercises.length) {
+      loadExercise(activity, nextIdx);
+      state.currentExerciseIndex = nextIdx;
+    } else {
+      finishActivity(activity);
+    }
+  }, 1600);
+}
+
+function finishActivity(activity) {
+  clearActivityTimer();
+  state.completedActivities.add(activity.id);
+  state.activitiesDone++;
+  updateDashboard();
+  // Sincronizar puntos con la BD
+  syncPuntosConBD(state.exerciseSessionScore);
+  document.getElementById('complete-icon').textContent   = '🎉';
+  document.getElementById('complete-points').textContent = `+${state.exerciseSessionScore} puntos`;
+  document.getElementById('complete-sub').textContent    = `Has completado "${activity.title}"`;
+  const accEl = document.getElementById('complete-accuracy');
+  if (state.totalAnswers > 0) {
+    const acc = Math.round((state.correctAnswers / state.totalAnswers) * 100);
+    accEl.textContent = `Acierto en esta actividad: ${acc}%`;
+    accEl.style.display = 'inline-block';
+  } else {
+    accEl.style.display = 'none';
+  }
+  showPanel('activity-complete-panel');
+}
+
+/**
+ * Actualiza los puntos del alumno actual en la BD.
+ * Llama a PUT /alumno/{id} con los nuevos puntos totales.
+ * Si falla (sin conexión), no bloquea la UI.
+ */
+/**
+ * syncPuntosConBD — Persiste los puntos ganados en esta sesión a la BD.
+ * Llama a GET /alumno/find/{id} para obtener los puntos actuales,
+ * suma los nuevos y hace PUT /alumno/{id}.
+ * No bloquea la UI si falla.
+ */
+async function syncPuntosConBD(puntosGanados) {
+  if (!puntosGanados || puntosGanados <= 0) return;
+  const API = 'http://192.168.150.74:8085';
+  try {
+    const sessionRaw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
+    if (!sessionRaw) return;
+    const session  = JSON.parse(sessionRaw);
+    const idAlumno = session.id_user || session.id;
+    if (!idAlumno) return;
+
+    const resGet = await fetch(`${API}/alumno/find/${idAlumno}`);
+    if (!resGet.ok) throw new Error(`GET alumno: HTTP ${resGet.status}`);
+    const alumno = await resGet.json();
+
+    const puntosActuales = alumno.puntos || 0;
+    const puntosNuevos   = Math.max(0, puntosActuales + puntosGanados);
+
+    let nuevoNivel = alumno.nivel || 'A1';
+    if      (puntosNuevos >= 9000) nuevoNivel = 'B2';
+    else if (puntosNuevos >= 5000) nuevoNivel = 'B1';
+    else if (puntosNuevos >= 2000) nuevoNivel = 'A2';
+    else                           nuevoNivel = 'A1';
+
+    const resPut = await fetch(`${API}/alumno/${idAlumno}`, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ ...alumno, puntos: puntosNuevos, nivel: nuevoNivel }),
+    });
+    if (!resPut.ok) throw new Error(`PUT alumno: HTTP ${resPut.status}`);
+
+    // Actualizar estado local con los puntos de la BD para coherencia
+    state.score = puntosNuevos;
+    updateDashboard();
+
+    console.info(`✅ Puntos sincronizados: ${puntosActuales} + ${puntosGanados} = ${puntosNuevos} pts (BD)`);
+    _lbStudentsCache = null;
+    _lbCacheTime     = 0;
+
+  } catch (err) {
+    console.warn('syncPuntosConBD: no se pudo sincronizar con la BD.', err.message);
+  }
+}
+
+/* ─── LEVEL UP ─── */
+function showLevelUp(levelId) {
+  const lvl = LEVELS.find(l => l.id === levelId);
+  document.getElementById('levelup-icon').textContent  = lvl.icon;
+  document.getElementById('levelup-title').textContent = `¡Nivel ${lvl.label} desbloqueado!`;
+  document.getElementById('levelup-sub').textContent   = lvl.desc;
+  document.getElementById('levelup-overlay').style.display = 'flex';
+}
+function closeLevelUp() { document.getElementById('levelup-overlay').style.display = 'none'; }
+
+/* ─── PROGRESS ─── */
+function buildProgressCourseList() {
+  const el = document.getElementById('progress-course-list');
+  if (!el) return;
+  el.innerHTML = COURSES.map(c => {
+    const done = c.activities.filter(a => state.completedActivities.has(a.id)).length;
+    const pct  = Math.round((done / Math.max(1, c.activities.length)) * 100);
+    return `<div class="mb-3">
+      <div class="d-flex justify-content-between mb-1">
+        <span style="font-weight:600;font-size:.9rem;">${c.title}</span>
+        <span style="font-size:.82rem;color:var(--text-muted);">${done}/${c.activities.length} actividades</span>
+      </div>
+      <div class="prog-bar-wrap"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ─── LEADERBOARD MULTI-TAB ──────────────────────────────────
+   Tipos: 'general' | 'diaria' | 'semanal'
+   Datos reales de la BD: GET /alumno/find (vista VISTA_ALUMNOS_PUNTOS)
+─────────────────────────────────────────────────────────────── */
+
+/* Mock de respaldo por si la BD no responde */
+const MOCK_DAILY_POINTS = {
+  'Ana García':     120,
+  'Carlos López':   45,
+  'Marta Ruiz':     310,
+  'Luis Fernández': 80,
+  'Sofía Jiménez':  195,
+};
+const MOCK_WEEKLY_POINTS = {
+  'Ana García':     780,
+  'Carlos López':   230,
+  'Marta Ruiz':     1450,
+  'Luis Fernández': 410,
+  'Sofía Jiménez':  920,
+};
+
+/* Estado de tab activo */
+let _lbTabAlumno = 'general';
+let _lbTabProfe  = 'general';
+
+function switchLeaderboard(tipo) {
+  _lbTabAlumno = tipo;
+  ['general','diaria','semanal'].forEach(t => {
+    const btn = document.getElementById('tab-' + t);
+    if (btn) btn.classList.toggle('active', t === tipo);
+  });
+  buildLeaderboard('leaderboard-content', false, tipo);
+}
+
+function switchProfeLeaderboard(tipo) {
+  _lbTabProfe = tipo;
+  ['general','diaria','semanal'].forEach(t => {
+    const btn = document.getElementById('profe-tab-' + t);
+    if (btn) btn.classList.toggle('active', t === tipo);
+  });
+  buildLeaderboard('profe-leaderboard-content', true, tipo);
+}
+
+/* Caché de alumnos de la BD para no repetir llamadas */
+let _lbStudentsCache = null;
+let _lbCacheTime = 0;
+const LB_CACHE_TTL = 60000; // 1 minuto
+
+async function _fetchLeaderboardStudents() {
+  const now = Date.now();
+  if (_lbStudentsCache && (now - _lbCacheTime) < LB_CACHE_TTL) {
+    return _lbStudentsCache;
+  }
+  try {
+    const res = await fetch('http://192.168.150.74:8085/alumno/find');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const alumnos = await res.json();
+
+    // Mapear formato BD → formato leaderboard
+    const nivelToId = { A1:'basico', A2:'elemental', B1:'intermedio', B2:'avanzado' };
+    const colorPalette = ['#0055A4','#059669','#d97706','#7c3aed','#EF4135','#1a70c1','#db2777','#0891b2'];
+    const mapped = alumnos.map((a, idx) => {
+      const fullName = `${a.nombre} ${a.apellidos}`.trim();
+      const initials = (a.nombre?.[0] || '') + (a.apellidos?.[0] || '');
+      return {
+        name:      fullName,
+        initials:  initials.toUpperCase() || '??',
+        color:     colorPalette[idx % colorPalette.length],
+        points:    a.puntos || 0,
+        level:     nivelToId[(a.nivel || 'A1').toUpperCase()] || 'basico',
+        course:    a.nivel || 'A1',
+        role:      'alumno',
+        idAlumno:  a.idAlumno || a.id_alumno,
+      };
+    });
+    _lbStudentsCache = mapped;
+    _lbCacheTime = now;
+    return mapped;
+  } catch (err) {
+    console.warn('Leaderboard: no se pudo cargar desde BD, usando mock.', err.message);
+    return null; // señal de fallo → usar mock
+  }
+}
+
+async function buildLeaderboard(containerId, isTeacherView, tipo) {
+  tipo = tipo || 'general';
+
+  // Mostrar spinner mientras carga
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '<div class="text-center p-4 text-muted"><i class="bi bi-hourglass-split me-2"></i>Cargando clasificación…</div>';
+
+  // Intentar cargar desde BD
+  let studentsFromDB = await _fetchLeaderboardStudents();
+
+  const levelLabels = { basico:'A1 — Básico', elemental:'A2 — Elemental', intermedio:'B1 — Intermedio', avanzado:'B2 — Avanzado' };
+  const levelCls    = { basico:'lb-level-basico', elemental:'lb-level-elemental', intermedio:'lb-level-intermedio', avanzado:'lb-level-avanzado' };
+
+  /* Si BD falla, usar mock */
+  let baseStudents = studentsFromDB || MOCK_STUDENTS;
+
+  /* Resolver puntos según el tipo de período */
+  function getPts(s) {
+    if (tipo === 'general') return s.points;
+    // Para diaria/semanal: si hay datos de BD, usar fracción aproximada
+    // En producción aquí iría un endpoint específico de puntos por período
+    if (studentsFromDB) {
+      return tipo === 'diaria'
+        ? Math.round(s.points * 0.05)   // ~5% de los puntos totales como estimación diaria
+        : Math.round(s.points * 0.25);  // ~25% como estimación semanal
+    }
+    if (tipo === 'diaria')  return MOCK_DAILY_POINTS[s.name]  || 0;
+    if (tipo === 'semanal') return MOCK_WEEKLY_POINTS[s.name] || 0;
+    return s.points;
+  }
+
+  let students = baseStudents.map(s => ({ ...s, displayPts: getPts(s) }));
+
+  /* Añadir usuario actual si es alumno y no está en la lista */
+  const u = state.currentUser;
+  if (u && u.role === 'alumno' && state.score > 0) {
+    const yaEsta = students.find(s => s.name === u.name || (u.idAlumno && s.idAlumno === u.idAlumno));
+    if (!yaEsta) {
+      const dp = tipo === 'diaria' ? Math.round(state.score * 0.05)
+               : tipo === 'semanal' ? Math.round(state.score * 0.25)
+               : state.score;
+      students.push({ name:u.name, initials:u.name.substring(0,2).toUpperCase(), color:'#1a70c1',
+        points:state.score, displayPts:dp, level:state.currentLevel, course:'—', role:'alumno' });
+    } else {
+      // Actualizar sus puntos locales si son mayores (aún no sincronizados)
+      if (tipo === 'general' && state.score > yaEsta.displayPts) {
+        yaEsta.displayPts = state.score;
+        yaEsta.points = state.score;
+      }
+    }
+  }
+
+  students.sort((a, b) => b.displayPts - a.displayPts);
+
+  const periodoLabel = tipo === 'diaria' ? 'pts hoy' : tipo === 'semanal' ? 'pts esta semana' : 'pts totales';
+  const metaInfo = {
+    general: { icon:'bi-globe2', label: studentsFromDB ? 'Clasificación en tiempo real' : 'Clasificación histórica', color:'#0055A4' },
+    diaria:  { icon:'bi-sun-fill',           label:'Puntos obtenidos hoy',         color:'#f59e0b' },
+    semanal: { icon:'bi-calendar-week-fill', label:'Puntos obtenidos esta semana', color:'#10b981' },
+  }[tipo];
+
+  /* ─ PODIO top 3 ─ */
+  const crownIcons  = ['👑','🥈','🥉'];
+  const podiumOrder = [1, 0, 2];
+  const top3 = students.slice(0, 3);
+
+  const podiumSlots = podiumOrder.map(visIdx => {
+    const s    = top3[visIdx];
+    const rank = visIdx + 1;
+    if (!s) return `<div class="lb-podium-slot rank-${rank}" style="opacity:.25;min-height:140px;"></div>`;
+    const isMe = u && s.name === u.name;
+    return `<div class="lb-podium-slot rank-${rank}${isMe ? ' lb-podium-slot--me' : ''}" style="animation-delay:${visIdx * 0.12}s">
+      <span class="lb-podium-crown">${crownIcons[visIdx]}</span>
+      <div class="lb-podium-avatar" style="background:${s.color}">${s.initials}</div>
+      <div class="lb-podium-name">${s.name}${isMe ? ' <span class="lb-you-badge">Tú</span>' : ''}</div>
+      <div class="lb-podium-pts">${s.displayPts.toLocaleString()}</div>
+      <div class="lb-podium-pts-label">${periodoLabel}</div>
+      <span class="lb-list-level ${levelCls[s.level] || 'lb-level-basico'}">${levelLabels[s.level] || s.level}</span>
+      <div class="lb-podium-group"><i class="bi bi-mortarboard-fill"></i> ${s.course || '—'}</div>
+    </div>`;
+  });
+
+  /* ─ Lista resto ─ */
+  const restHTML = students.slice(3).map((s, i) => {
+    const rank = i + 4;
+    const isCurrentUser = u && s.name === u.name;
+    return `<div class="lb-list-item ${isCurrentUser ? 'lb-list-item--me' : ''}" style="animation-delay:${(i + 3) * 0.06}s">
+      <span class="lb-list-rank">${rank}</span>
+      <div class="lb-list-avatar" style="background:${s.color}">${s.initials}</div>
+      <div class="lb-list-info">
+        <span class="lb-list-name">${s.name}${isCurrentUser ? ' <span class="lb-you-badge">Tú</span>' : ''}</span>
+        <span class="lb-list-group"><i class="bi bi-mortarboard-fill"></i> ${s.course || '—'}</span>
+      </div>
+      <span class="lb-list-level ${levelCls[s.level] || 'lb-level-basico'}">${levelLabels[s.level] || s.level}</span>
+      <div class="lb-list-pts-wrap">
+        <span class="lb-list-pts">${s.displayPts.toLocaleString()}</span>
+        <span class="lb-list-pts-label">${periodoLabel}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  /* Timestamp actualización */
+  const now2 = new Date();
+  const tsId = containerId === 'leaderboard-content' ? 'lb-last-updated' : 'profe-lb-last-updated';
+  const tsEl = document.getElementById(tsId);
+  const bdLabel = studentsFromDB ? '· Datos en vivo' : '· Datos demo';
+  if (tsEl) tsEl.innerHTML = `<i class="bi bi-clock me-1"></i>Actualizado: ${now2.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'})} ${bdLabel}`;
+
+  container.innerHTML = `
+    <div class="lb-meta-bar">
+      <span class="lb-meta-icon" style="color:${metaInfo.color}"><i class="bi ${metaInfo.icon}"></i></span>
+      <span class="lb-meta-label">${metaInfo.label}</span>
+      <span class="lb-meta-count"><i class="bi bi-people-fill me-1"></i>${students.length} participantes</span>
+    </div>
+    <div class="lb-podium-wrap">
+      ${podiumSlots[0]}
+      ${podiumSlots[1]}
+      ${podiumSlots[2]}
+    </div>
+    <div class="lb-list-wrap">${restHTML || '<div class="lb-empty"><i class="bi bi-emoji-smile"></i><p>Solo hay 3 participantes o menos</p></div>'}</div>`;
+}
+
+/* ─── MESSAGING ─── */
+function seedChat() {
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '';
+  const isProf = state.currentUser.role === 'profesor' && !state.isImpersonating;
+  document.getElementById('chat-partner-name').textContent = isProf ? 'Chat con alumnos' : 'Mensaje de tu profesor';
+  const seed = isProf
+    ? [{ sent:false, text:'Profesor, tengo dudas con el passé composé 🙁', time:'10:12' },
+       { sent:true,  text:'¡Hola Ana! Claro, repasemos juntos. ¿Qué parte no entiendes?', time:'10:14' }]
+    : [{ sent:false, text:'¡Hola! Recuerda practicar los verbos hoy 💪', time:'09:00' },
+       { sent:true,  text:'¡Gracias! Acabo de completar "être y avoir" 🎉', time:'09:05' },
+       { sent:false, text:'Perfecto, ¡vas genial! Sigue así 🔥', time:'09:06' }];
+  seed.forEach(m => appendBubble(m.text, m.sent, m.time));
+}
+
+function sendMessage() {
+  const inp  = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  const now  = new Date();
+  const time = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  appendBubble(text, true, time);
+  const replies = ['¡Buen punto! 👍','Recuerda practicar todos los días 🔥','¡Excellente! ⭐','¿Tienes dudas con algún ejercicio?','¡Ya casi llegas al siguiente nivel! 🚀'];
+  setTimeout(() => appendBubble(replies[Math.floor(Math.random()*replies.length)], false, time), 900);
+}
+
+function appendBubble(text, sent, time) {
+  const msgs = document.getElementById('chat-messages');
+  const div  = document.createElement('div');
+  div.className = `chat-bubble ${sent ? 'sent' : 'received'}`;
+  div.innerHTML = `${text}<div class="bubble-meta">${time}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+/* ─── SETTINGS ─── */
+function toggleDarkMode(on) {
+  const isDark = (typeof on === 'boolean') ? on : !document.body.classList.contains('dark-mode');
+  document.body.classList.toggle('dark-mode', isDark);
+  try { localStorage.setItem('lf_darkmode', isDark ? '1' : '0'); } catch(e) {}
+  const toggle = document.getElementById('dark-mode-toggle');
+  if (toggle) toggle.checked = isDark;
+  const loginBtn = document.getElementById('login-dark-btn');
+  if (loginBtn) {
+    loginBtn.innerHTML = isDark ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
+    loginBtn.title = isDark ? 'Modo claro' : 'Modo oscuro';
+  }
+}
+
+function changePassword() {
+  const current  = document.getElementById('settings-pass-current').value.trim();
+  const newPass  = document.getElementById('settings-pass-new').value.trim();
+  const confirm  = document.getElementById('settings-pass-confirm').value.trim();
+  const msgEl    = document.getElementById('settings-pass-msg');
+
+  const showMsg = (txt, ok) => {
+    msgEl.textContent = txt;
+    msgEl.className   = `mb-3 alert py-2 px-3 ${ok ? 'alert-success' : 'alert-danger'}`;
+    msgEl.classList.remove('d-none');
+    setTimeout(() => msgEl.classList.add('d-none'), 4000);
+  };
+
+  if (!current || !newPass || !confirm) return showMsg('Rellena todos los campos.', false);
+  if (newPass.length < 8)               return showMsg('La nueva contraseña debe tener al menos 8 caracteres.', false);
+  if (newPass !== confirm)              return showMsg('Las contraseñas nuevas no coinciden.', false);
+  /* Aquí iría la llamada al backend */
+  showMsg('✓ Contraseña actualizada correctamente (demo local).', true);
+  document.getElementById('settings-pass-current').value = '';
+  document.getElementById('settings-pass-new').value     = '';
+  document.getElementById('settings-pass-confirm').value = '';
+}
+
+/* ─── PROFESOR PANELS ─── */
+function buildProfeDashboard() {
+  const tbody = document.getElementById('profe-metrics-table');
+  const levelLabels = { basico:'A1 — Básico', elemental:'A2 — Elemental', intermedio:'B1 — Intermedio', avanzado:'B2 — Avanzado' };
+  const sorted = [...MOCK_STUDENTS].sort((a,b) => b.points - a.points);
+  tbody.innerHTML = sorted.map(s => {
+    const pct   = s.level === 'avanzado' ? 100 : s.level === 'intermedio' ? Math.round((s.points-5000)/40) : s.level === 'elemental' ? Math.round((s.points-2000)/30) : Math.round(s.points/20);
+    const clamp = Math.min(100, Math.max(0, pct));
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:.5rem;">
+        <div style="width:30px;height:30px;border-radius:50%;background:${s.color};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;">${s.initials}</div>
+        <span style="font-weight:600;">${s.name}</span></div></td>
+      <td><span class="badge" style="background:var(--primary-light);color:var(--primary);font-size:.72rem;">${levelLabels[s.level]}</span></td>
+      <td style="font-weight:700;color:var(--gold);">${s.points.toLocaleString()}</td>
+      <td>${s.exercises}</td>
+      <td style="color:var(--text-muted);font-size:.82rem;">${s.lastSeen}</td>
+      <td style="color:var(--text-muted);font-size:.82rem;">${s.time}</td>
+      <td style="min-width:100px;"><div class="prog-bar-wrap"><div class="prog-bar-fill" style="width:${clamp}%"></div></div>
+        <div style="font-size:.7rem;color:var(--text-muted);margin-top:.2rem;">${clamp}%</div></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('profe-recent-activity').innerHTML = [
+    { icon:'🎯', text:'Ana García completó "Saludos y presentaciones"', time:'Hace 2h' },
+    { icon:'⭐', text:'Marta Ruiz alcanzó el nivel Avanzado', time:'Hace 3h' },
+    { icon:'📚', text:'Carlos López comenzó el curso A1 Básico', time:'Ayer' },
+    { icon:'💪', text:'Sofía Jiménez obtuvo 500 puntos en una sesión', time:'Ayer' },
+    { icon:'🏆', text:'Luis Fernández completó su primera actividad', time:'Hace 2 días' },
+  ].map(a => `<div class="d-flex align-items-center gap-3 p-3 mb-2" style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);">
+    <span style="font-size:1.4rem;">${a.icon}</span>
+    <div style="flex:1;font-size:.88rem;font-weight:500;">${a.text}</div>
+    <span style="font-size:.75rem;color:var(--text-muted);">${a.time}</span>
+  </div>`).join('');
+}
+
+// En script.js
+
+function buildStudents() {
+  // Esta función ahora solo llama a la aplicación de filtros inicial
+  applyStudentFilters();
+}
+
+function applyStudentFilters() {
+  const nameQuery = document.getElementById('filter-name').value.toLowerCase();
+  const courseFilter = document.getElementById('filter-course').value;
+  const sortOrder = document.getElementById('filter-sort').value;
+
+  // 1. Filtrar el array MOCK_STUDENTS
+  let filtered = MOCK_STUDENTS.filter(student => {
+    const matchesName = student.name.toLowerCase().includes(nameQuery);
+    const matchesCourse = courseFilter === "" || student.course === courseFilter;
+    return matchesName && matchesCourse;
+  });
+
+  // 2. Ordenar
+  if (sortOrder === 'asc') {
+    filtered.sort((a, b) => a.points - b.points);
+  } else if (sortOrder === 'desc') {
+    filtered.sort((a, b) => b.points - a.points);
+  } else if (sortOrder === 'name') {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // 3. Renderizar la lista
+  const container = document.getElementById('profe-students-list');
+  if (!container) return;
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="text-center p-5 text-muted">No se encontraron alumnos con esos criterios.</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(s => `
+    <div class="student-row-card">
+      <div class="d-flex align-items-center flex-wrap gap-3">
+        <div class="student-avatar" style="background:${s.color}">${s.initials}</div>
+        <div style="flex:1; min-width:150px;">
+          <div class="student-name">${s.name}</div>
+          <div class="student-meta">Curso: <b>${s.course}</b> · Nivel: <span class="badge-level ${s.level}">${s.level}</span></div>
+        </div>
+        <div class="text-end me-3">
+          <div class="student-points">${s.points.toLocaleString()} pts</div>
+          <div class="student-meta">${s.exercises} ej. hechos</div>
+        </div>
+        <div class="text-end" style="min-width:100px;">
+          <div class="student-meta">Visto: ${s.lastSeen}</div>
+          <button class="btn btn-sm btn-outline-primary mt-1" onclick="impersonateStudent('${s.name}')">Ver como alumno</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function buildProfeCourses() {
+  const el = document.getElementById('profe-courses-container');
+  if (!el) return;
+  el.innerHTML = '<p style="text-align:center;padding:2rem;color:var(--text-muted);">Cargando grupos...</p>';
+  const API = 'http://192.168.150.74:8085';
+  const badgeMap = { A1:'badge-a1', A2:'badge-a2', B1:'badge-b1', B2:'badge-b1' };
+  try {
+    // Cargar todos los grupos de la BD (el profesor ve todos)
+    const res = await fetch(`${API}/api/grupos`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const grupos = await res.json();
+    // Actualizar COURSES con datos reales
+    COURSES = grupos.map(g => _mapGrupoToCourse(g));
+    el.innerHTML = COURSES.map(c => `
+      <div class="col-md-4 col-sm-6">
+        <div class="course-card">
+          <span class="course-level-badge ${c.badge || badgeMap[c.level] || 'badge-a1'}">${c.level}</span>
+          <div class="course-title">${c.title}</div>
+          <div class="course-meta">${c.desc || ''}</div>
+          <div class="course-meta mt-1">${c.activities.length} actividades</div>
+          <div class="mt-3 d-flex gap-2 flex-wrap">
+            <button class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:.8rem;" onclick="editCourse('${c.id}')"><i class="bi bi-pencil me-1"></i>Editar</button>
+            <button class="btn btn-sm btn-outline-secondary" style="border-radius:8px;font-size:.8rem;" onclick="openCourse('${c.id}')"><i class="bi bi-eye me-1"></i>Ver</button>
+            <button class="btn btn-sm btn-outline-danger" style="border-radius:8px;font-size:.8rem;" onclick="deleteCourse('${c.id}')"><i class="bi bi-trash"></i></button>
+          </div>
+        </div>
+      </div>`).join('') || '<p style="color:var(--text-muted);padding:1rem;">No hay grupos creados todavía.</p>';
+    populateEditorFilter();
+    renderActivityEditor();
+  } catch (err) {
+    console.error('buildProfeCourses error:', err);
+    el.innerHTML = '<p style="color:red;text-align:center;">Error al cargar grupos.</p>';
+  }
+}
+
+function buildProfeLeaderboard() { buildLeaderboard('profe-leaderboard-content', true, _lbTabProfe); }
+
+/* ─── COURSE MANAGER ─── */
+function openCourseModal(courseId) {
+  state.editingCourseId = courseId || null;
+  if (courseId) {
+    const c = COURSES.find(x => x.id === courseId);
+    document.getElementById('mc-title').value = c.title;
+    document.getElementById('mc-level').value = c.level;
+    document.getElementById('mc-desc').value  = c.desc;
+    document.getElementById('modal-course-title').textContent = 'Editar Curso';
+  } else {
+    document.getElementById('mc-title').value = '';
+    document.getElementById('mc-level').value = 'A1';
+    document.getElementById('mc-desc').value  = '';
+    document.getElementById('modal-course-title').textContent = 'Nuevo Curso';
+  }
+  openModal('modal-course');
+}
+function editCourse(id) { openCourseModal(id); }
+async function saveCourse() {
+  const title = document.getElementById('mc-title').value.trim();
+  const level = document.getElementById('mc-level').value;
+  const desc  = document.getElementById('mc-desc').value.trim();
+  if (!title) { alert('Escribe un título para el curso.'); return; }
+  const API = 'http://192.168.150.74:8085';
+
+  // Obtener ID del profesor desde la sesión
+  const sessionRaw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
+  let idProfesor = null;
+  if (sessionRaw) {
+    try { idProfesor = JSON.parse(sessionRaw).id_user || JSON.parse(sessionRaw).id; } catch {}
+  }
+
+  try {
+    if (state.editingCourseId) {
+      // Editar grupo existente en BD
+      const course = COURSES.find(x => x.id === state.editingCourseId);
+      const grupoDTO = {
+        idGrupo:   course._idBD || null,
+        nombre:    title,
+        idCentro:  course.centro || null,
+        idProfesor: idProfesor,
+      };
+      if (course._idBD) {
+        // No hay endpoint PUT en GrupoController — usar DELETE + POST o simplemente actualizar local
+        // Si el backend añade PUT /api/grupos/{id}, cambiar aquí.
+        console.warn('PUT grupo no implementado en backend — actualización local solamente');
+        course.title = title; course.desc = desc;
+      }
+    } else {
+      // Crear grupo nuevo en BD
+      const grupoDTO = {
+        nombre:    title,
+        idCentro:  1,          // Centro por defecto; ajustar según flujo real
+        idProfesor: idProfesor || 1,
+      };
+      const res = await fetch(`${API}/api/grupos`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(grupoDTO),
+      });
+      if (!res.ok) throw new Error(`POST /api/grupos → HTTP ${res.status}`);
+      const nuevoGrupo = await res.json();
+      console.info('✅ Grupo creado en BD:', nuevoGrupo);
+    }
+    closeModal('modal-course');
+    await buildProfeCourses();
+  } catch (err) {
+    console.error('Error al guardar grupo:', err);
+    alert('No se pudo guardar el grupo en la base de datos: ' + err.message);
+  }
+}
+async function deleteCourse(id) {
+  if (!confirm('¿Eliminar este curso y todas sus actividades?')) return;
+  const API = 'http://192.168.150.74:8085';
+  const course = COURSES.find(c => c.id === id);
+  try {
+    if (course && course._idBD) {
+      const res = await fetch(`${API}/api/grupos/${course._idBD}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`DELETE /api/grupos/${course._idBD} → HTTP ${res.status}`);
+      console.info(`✅ Grupo ${course._idBD} eliminado de BD`);
+    }
+    COURSES = COURSES.filter(c => c.id !== id);
+    await buildProfeCourses();
+  } catch (err) {
+    console.error('Error al eliminar grupo:', err);
+    alert('No se pudo eliminar el grupo: ' + err.message);
+  }
+}
+
+/* ─── ACTIVITY EDITOR ─── */
+function populateEditorFilter() {
+  const sel = document.getElementById('editor-course-filter');
+  const val = sel.value;
+  sel.innerHTML = '<option value="">Todos los cursos</option>' +
+    COURSES.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+  sel.value = COURSES.find(c => c.id === val) ? val : '';
+}
+
+function renderActivityEditor() {
+  const filter  = document.getElementById('editor-course-filter').value;
+  const courses = filter ? COURSES.filter(c => c.id === filter) : COURSES;
+  let html = '';
+  courses.forEach(course => {
+    html += `<div class="editor-card mb-3">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h6 class="mb-0">${course.title}</h6>
+        <button class="btn-primary-custom" style="font-size:.78rem;padding:.3rem .7rem;" onclick="openActivityModal('${course.id}')"><i class="bi bi-plus-lg me-1"></i>Actividad</button>
+      </div>`;
+    if (course.activities.length === 0) {
+      html += `<div style="font-size:.85rem;color:var(--text-muted);padding:.5rem 0;">Sin actividades todavía.</div>`;
+    } else {
+      course.activities.forEach((act, idx) => {
+        html += `<div class="exercise-editor-item">
+          <span class="drag-handle"><i class="bi bi-grip-vertical"></i></span>
+          <div>
+            <div class="ex-preview">${idx+1}. ${act.title}</div>
+            <div style="font-size:.75rem;color:var(--text-muted);margin-top:.1rem;">${act.exercises.length} ejercicios${act.maxTime ? ` · ${act.maxTime} min` : ''}${act.deadline ? ` · Límite: ${act.deadline}` : ''}</div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:.4rem;align-items:center;">
+            <button class="btn btn-sm btn-outline-primary" style="border-radius:6px;font-size:.72rem;" onclick="openActivityModal('${course.id}','${act.id}')"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-sm btn-outline-success" style="border-radius:6px;font-size:.72rem;" onclick="openExerciseModal('${course.id}','${act.id}')"><i class="bi bi-plus-lg"></i> Ejercicio</button>
+            <button class="btn btn-sm btn-outline-danger" style="border-radius:6px;font-size:.72rem;" onclick="deleteActivity('${course.id}','${act.id}')"><i class="bi bi-trash"></i></button>
+          </div>
+        </div>`;
+        act.exercises.forEach((ex, ei) => {
+          const typeLabel = { test:'test', fill:'hueco', match:'unir', image:'imagen' };
+          html += `<div style="margin-left:1.5rem;margin-bottom:.25rem;background:var(--bg);border:1px dashed var(--border);border-radius:6px;padding:.45rem .75rem;display:flex;align-items:center;gap:.75rem;font-size:.8rem;">
+            <span style="color:var(--text-muted);">${ei+1}.</span>
+            <span style="flex:1;">${ex.question.substring(0,60)}${ex.question.length>60?'…':''}</span>
+            <span class="ex-type-tag">${typeLabel[ex.type] || ex.type}</span>
+            <button class="btn btn-sm btn-outline-secondary" style="border-radius:4px;font-size:.7rem;padding:.15rem .4rem;" onclick="deleteExercise('${course.id}','${act.id}',${ei})"><i class="bi bi-x"></i></button>
+          </div>`;
+        });
+      });
+    }
+    html += `</div>`;
+  });
+  document.getElementById('activity-editor-list').innerHTML = html || '<p style="color:var(--text-muted);font-size:.88rem;">No hay cursos. Crea uno desde Gestión de Cursos.</p>';
+}
+
+/* ─── ACTIVITY MODAL ─── */
+function openActivityModal(courseId, actId) {
+  state.editingActivityId = actId || null;
+  state.editorCourseId    = courseId || null;
+  const sel = document.getElementById('ma-course');
+  sel.innerHTML = COURSES.map(c => `<option value="${c.id}" ${c.id === courseId ? 'selected':''}>${c.title}</option>`).join('');
+  if (actId) {
+    const course = COURSES.find(c => c.id === courseId);
+    const act    = course.activities.find(a => a.id === actId);
+    document.getElementById('ma-title').value    = act.title;
+    document.getElementById('ma-subtitle').value = act.subtitle;
+    document.getElementById('ma-deadline').value = act.deadline || '';
+    document.getElementById('ma-maxtime').value  = act.maxTime  || 0;
+    document.getElementById('modal-activity-title').textContent = 'Editar Actividad';
+  } else {
+    document.getElementById('ma-title').value    = '';
+    document.getElementById('ma-subtitle').value = '';
+    document.getElementById('ma-deadline').value = '';
+    document.getElementById('ma-maxtime').value  = 0;
+    document.getElementById('modal-activity-title').textContent = 'Nueva Actividad';
+  }
+  openModal('modal-activity');
+}
+async function saveActivity() {
+  const courseId = document.getElementById('ma-course').value;
+  const title    = document.getElementById('ma-title').value.trim();
+  const subtitle = document.getElementById('ma-subtitle').value.trim();
+  const deadline = document.getElementById('ma-deadline').value;
+  const maxTime  = parseInt(document.getElementById('ma-maxtime').value) || 0;
+  if (!title) { alert('Escribe un título para la actividad.'); return; }
+  const course = COURSES.find(c => c.id === courseId);
+  if (!course) return;
+  const API = 'http://192.168.150.74:8085';
+
+  // Obtener ID del profesor desde la sesión
+  const sessionRaw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
+  let idProfesor = '1';
+  if (sessionRaw) {
+    try { idProfesor = String(JSON.parse(sessionRaw).id_user || JSON.parse(sessionRaw).id || '1'); } catch {}
+  }
+
+  try {
+    if (state.editingActivityId) {
+      // Editar actividad existente — actualizar solo en local por ahora
+      // (el backend necesita un endpoint PUT /actividad/{id} para esto)
+      const act = course.activities.find(a => a.id === state.editingActivityId);
+      if (act) { act.title = title; act.subtitle = subtitle; act.deadline = deadline; act.maxTime = maxTime; }
+    } else {
+      // Crear actividad nueva en BD y asociarla al grupo
+      const actividadDTO = {
+        nombre:       title,
+        dificultad:   subtitle || 'Media',
+        idProfesor:   idProfesor,
+        duracion:     String(maxTime),
+        fechaInicio:  new Date().toISOString().split('T')[0],
+        fechaFin:     deadline || null,
+        fechaEntrega: deadline || new Date().toISOString().split('T')[0],
+        preguntas:    '[]',
+        respuestas:   '[]',
+        puntos:       10,
+        idGrupo:      course._idBD || null,  // Enviamos el grupo al que pertenece
+      };
+      const res = await fetch(`${API}/actividad`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(actividadDTO),
+      });
+      if (!res.ok) throw new Error(`POST /actividad → HTTP ${res.status}`);
+      const nueva = await res.json();
+      console.info('✅ Actividad creada en BD:', nueva);
+      // Forzar recarga de actividades al volver a abrir el grupo
+      course._actividadesCargadas = false;
+    }
+    closeModal('modal-activity');
+    await buildProfeCourses();
+  } catch (err) {
+    console.error('Error al guardar actividad:', err);
+    alert('No se pudo guardar la actividad en la base de datos: ' + err.message);
+  }
+}
+function editActivity(courseId, actId) { openActivityModal(courseId, actId); }
+async function deleteActivity(courseId, actId) {
+  if (!confirm('¿Eliminar esta actividad y todos sus ejercicios?')) return;
+  const course = COURSES.find(c => c.id === courseId);
+  if (!course) return;
+  const act = course.activities.find(a => a.id === actId);
+  const API = 'http://192.168.150.74:8085';
+  try {
+    if (act && act._idBD) {
+      // El backend actualmente no tiene DELETE /actividad/{id}
+      // Si se añade, descomentar:
+      // const res = await fetch(`${API}/actividad/${act._idBD}`, { method: 'DELETE' });
+      // if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      console.warn('DELETE actividad — endpoint no implementado en backend. Eliminado solo en local.');
+    }
+    course.activities = course.activities.filter(a => a.id !== actId);
+    course._actividadesCargadas = false; // Forzar recarga en próxima apertura
+    await buildProfeCourses();
+    if (state.currentCourseId === courseId) buildActivityList(course);
+  } catch (err) {
+    console.error('Error al eliminar actividad:', err);
+    alert('No se pudo eliminar la actividad: ' + err.message);
+  }
+}
+
+/* ─── EXERCISE MODAL (4 tipos) ─── */
+function setExerciseTab(type) {
+  document.getElementById('me-type').value = type;
+  ['test','fill','match','image'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === type);
+    document.getElementById(`me-${t}-fields`).style.display = t === type ? '' : 'none';
+  });
+}
+
+function addMatchPair() {
+  const container = document.getElementById('me-match-pairs');
+  const row = document.createElement('div');
+  row.className = 'match-pair-row';
+  row.innerHTML = `<input type="text" class="form-control form-control-sm" placeholder="Concepto"/><span class="match-arrow">↔</span><input type="text" class="form-control form-control-sm" placeholder="Definición"/>`;
+  container.appendChild(row);
+}
+
+function previewImage() {
+  const url  = document.getElementById('me-image-url').value.trim();
+  const wrap = document.getElementById('me-image-preview-wrap');
+  const img  = document.getElementById('me-image-preview');
+  if (url) { img.src = url; wrap.style.display = ''; }
+  else { wrap.style.display = 'none'; }
+}
+
+function openExerciseModal(courseId, actId, exerciseIndex) {
+  state.editorCourseId       = courseId;
+  state.editorActivityId     = actId;
+  state.editingExerciseIndex = exerciseIndex !== undefined ? exerciseIndex : null;
+
+  if (exerciseIndex !== undefined) {
+    const course = COURSES.find(c => c.id === courseId);
+    const act    = course.activities.find(a => a.id === actId);
+    const ex     = act.exercises[exerciseIndex];
+    setExerciseTab(ex.type);
+    document.getElementById('me-question').value = ex.question;
+    if (ex.type === 'test') {
+      ex.options.forEach((o,i) => { const el = document.getElementById('me-opt'+i); if(el) el.value=o; });
+      document.querySelectorAll('input[name="me-correct"]').forEach(r => r.checked = (parseInt(r.value) === ex.correct));
+    } else if (ex.type === 'fill') {
+      document.getElementById('me-fill-correct').value = ex.correct;
+      document.getElementById('me-fill-hint').value    = ex.hint || '';
+    } else if (ex.type === 'match') {
+      const container = document.getElementById('me-match-pairs');
+      container.innerHTML = '';
+      ex.pairs.forEach(([left, right]) => {
+        const row = document.createElement('div');
+        row.className = 'match-pair-row';
+        row.innerHTML = `<input type="text" class="form-control form-control-sm" value="${left}" placeholder="Concepto"/><span class="match-arrow">↔</span><input type="text" class="form-control form-control-sm" value="${right}" placeholder="Definición"/>`;
+        container.appendChild(row);
+      });
+    } else if (ex.type === 'image') {
+      document.getElementById('me-image-url').value     = ex.imageUrl || '';
+      document.getElementById('me-image-correct').value = ex.correct;
+      document.getElementById('me-image-hint').value    = ex.hint || '';
+      previewImage();
+    }
+    document.getElementById('modal-exercise-title').textContent = 'Editar Ejercicio';
+  } else {
+    setExerciseTab('test');
+    document.getElementById('me-question').value = '';
+    ['me-opt0','me-opt1','me-opt2','me-opt3'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+    document.querySelector('input[name="me-correct"][value="0"]').checked = true;
+    document.getElementById('me-fill-correct').value = '';
+    document.getElementById('me-fill-hint').value    = '';
+    document.getElementById('me-image-url').value    = '';
+    document.getElementById('me-image-correct').value= '';
+    document.getElementById('me-image-hint').value   = '';
+    document.getElementById('me-image-preview-wrap').style.display = 'none';
+    document.getElementById('me-match-pairs').innerHTML = `
+      <div class="match-pair-row"><input type="text" class="form-control form-control-sm" placeholder="Concepto"/><span class="match-arrow">↔</span><input type="text" class="form-control form-control-sm" placeholder="Definición"/></div>
+      <div class="match-pair-row"><input type="text" class="form-control form-control-sm" placeholder="Concepto"/><span class="match-arrow">↔</span><input type="text" class="form-control form-control-sm" placeholder="Definición"/></div>`;
+    document.getElementById('modal-exercise-title').textContent = 'Nuevo Ejercicio';
+  }
+  openModal('modal-exercise');
+}
+
+function saveExercise() {
+  const courseId = state.editorCourseId;
+  const actId    = state.editorActivityId;
+  const type     = document.getElementById('me-type').value;
+  const question = document.getElementById('me-question').value.trim();
+  if (!question) { alert('Escribe la pregunta.'); return; }
+  const course = COURSES.find(c => c.id === courseId);
+  const act    = course.activities.find(a => a.id === actId);
+  let exercise;
+
+  if (type === 'test') {
+    const opts    = ['me-opt0','me-opt1','me-opt2','me-opt3'].map(id => document.getElementById(id).value.trim()).filter(Boolean);
+    const correct = parseInt(document.querySelector('input[name="me-correct"]:checked').value);
+    if (opts.length < 2) { alert('Añade al menos 2 opciones.'); return; }
+    exercise = { type:'test', question, options:opts, correct };
+
+  } else if (type === 'fill') {
+    const correctAns = document.getElementById('me-fill-correct').value.trim();
+    const hint       = document.getElementById('me-fill-hint').value.trim();
+    if (!correctAns) { alert('Escribe la respuesta correcta.'); return; }
+    exercise = { type:'fill', question, correct:correctAns, hint };
+
+  } else if (type === 'match') {
+    const rows = document.getElementById('me-match-pairs').querySelectorAll('.match-pair-row');
+    const pairs = [];
+    rows.forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const left   = inputs[0].value.trim();
+      const right  = inputs[1].value.trim();
+      if (left && right) pairs.push([left, right]);
+    });
+    if (pairs.length < 2) { alert('Añade al menos 2 pares completos.'); return; }
+    exercise = { type:'match', question, pairs };
+
+  } else if (type === 'image') {
+    const imageUrl   = document.getElementById('me-image-url').value.trim();
+    const correctAns = document.getElementById('me-image-correct').value.trim();
+    const hint       = document.getElementById('me-image-hint').value.trim();
+    if (!correctAns) { alert('Escribe la respuesta correcta.'); return; }
+    exercise = { type:'image', question, imageUrl, correct:correctAns, hint };
+  }
+
+  if (state.editingExerciseIndex !== null) {
+    act.exercises[state.editingExerciseIndex] = exercise;
+  } else {
+    act.exercises.push(exercise);
+  }
+  closeModal('modal-exercise');
+  renderActivityEditor();
+}
+
+function deleteExercise(courseId, actId, exIndex) {
+  if (!confirm('¿Eliminar este ejercicio?')) return;
+  const course = COURSES.find(c => c.id === courseId);
+  const act    = course.activities.find(a => a.id === actId);
+  act.exercises.splice(exIndex, 1);
+  renderActivityEditor();
+}
+
+/* ─── DIRECTOR ─── */
+function buildDirectorUsers() {
+  const el = document.getElementById('director-users-list');
+  if (!el) return;
+  el.innerHTML = SYSTEM_USERS.map(u => `
+    <div class="director-user-row">
+      <div class="student-avatar" style="background:${u.color || '#64748b'}">${u.initials || u.name.substring(0,2).toUpperCase()}</div>
+      <div style="flex:1;">
+        <div style="font-weight:600;">${u.name}</div>
+        <div style="font-size:.78rem;color:var(--text-muted);">${u.email} · @${u.username || '—'}</div>
+      </div>
+      <span class="dir-role-badge dir-role-${u.role || 'alumno'}">${u.role === 'profesor' ? 'Profesor' : 'Alumno'}</span>
+      <span style="font-size:.82rem;color:var(--text-muted);margin-left:.75rem;">${(u.points || 0).toLocaleString()} pts</span>
+    </div>`).join('');
+}
+
+function openCreateUserModal() {
+  ['cu-nombre','cu-apellidos','cu-email','cu-username','cu-password'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('cu-rol').value = 'alumno';
+  document.getElementById('cu-msg').classList.add('d-none');
+  generatePassword();
+  openModal('modal-create-user');
+}
+
+function generateUsername() {
+  const nombre    = document.getElementById('cu-nombre').value.trim().toLowerCase().replace(/\s+/g,'');
+  const apellidos = document.getElementById('cu-apellidos').value.trim().toLowerCase().split(' ');
+  if (!nombre && !apellidos[0]) return;
+  let base = nombre + (apellidos[0] || '');
+  base = base.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+  // Comprobar duplicados y añadir número si ya existe
+  let username = base;
+  let counter  = 1;
+  while (SYSTEM_USERS.find(u => u.username === username)) {
+    username = base + counter++;
+  }
+  document.getElementById('cu-username').value = username;
+}
+
+function generatePassword() {
+  const chars   = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789!@#$%';
+  const length  = 10;
+  let password  = '';
+  for (let i = 0; i < length; i++) password += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('cu-password').value = password;
+}
+
+function createUser() {
+  const nombre    = document.getElementById('cu-nombre').value.trim();
+  const apellidos = document.getElementById('cu-apellidos').value.trim();
+  const email     = document.getElementById('cu-email').value.trim();
+  const rol       = document.getElementById('cu-rol').value;
+  const username  = document.getElementById('cu-username').value.trim();
+  const password  = document.getElementById('cu-password').value.trim();
+  const msgEl     = document.getElementById('cu-msg');
+
+  const showMsg = (txt, ok) => {
+    msgEl.textContent = txt;
+    msgEl.className   = `mb-2 alert py-2 px-3 ${ok ? 'alert-success' : 'alert-danger'}`;
+    msgEl.classList.remove('d-none');
+  };
+
+  if (!nombre || !email || !username || !password) return showMsg('Rellena nombre, email y genera username/contraseña.', false);
+  if (!email.includes('@')) return showMsg('Email inválido.', false);
+
+  /* En producción: llamada al backend. Aquí simulamos. */
+  const newUser = {
+    name: `${nombre} ${apellidos}`.trim(),
+    initials: (nombre[0]+(apellidos[0]||'')).toUpperCase(),
+    color: '#1a70c1',
+    role: rol, email, username, password,
+    points:0, level:'basico', exercises:0, lastSeen:'Nunca', time:'0h', course:'—',
+  };
+  SYSTEM_USERS.push(newUser);
+  buildDirectorUsers();
+  showMsg(`✓ Usuario @${username} creado correctamente (demo local).`, true);
+  setTimeout(() => closeModal('modal-create-user'), 2000);
+}
+
+/* ─── MODALES ─── */
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+/* ─── INIT ─── */
+(function init() {
+  // Mensaje motivacional rotativo
+  setInterval(() => {
+    const el = document.getElementById('motivational-msg');
+    if (!el) return;
+    const m = MOTIVATIONAL_MSGS[Math.floor(Math.random() * MOTIVATIONAL_MSGS.length)];
+    document.getElementById('motivational-banner').querySelector('.msg-icon').textContent = m.icon;
+    el.textContent = m.msg;
+  }, 10000);
+
+  // Restaurar sesión (soporta sesión de API real y sesión mock)
+  try {
+    const savedApi  = localStorage.getItem('lf_session_api')  || sessionStorage.getItem('lf_session_api');
+    const savedMock = localStorage.getItem('lf_session') || sessionStorage.getItem('lf_session');
+
+    if (savedApi) {
+      // Sesión proveniente del backend real — usa nombre y apellidos de la BD
+      const { nombre, apellidos, rol, correo, id_sesion, id_user, id } = JSON.parse(savedApi);
+      const fullName = [nombre, apellidos].filter(Boolean).join(' ') || correo || 'Usuario';
+      const role = (rol || 'alumno').toLowerCase();
+      state.currentUser = { email: correo, name: fullName, role, id_sesion };
+      if (document.getElementById('screen-app')) {
+        enterApp();
+        // Cargar puntos reales del alumno desde la BD
+        const idAlumno = id_user || id;
+        if (role === 'alumno' && idAlumno) {
+          fetch(`http://192.168.150.74:8085/alumno/find/${idAlumno}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(alumno => {
+              if (alumno && alumno.puntos != null) {
+                state.score = alumno.puntos;
+                updateDashboard();
+              }
+            })
+            .catch(() => {});
+        }
+      }
+    } else if (savedMock) {
+      // Sesión mock (login sin backend)
+      const { email, role, name: savedName } = JSON.parse(savedMock);
+
+      const emailInput = document.getElementById('login-email');
+      if (emailInput) {
+        emailInput.value = email;
+        selectRole(role);
+      }
+
+      let user = MOCK_USERS.find(u => u.email === email);
+      if (!user) {
+        const resolvedName = savedName || email.split('@')[0];
+        user = { email, password: '', name: resolvedName, role: role };
+      }
+      state.currentUser = { ...user, role: role };
+
+      if (document.getElementById('screen-app')) {
+        enterApp();
+      }
+    } else {
+      // Sin sesión guardada — redirigir a login si estamos en index
+      // window.location.href = './login.html';
+    }
+  } catch(e) {}
+})();
+function doLogout() {
+    // 1. Borramos los datos del usuario del almacenamiento local
+    localStorage.removeItem('user');
+    localStorage.removeItem('lf_session_api');
+    localStorage.clear();
+    sessionStorage.removeItem('lf_session');
+    sessionStorage.removeItem('lf_session_api');
+
+    // 2. Redirigimos al login
+    window.location.href = 'login.html';
+}
+// Inicializar dark mode al cargar (unificado)
+(function initDarkMode() {
+    const saved = localStorage.getItem('lf_darkmode');
+    const isDark = saved === '1';
+    if (isDark) document.body.classList.add('dark-mode');
+    const toggle = document.getElementById('dark-mode-toggle');
+    if (toggle) toggle.checked = isDark;
+    const loginBtn = document.getElementById('login-dark-btn');
+    if (loginBtn) {
+        loginBtn.innerHTML = isDark ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
+        loginBtn.title = isDark ? 'Modo claro' : 'Modo oscuro';
+    }
+})();
+/* =========================
+   MOBILE MENU
+========================= */
+
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-sidebar');
+  const overlay = document.getElementById('mobile-overlay');
+
+  menu.classList.toggle('active');
+  overlay.classList.toggle('active');
+}
+
+function closeMobileMenu() {
+  document.getElementById('mobile-sidebar').classList.remove('active');
+  document.getElementById('mobile-overlay').classList.remove('active');
+}
+
+/* copiar contenido del sidebar */
+/* copiar contenido del sidebar según el rol activo */
+function initMobileSidebar() {
+  const sidebarAlumno = document.getElementById('sidebar-alumno');
+  const sidebarProfesor = document.getElementById('sidebar-profesor');
+  const sidebarDirector = document.getElementById('sidebar-director');
+  
+  let content = "";
+
+  // Solo copiamos el contenido del sidebar que no tenga "display: none"
+  if (sidebarAlumno && sidebarAlumno.style.display !== 'none') {
+    content = sidebarAlumno.innerHTML;
+  } else if (sidebarProfesor && sidebarProfesor.style.display !== 'none') {
+    content = sidebarProfesor.innerHTML;
+  } else if (sidebarDirector && sidebarDirector.style.display !== 'none') {
+    content = sidebarDirector.innerHTML;
+  }
+
+  document.getElementById('mobile-sidebar-content').innerHTML = content;
+}
+
+// Asegúrate de llamar a esta función también cuando cambies de rol o entres a la app
+// Modifica tu función enterApp() para que llame a initMobileSidebar() al final
+
+document.addEventListener('DOMContentLoaded', initMobileSidebar);
+
+/* cerrar menú al navegar */
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('sidebar-item')) {
+    closeMobileMenu();
+  }
+});

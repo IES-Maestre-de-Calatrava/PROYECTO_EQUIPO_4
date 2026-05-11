@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario Simple</title>
+    <script type="module" src="../../js/REST/GET/getGrupos.js"></script>
+</head>
+
+<body>
+
+    <form id="miFormulario">
+        <label for="idGrupo">ID Grupo:</label>
+        <input type="text" id="idGrupo" name="idGrupo">
+        <br><br>
+
+        <label for="idProfesor">ID Profesor:</label>
+        <input type="text" id="idProfesor" name="idProfesor">
+        <br><br>
+
+        <button type="button" id="btnEnviar">Enviar</button>
+    </form>
+    <div id="respuesta"></div>
+    <script type="module">
+        import {generarClaveGrupo} from "../../js/REST/PUT/genClaveGrupo.js";
+        const boton = document.getElementById('btnEnviar');
+        boton.addEventListener('click', async function () {
+            const grupo = document.getElementById('idGrupo').value;
+            const profesor = document.getElementById('idProfesor').value;
+            const respuesta = await generarClaveGrupo(grupo, profesor);
+
+            document.getElementById("respuesta").innerHTML = JSON.stringify(respuesta);
+        });
+    </script>
+
+</body>
+
+</html>
