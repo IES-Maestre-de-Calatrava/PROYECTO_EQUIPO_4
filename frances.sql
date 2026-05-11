@@ -26,7 +26,8 @@ CREATE TABLE ALUMNO (
     TELEFONO INT NOT NULL COMMENT 'Número de teléfono del alumno (incluye prefijo)',
     CORREO VARCHAR(50) NOT NULL UNIQUE COMMENT 'Correo electrónico del alumno',
     NIVEL VARCHAR(10) NOT NULL COMMENT 'Nivel académico de francés (A1, A2, B1, etc.)',
-    RANGO VARCHAR(20) DEFAULT NULL COMMENT 'Categoría o rango dentro de la plataforma'
+    RANGO VARCHAR(20) DEFAULT NULL COMMENT 'Categoría o rango dentro de la plataforma',
+	PUNTOS INT COMMENT 'Total de puntos que tiene cada usuario'
 ) COMMENT = 'Tabla que almacena la información de los alumnos';
 
 -- ======================================================
