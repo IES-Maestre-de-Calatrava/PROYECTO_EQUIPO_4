@@ -135,6 +135,11 @@ export class PutGestionGrupos {
         return JSON.parse(text);
     }
 
+    #crearMensajeError(status, text) {
+        const msg = this.#leerMensajeError(text);
+        return msg || `Error ${status}`;
+    }
+
     #leerMensajeError(text) {
         if (!text) {
             return "";
