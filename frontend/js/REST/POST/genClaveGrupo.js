@@ -1,4 +1,4 @@
-const API = "http://192.168.150.185:8085/grupos/";
+const API = "http://192.168.150.74:8085/grupos/";
 
 export async function generarClaveGrupo(id, idProf){
     try {

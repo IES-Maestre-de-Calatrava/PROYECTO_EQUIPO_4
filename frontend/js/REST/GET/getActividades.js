@@ -2,7 +2,7 @@ import {formatearFecha} from  '../../Utilidades.js';
 import {getProfesorById} from './getProfesores.js';
 import { Parser } from '../../JSON/Parser.js';
 
-const API = "http://192.168.150.185:8085/actividad/";
+const API = "http://192.168.150.74:8085/actividad/";
 
 async function getActividades() {
     try {

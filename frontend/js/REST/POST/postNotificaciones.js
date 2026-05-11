@@ -1,5 +1,5 @@
-const API_NOTIFICACIONES = "http://192.168.150.185:8085/api/notificaciones";
-const API_INVITACIONES = "http://192.168.150.185:8085/api/invitaciones";
+const API_NOTIFICACIONES = "http://192.168.150.74:8085/api/notificaciones";
+const API_INVITACIONES = "http://192.168.150.74:8085/api/invitaciones";
 
 export class PostNotificaciones {
     /**

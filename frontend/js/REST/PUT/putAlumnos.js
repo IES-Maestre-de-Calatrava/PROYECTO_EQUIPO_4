@@ -1,5 +1,5 @@
-const API_ALUMNOS = "http://192.168.150.185:8085/alumno";
-const API_GRUPOS = "http://192.168.150.185:8085/api/grupos";
+const API_ALUMNOS = "http://192.168.150.74:8085/alumno";
+const API_GRUPOS = "http://192.168.150.74:8085/api/grupos";
 
 import { postNotificaciones } from '../POST/postNotificaciones.js';
 import { getNotificaciones } from '../GET/getNotificaciones.js';
