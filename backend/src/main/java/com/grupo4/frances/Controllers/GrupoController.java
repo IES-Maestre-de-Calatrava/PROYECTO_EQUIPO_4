@@ -1,20 +1,31 @@
 package com.grupo4.frances.Controllers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.grupo4.frances.DTO.GrupoDTO;
 import com.grupo4.frances.Exceptions.GrupoNotFoundException;
 import com.grupo4.frances.Mappers.GrupoMapper;
 import com.grupo4.frances.Repositories.AlumnoRepository;
 import com.grupo4.frances.Repositories.CentroRepository;
 import com.grupo4.frances.Repositories.GrupoRepository;
-import com.grupo4.frances.utilidades.Seguridad;
 import com.grupo4.frances.persistence.Alumno;
 import com.grupo4.frances.persistence.Centro;
 import com.grupo4.frances.persistence.Grupo;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import com.grupo4.frances.utilidades.Seguridad;
 
 @RestController
 @RequestMapping("/api/grupos")
@@ -43,6 +54,23 @@ public class GrupoController {
         return repository.findById(id)
                 .map(GrupoMapper::toDTO)
                 .orElseThrow(() -> new GrupoNotFoundException(id));
+    }
+
+    @GetMapping("/nombre/{nombre}")
+    public ResponseEntity<?> getGruposByNombre(@PathVariable String nombre) {
+        List<Grupo> grupos = repository.buscarPorNombre(nombre);
+
+        if (grupos.isEmpty()) {
+            return ResponseEntity.status(404)
+                    .body(Map.of("error", "No se encontraron grupos con el nombre: " + nombre));
+        }
+
+        // Convertimos la lista de entidades a una lista de DTOs
+        List<GrupoDTO> respuesta = grupos.stream()
+                .map(GrupoMapper::toDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(respuesta);
     }
 
     @GetMapping("/alumno/{idAlumno}")
