@@ -58,7 +58,11 @@ public class GrupoController {
 
     @GetMapping("/nombre")
     public ResponseEntity<List<GrupoDTO>> getGruposByNombre(@RequestParam String nombre) {
+        System.out.println(">>> Buscando grupo por nombre: '" + nombre + "'");
+        
         List<Grupo> grupos = repository.buscarPorNombre(nombre);
+        System.out.println(">>> Grupos encontrados: " + grupos.size());
+        
         List<GrupoDTO> respuesta = grupos.stream()
                 .map(GrupoMapper::toDTO)
                 .collect(Collectors.toList());
