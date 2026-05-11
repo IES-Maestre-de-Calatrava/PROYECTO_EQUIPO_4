@@ -57,20 +57,10 @@ public class GrupoController {
     }
 
     @GetMapping("/nombre/{nombre}")
-    public ResponseEntity<?> getGruposByNombre(@PathVariable String nombre) {
-        List<Grupo> grupos = repository.buscarPorNombre(nombre);
-
-        if (grupos.isEmpty()) {
-            return ResponseEntity.status(404)
-                    .body(Map.of("error", "No se encontraron grupos con el nombre: " + nombre));
-        }
-
-        // Convertimos la lista de entidades a una lista de DTOs
-        List<GrupoDTO> respuesta = grupos.stream()
+    public List<GrupoDTO> getGruposByNombre(@PathVariable String nombre) {
+        return repository.buscarPorNombre(nombre).stream() // Usa el método del repositorio
                 .map(GrupoMapper::toDTO)
                 .collect(Collectors.toList());
-
-        return ResponseEntity.ok(respuesta);
     }
 
     @GetMapping("/alumno/{idAlumno}")
