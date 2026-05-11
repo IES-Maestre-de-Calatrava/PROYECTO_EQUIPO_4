@@ -835,15 +835,38 @@ function scheduleNextExercise(actId, exIndex) {
   }, 1600);
 }
 
+function getActivityRewardPoints(activity) {
+  const rawPoints = activity?.puntos ?? activity?.points;
+  const points = Number(rawPoints);
+  return Number.isFinite(points) && points > 0 ? Math.round(points) : 0;
+}
+
+function setActivitySessionReward(puntosGanados) {
+  const diff = puntosGanados - state.exerciseSessionScore;
+  if (diff === 0) return;
+
+  const prevLevel = getLevelData().id;
+  state.score = Math.max(0, state.score + diff);
+  state.exerciseSessionScore = puntosGanados;
+  document.getElementById('ex-points-live').textContent = state.exerciseSessionScore;
+  const newLevel = getLevelData().id;
+  if (newLevel !== prevLevel) setTimeout(() => showLevelUp(newLevel), 700);
+  updateDashboard();
+}
+
 function finishActivity(activity) {
   clearActivityTimer();
   state.completedActivities.add(activity.id);
   state.activitiesDone++;
   updateDashboard();
+  const puntosGanados = getActivityRewardPoints(activity) || state.exerciseSessionScore;
+  if (puntosGanados !== state.exerciseSessionScore) {
+    setActivitySessionReward(puntosGanados);
+  }
   // Sincronizar puntos con la BD
-  syncPuntosConBD(state.exerciseSessionScore);
+  syncPuntosConBD(puntosGanados);
   document.getElementById('complete-icon').textContent   = '🎉';
-  document.getElementById('complete-points').textContent = `+${state.exerciseSessionScore} puntos`;
+  document.getElementById('complete-points').textContent = `+${puntosGanados} puntos`;
   document.getElementById('complete-sub').textContent    = `Has completado "${activity.title}"`;
   const accEl = document.getElementById('complete-accuracy');
   if (state.totalAnswers > 0) {
