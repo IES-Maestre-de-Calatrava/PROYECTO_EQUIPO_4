@@ -155,11 +155,6 @@ export class PutGestionGrupos {
         }
     }
 
-    #crearMensajeError(status, text) {
-        const detalle = this.#leerMensajeError(text);
-        return detalle ? `Error ${status}: ${detalle}` : `Error ${status}`;
-    }
-
     async #deleteJson(url) {
         console.log("Enviando peticion DELETE grupo:", url);
 
