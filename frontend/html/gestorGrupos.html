@@ -143,7 +143,6 @@
                     <div class="form-row">
                         <label for="idCentro">Centro</label>
                         <select id="idCentro" class="form-select"></select>
-                        <div id="centro-actual" style="margin-top:.5rem;font-size:.9rem;color:var(--text-muted);">Centro seleccionado: <strong id="centro-seleccionado">ninguno</strong></div>
                     </div>
                 </div>
                 <div>
@@ -158,6 +157,24 @@
                     <div class="form-row">
                         <button id="btnCrearGrupo" class="btn-primary-custom">Crear grupo</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Gestionar alumnos</h2>
+            <div class="form-row">
+                <label for="idGrupoAniadir">ID del grupo</label>
+                <input id="idGrupoAniadir" class="form-control" type="number" placeholder="ID del grupo">
+                <button id="btnMostrarAlumnos" class="btn-primary-custom">Mostrar alumnos</button>
+            </div>
+            <div id="listaAlumnos" style="display:none; margin-top:1rem;">
+                <div class="form-row">
+                    <label for="selectAlumno">Selecciona un alumno</label>
+                    <select id="selectAlumno" class="form-select" size="8"></select>
+                </div>
+                <div class="form-row">
+                    <button id="btnAniadirAlumno" class="btn-primary-custom">Añadir al grupo</button>
                 </div>
             </div>
         </div>
@@ -323,13 +340,10 @@
                 if (Array.isArray(centros) && centros.length > 0) {
                     centros.forEach(centro => {
                         const option = document.createElement("option");
-                        option.value = centro.idCentro ?? centro.id ?? centro.id_centro; // ID numérico para la base de datos
-                        option.textContent = centro.nombre ?? centro.nombreCentro ?? centro.nombre_centro ?? "Centro desconocido"; // Nombre para el usuario
-                        option.dataset.nombre = option.textContent;
+                        option.value = centro.idCentro; // ID numérico para la base de datos
+                        option.textContent = centro.nombre; // Nombre para el usuario
                         select.appendChild(option);
                     });
-                    select.addEventListener("change", actualizarCentroSeleccionado);
-                    actualizarCentroSeleccionado();
                 } else {
                     const option = document.createElement("option");
                     option.textContent = "No se encontraron centros";
@@ -338,18 +352,6 @@
             } catch (error) {
                 console.error("Error cargando centros en el desplegable:", error);
                 select.innerHTML = '<option value="">Error al cargar datos</option>';
-            }
-        }
-
-        function actualizarCentroSeleccionado() {
-            const select = document.getElementById("idCentro");
-            const label = document.getElementById("centro-seleccionado");
-            if (!select || !label) return;
-            const selected = select.selectedOptions[0];
-            if (selected && selected.value) {
-                label.textContent = `${selected.dataset.nombre || selected.textContent} (ID: ${selected.value})`;
-            } else {
-                label.textContent = "ninguno";
             }
         }
 
@@ -402,6 +404,59 @@
             );
         });
 
+        document.getElementById("btnMostrarAlumnos").addEventListener("click", async () => {
+            const idGrupo = document.getElementById("idGrupoAniadir").value.trim();
+            if (!idGrupo) {
+                actualizarEstado("Introduce un ID de grupo", "error");
+                return;
+            }
+
+            await ejecutarPeticion(async () => {
+                const alumnos = await gestionGruposPut.obtenerListaAlumnos();
+                const select = document.getElementById("selectAlumno");
+                select.innerHTML = "";
+
+                if (!alumnos || alumnos.length === 0) {
+                    const option = document.createElement("option");
+                    option.textContent = "No hay alumnos disponibles";
+                    select.appendChild(option);
+                } else {
+                    alumnos.forEach(alumno => {
+                        const option = document.createElement("option");
+                        option.value = alumno.idAlumno;
+                        option.textContent = `${alumno.nombre} ${alumno.apellidos} (ID: ${alumno.idAlumno})`;
+                        select.appendChild(option);
+                    });
+                }
+
+                document.getElementById("listaAlumnos").style.display = "block";
+                return alumnos;
+            }, "✅ Lista de alumnos cargada");
+        });
+
+        document.getElementById("btnAniadirAlumno").addEventListener("click", async () => {
+            const idGrupo = document.getElementById("idGrupoAniadir").value.trim();
+            const idAlumno = document.getElementById("selectAlumno").value;
+            const profesor = obtenerProfesorActual();
+
+            if (!profesor) {
+                actualizarEstado("Inicia sesión como profesor para añadir alumnos", "error");
+                return;
+            }
+
+            if (!idGrupo || !idAlumno) {
+                actualizarEstado("Selecciona grupo y alumno", "error");
+                return;
+            }
+
+            await ejecutarPeticion(
+                () => gestionGruposPut.añadirAlumnoAGrupo(idGrupo, idAlumno, profesor),
+                "✅ Alumno añadido al grupo"
+            );
+        });
+
+        cargarCentros();
+        sincronizarProfesorSesion();
 </script>
 </body>
 </html>
