@@ -221,7 +221,7 @@ function showNotifications(event) {
         badge.style.display = 'none'; 
     
     showToastAlert('No tienes notificaciones nuevas.', 'info');
-}
+}}
 /**
  * Controla si se ve o no el punto rojo de notificaciones
  * @param {boolean} mostrar - true para poner el punto rojo, false para quitarlo
