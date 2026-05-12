@@ -1,0 +1,15 @@
+const API = "http://192.168.150.118:8085/conexion";
+
+export async function getAllConexiones(){
+    const response = await fetch(`${API}/find`);
+    const conexiones = await response.json();
+
+    return conexiones;
+}
+
+export async function getConexionById(id){
+    const response = await fetch(`${API}/find/${id}`);
+    const conexion = await response.json();
+
+    return conexion;
+}

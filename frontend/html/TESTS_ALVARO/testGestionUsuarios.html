@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Gestion Usuarios</title>
+    <style>
+        :root {
+            --primary: #0055a4;
+            --primary-dark: #003d7a;
+            --primary-soft: #e8f2ff;
+            --danger: #c62828;
+            --danger-soft: #fdecec;
+            --success: #087f5b;
+            --success-soft: #e6fcf5;
+            --warning: #b7791f;
+            --ink: #172033;
+            --muted: #667085;
+            --line: #d7e3f4;
+            --surface: #ffffff;
+            --bg: #f3f7fc;
+            --shadow: 0 18px 45px rgba(16, 24, 40, .12);
+            --shadow-sm: 0 8px 22px rgba(16, 24, 40, .08);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(0, 85, 164, .16), transparent 34rem),
+                linear-gradient(180deg, #ffffff 0%, var(--bg) 42%, #e8f0fb 100%);
+        }
+
+        .test-shell {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 34px 0 44px;
+        }
+
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 26px 28px;
+            border: 1px solid rgba(255, 255, 255, .72);
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: #fff;
+            box-shadow: var(--shadow);
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-size: clamp(1.65rem, 3vw, 2.45rem);
+            font-weight: 800;
+        }
+
+        .hero p {
+            max-width: 620px;
+            margin: 8px 0 0;
+            color: rgba(255, 255, 255, .82);
+            line-height: 1.5;
+        }
+
+        .hero-badge {
+            flex: 0 0 auto;
+            padding: 9px 13px;
+            border: 1px solid rgba(255, 255, 255, .28);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .14);
+            font-size: .82rem;
+            font-weight: 700;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(420px, 480px);
+            gap: 18px;
+            margin-top: 18px;
+            align-items: start;
+        }
+
+        .panel {
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, .9);
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(10px);
+        }
+
+        .panel + .panel {
+            margin-top: 18px;
+        }
+
+        .panel h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 15px;
+            font-size: 1.05rem;
+            color: var(--primary-dark);
+        }
+
+        .panel h2::before {
+            content: "";
+            width: 9px;
+            height: 26px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, var(--primary), #ef4135);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        button {
+            min-height: 42px;
+            border: 0;
+            border-radius: 9px;
+            padding: 10px 14px;
+            cursor: pointer;
+            color: #fff;
+            background: var(--primary);
+            font-weight: 700;
+            transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+            box-shadow: 0 8px 18px rgba(0, 85, 164, .2);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            background: var(--primary-dark);
+            box-shadow: 0 12px 24px rgba(0, 85, 164, .24);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #btnBorrarSesion {
+            color: var(--danger);
+            background: var(--danger-soft);
+            box-shadow: none;
+        }
+
+        #btnBorrarSesion:hover {
+            background: #fad7d7;
+        }
+
+        #btnSesionDirector {
+            color: var(--warning);
+            background: #fff7e6;
+            box-shadow: none;
+        }
+
+        #btnCrearUsuario {
+            width: 100%;
+            margin-top: 4px;
+            background: linear-gradient(135deg, var(--success), #12b886);
+            box-shadow: 0 10px 22px rgba(8, 127, 91, .2);
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            padding: 10px 11px;
+            color: var(--ink);
+            background: #fbfdff;
+            outline: none;
+            transition: border .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(0, 85, 164, .11);
+        }
+
+        label {
+            display: block;
+            margin: 0 0 6px;
+            color: var(--muted);
+            font-size: .84rem;
+            font-weight: 700;
+        }
+
+        .search-row {
+            display: grid;
+            grid-template-columns: minmax(180px, 240px) auto auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .field {
+            min-width: 0;
+        }
+
+        .field.full,
+        .form-actions {
+            grid-column: 1 / -1;
+        }
+
+        .campo {
+            width: 100%;
+        }
+
+        .session-tools {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        #camposProfesor label {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-height: 42px;
+            padding: 10px 12px;
+            border: 1px dashed var(--line);
+            border-radius: 9px;
+            background: #fbfdff;
+            color: var(--ink);
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            min-height: 18px;
+            accent-color: var(--primary);
+        }
+
+        .output-panel {
+            position: sticky;
+            top: 18px;
+        }
+
+        .status-card {
+            min-height: 46px;
+            display: flex;
+            align-items: center;
+            margin: 0 0 12px;
+            padding: 11px 13px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: var(--primary-soft);
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        .result-box {
+            min-height: 430px;
+            max-height: 68vh;
+            overflow: auto;
+            margin: 0;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fbfdff;
+        }
+
+        .result-empty,
+        .result-message {
+            margin: 0;
+            padding: 18px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .result-message {
+            color: var(--ink);
+            background: #fff;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .86rem;
+        }
+
+        .result-table th,
+        .result-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .result-table th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            font-size: .76rem;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .result-table tr:nth-child(even) td {
+            background: #f7fbff;
+        }
+
+        .result-table tr:hover td {
+            background: #eef6ff;
+        }
+
+        .result-key {
+            width: 38%;
+            color: var(--primary-dark);
+            font-weight: 800;
+        }
+
+        .result-value {
+            color: var(--ink);
+            word-break: break-word;
+        }
+
+        .result-json {
+            display: inline-block;
+            max-width: 260px;
+            white-space: pre-wrap;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: .78rem;
+            line-height: 1.35;
+        }
+
+        .error {
+            border-color: #f1b7b7;
+            background: var(--danger-soft);
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        .ok {
+            border-color: #aee7d3;
+            background: var(--success-soft);
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        hr {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .output-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .test-shell {
+                width: min(100% - 20px, 1180px);
+                padding-top: 16px;
+            }
+
+            .hero {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 22px;
+            }
+
+            .form-grid,
+            .session-tools,
+            .search-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="test-shell">
+        <header class="hero">
+            <div>
+                <h1>Test Gestion Usuarios</h1>
+                <p>Panel rapido para probar consultas, sesion de director y creacion de usuarios contra la API admin.</p>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                <a class="hero-badge" href="../index.html" style="text-decoration:none; color:#fff; background:rgba(255,255,255,.14);">Volver al panel</a>
+                <span class="hero-badge">REST tester</span>
+            </div>
+        </header>
+
+        <div class="layout">
+            <section>
+                <div class="panel">
+                    <h2>GET usuarios</h2>
+
+                    <div class="actions">
+                        <button id="btnUsuarios">Obtener todos los usuarios</button>
+                        <button id="btnAlumnos">Obtener alumnos</button>
+                        <button id="btnProfesores">Obtener profesores</button>
+                    </div>
+
+                    <div class="search-row">
+                        <input type="number" id="idUsuario" placeholder="ID usuario">
+                        <button id="btnAlumnoId">Buscar alumno por ID</button>
+                        <button id="btnProfesorId">Buscar profesor por ID</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>Crear usuarios API admin</h2>
+
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="tipoUsuario">Tipo de usuario</label>
+                            <select id="tipoUsuario" class="campo">
+                                <option value="alumno">Alumno</option>
+                                <option value="profesor">Profesor</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="idDirector">ID director</label>
+                            <input type="number" id="idDirector" class="campo" value="1">
+                        </div>
+
+                        <div class="field">
+                            <label for="nombre">Nombre</label>
+                            <input type="text" id="nombre" class="campo" value="Usuario">
+                        </div>
+
+                        <div class="field">
+                            <label for="apellidos">Apellidos</label>
+                            <input type="text" id="apellidos" class="campo" value="Prueba">
+                        </div>
+
+                        <div class="field full">
+                            <label for="correo">Correo</label>
+                            <input type="email" id="correo" class="campo" value="usuario.prueba@test.com">
+                        </div>
+
+                        <div class="field">
+                            <label for="nombreUsuario">Nombre de usuario</label>
+                            <input type="text" id="nombreUsuario" class="campo" value="usuarioprueba">
+                        </div>
+
+                        <div class="field">
+                            <label for="contrasena">Contrasena</label>
+                            <input type="text" id="contrasena" class="campo" value="1234">
+                        </div>
+
+                        <div class="field">
+                            <label for="instituto">Instituto</label>
+                            <input type="text" id="instituto" class="campo" value="IES Maestre de Calatrava">
+                        </div>
+
+                        <div class="field">
+                            <label for="telefono">Telefono</label>
+                            <input type="number" id="telefono" class="campo" value="600000001" maxlength="9">
+                        </div>
+
+                        <div class="field" id="camposAlumno">
+                            <label for="nivel">Nivel alumno</label>
+                            <select id="nivel" class="campo">
+                                <option value="A1">A1</option>
+                                <option value="A2">A2</option>
+                                <option value="B1">B1</option>
+                                <option value="B2">B2</option>
+                                <option value="C1">C1</option>
+                            </select>
+                        </div>
+
+                        <div class="field" id="campoRango">
+                            <label for="rango">Rango</label>
+                            <input type="text" id="rango" class="campo" value="Bronce">
+                        </div>
+
+                        <div class="field full" id="camposProfesor" style="display:none">
+                            <label>
+                                <input type="checkbox" id="directorProfesor">
+                                Crear profesor como director
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button id="btnCrearUsuario">Crear usuario</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="panel output-panel">
+                <h2>Resultado</h2>
+                <p id="estado" class="status-card">Esperando accion</p>
+                <div id="resultado" class="result-box">
+                    <p class="result-empty">Pulsa un boton para probar la conexion con la API.</p>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script type="module">
+        import { gestionUsuariosGet } from "../../js/REST/GET/getGestionUsuarios.js";
+        import { gestionUsuariosPut } from "../../js/REST/PUT/putGestionUsuarios.js";
+
+        const estado = document.getElementById("estado");
+        const resultado = document.getElementById("resultado");
+        const idUsuario = document.getElementById("idUsuario");
+        const sufijo = Date.now();
+
+        document.getElementById("correo").value = `usuario.prueba.${sufijo}@test.com`;
+        document.getElementById("nombreUsuario").value = `usuarioprueba${sufijo}`;
+
+        function escaparHtml(valor) {
+            return String(valor)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function formatearValor(valor) {
+            if (valor === null || valor === undefined) {
+                return '<span style="color:#98a2b3">-</span>';
+            }
+
+            if (typeof valor === "object") {
+                return `<span class="result-json">${escaparHtml(JSON.stringify(valor, null, 2))}</span>`;
+            }
+
+            if (typeof valor === "boolean") {
+                return valor ? "Si" : "No";
+            }
+
+            return escaparHtml(valor);
+        }
+
+        function clavesDeFilas(filas) {
+            const claves = new Set();
+            filas.forEach((fila) => {
+                if (fila && typeof fila === "object" && !Array.isArray(fila)) {
+                    Object.keys(fila).forEach((clave) => claves.add(clave));
+                }
+            });
+            return Array.from(claves);
+        }
+
+        function renderizarTablaArray(filas) {
+            if (!filas.length) {
+                resultado.innerHTML = '<p class="result-empty">La API respondio con una lista vacia.</p>';
+                return;
+            }
+
+            if (filas.every((fila) => fila && typeof fila === "object" && !Array.isArray(fila))) {
+                const columnas = clavesDeFilas(filas);
+                const cabecera = columnas.map((columna) => `<th>${escaparHtml(columna)}</th>`).join("");
+                const cuerpo = filas.map((fila) => {
+                    const celdas = columnas.map((columna) => `<td class="result-value">${formatearValor(fila[columna])}</td>`).join("");
+                    return `<tr>${celdas}</tr>`;
+                }).join("");
+
+                resultado.innerHTML = `<table class="result-table"><thead><tr>${cabecera}</tr></thead><tbody>${cuerpo}</tbody></table>`;
+                return;
+            }
+
+            const cuerpo = filas.map((fila, index) => `
+                <tr>
+                    <td class="result-key">${index + 1}</td>
+                    <td class="result-value">${formatearValor(fila)}</td>
+                </tr>
+            `).join("");
+
+            resultado.innerHTML = `<table class="result-table"><thead><tr><th>#</th><th>Valor</th></tr></thead><tbody>${cuerpo}</tbody></table>`;
+        }
+
+        function renderizarTablaObjeto(objeto) {
+            const filas = Object.entries(objeto || {}).map(([clave, valor]) => `
+                <tr>
+                    <td class="result-key">${escaparHtml(clave)}</td>
+                    <td class="result-value">${formatearValor(valor)}</td>
+                </tr>
+            `).join("");
+
+            resultado.innerHTML = `<table class="result-table"><thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>${filas}</tbody></table>`;
+        }
+
+        function mostrarResultado(datos) {
+            if (Array.isArray(datos)) {
+                renderizarTablaArray(datos);
+                return;
+            }
+
+            if (datos && typeof datos === "object") {
+                renderizarTablaObjeto(datos);
+                return;
+            }
+
+            resultado.innerHTML = `<p class="result-message">${escaparHtml(datos || "Sin datos para mostrar.")}</p>`;
+        }
+
+        function actualizarCamposPorTipo() {
+            const tipoUsuario = document.getElementById("tipoUsuario").value;
+            const esAlumno = tipoUsuario === "alumno";
+
+            document.getElementById("camposAlumno").style.display = esAlumno ? "block" : "none";
+            document.getElementById("campoRango").style.display = esAlumno ? "block" : "none";
+            document.getElementById("camposProfesor").style.display = esAlumno ? "none" : "block";
+            document.getElementById("telefono").value = esAlumno ? "600000001" : "610000001";
+        }
+
+        function obtenerDatosComunes() {
+            return {
+                nombre: document.getElementById("nombre").value.trim(),
+                apellidos: document.getElementById("apellidos").value.trim(),
+                correo: document.getElementById("correo").value.trim(),
+                nombreUsuario: document.getElementById("nombreUsuario").value.trim(),
+                contrasena: document.getElementById("contrasena").value.trim(),
+                instituto: document.getElementById("instituto").value.trim(),
+                telefono: Number(document.getElementById("telefono").value)
+            };
+        }
+
+        function obtenerDatosAlumno() {
+            return {
+                ...obtenerDatosComunes(),
+                nivel: document.getElementById("nivel").value,
+                rango: document.getElementById("rango").value.trim()
+            };
+        }
+
+        function obtenerDatosProfesor() {
+            return {
+                ...obtenerDatosComunes(),
+                director: document.getElementById("directorProfesor").checked
+            };
+        }
+
+        async function ejecutarPeticion(callback, mensajeCorrecto = "Conexion correcta") {
+            estado.className = "status-card";
+            estado.textContent = "Cargando...";
+            mostrarResultado("Cargando datos...");
+
+            try {
+                const datos = await callback();
+                estado.className = "status-card ok";
+                estado.textContent = mensajeCorrecto;
+                mostrarResultado(datos);
+            } catch (error) {
+                estado.className = "status-card error";
+                estado.textContent = "Error en la peticion";
+                mostrarResultado(error.message);
+                console.error(error);
+            }
+        }
+
+        function obtenerId() {
+            const id = idUsuario.value.trim();
+
+            if (!id) {
+                throw new Error("Introduce un ID antes de buscar.");
+            }
+
+            return id;
+        }
+
+        document.getElementById("btnUsuarios").addEventListener("click", () => {
+            ejecutarPeticion(() => gestionUsuariosGet.getUsuarios());
+        });
+
+        document.getElementById("btnAlumnos").addEventListener("click", () => {
+            ejecutarPeticion(() => gestionUsuariosGet.getAlumnos());
+        });
+
+        document.getElementById("btnProfesores").addEventListener("click", () => {
+            ejecutarPeticion(() => gestionUsuariosGet.getProfesores());
+        });
+
+        document.getElementById("tipoUsuario").addEventListener("change", actualizarCamposPorTipo);
+
+        document.getElementById("btnAlumnoId").addEventListener("click", () => {
+            ejecutarPeticion(() => gestionUsuariosGet.getAlumnoById(obtenerId()));
+        });
+
+        document.getElementById("btnProfesorId").addEventListener("click", () => {
+            ejecutarPeticion(() => gestionUsuariosGet.getProfesorById(obtenerId()));
+        });
+
+        document.getElementById("btnSesionDirector").addEventListener("click", () => {
+            const idDirector = Number(document.getElementById("idDirector").value);
+            const director = {
+                nombre: "Director",
+                apellidos: "Prueba",
+                id: idDirector,
+                idDirector,
+                idProfesor: idDirector,
+                rol: "DIRECTOR",
+                role: "director"
+            };
+
+            localStorage.setItem("usuario", JSON.stringify(director));
+            localStorage.setItem("lf_session", JSON.stringify({
+                email: "director@test.com",
+                id: idDirector,
+                idDirector,
+                idProfesor: idDirector,
+                role: "director"
+            }));
+
+            estado.className = "status-card ok";
+            estado.textContent = "Sesion de director guardada";
+            mostrarResultado({
+                accion: "Sesion de director guardada",
+                siguientePaso: "Ahora puedes probar Crear usuario con API.",
+                nota: "Revisa tambien la consola del navegador para ver el log del fetch."
+            });
+        });
+
+        document.getElementById("btnBorrarSesion").addEventListener("click", () => {
+            localStorage.removeItem("usuario");
+            sessionStorage.removeItem("usuario");
+            localStorage.removeItem("lf_session");
+            sessionStorage.removeItem("lf_session");
+
+            estado.className = "status-card ok";
+            estado.textContent = "Sesion borrada";
+            mostrarResultado({
+                accion: "Sesion borrada",
+                comportamientoEsperado: "Si intentas crear un usuario ahora, debe bloquearse por permisos antes de llamar a la API."
+            });
+        });
+
+        document.getElementById("btnCrearUsuario").addEventListener("click", () => {
+            const tipoUsuario = document.getElementById("tipoUsuario").value;
+            const idDirector = Number(document.getElementById("idDirector").value);
+            const usuarioDirector = {
+                id: idDirector,
+                idDirector,
+                idProfesor: idDirector,
+                rol: "DIRECTOR",
+                role: "director"
+            };
+            const datosUsuario = tipoUsuario === "alumno" ? obtenerDatosAlumno() : obtenerDatosProfesor();
+
+            ejecutarPeticion(
+                () => gestionUsuariosPut.crearUsuario(datosUsuario, tipoUsuario, usuarioDirector),
+                "Usuario enviado a la API"
+            );
+        });
+
+        actualizarCamposPorTipo();
+    </script>
+</body>
+
+</html>

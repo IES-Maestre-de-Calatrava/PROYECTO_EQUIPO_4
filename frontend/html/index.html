@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Le Français</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link rel="icon" type="image/png" href="https://static.vecteezy.com/system/resources/previews/012/624/939/non_2x/france-flag-icon-free-png.png">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/gestionEstilo.css">
+</head>
+<body>
+<!-- ====================================================
+     APP SCREEN
+===================================================== -->
+<div id="screen-app" class="screen active">
+
+  <!-- IMPERSONATION BANNER -->
+  <div class="impersonation-banner" id="teacher-impersonation-mode">
+    <i class="bi bi-eye-fill"></i>
+    <span>Modo vista alumno — estás viendo la app como un alumno</span>
+    <button class="btn btn-sm btn-light ms-auto" style="font-size:.78rem;border-radius:6px;" onclick="exitImpersonation()">
+      <i class="bi bi-arrow-return-left me-1"></i>Volver a panel profesor
+    </button>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav class="app-navbar">
+    <button class="menu-toggle" onclick="toggleMobileMenu()">
+  <i class="bi bi-list"></i>
+</button>
+    <div class="navbar-logo">Le <span style="color:#002654">Fr</span><span style="color:#6c757d">anç</span><span style="color:#ED2939">ais</span>
+    </div>
+    <div class="navbar-user">
+      <div class="timer-display" id="global-timer"><i class="bi bi-stopwatch-fill"></i> <span id="timer-val">00:00</span></div>
+      <button class="btn-icon notification-btn" id="notification-btn" onclick="showNotifications(event)" aria-label="Notificaciones" title="Notificaciones">
+        <i class="bi bi-bell-fill"></i>
+        <span class="notification-badge" id="notification-badge"></span>
+      </button>
+      <div class="profile-dropdown" id="profile-dropdown" onclick="toggleProfileMenu(event)" tabindex="0" role="button" aria-expanded="false" aria-haspopup="true">
+        <div class="user-avatar" id="nav-avatar">--</div>
+        <div class="profile-summary">
+          <div class="user-name" id="nav-username">Usuario</div>
+          <div class="user-role-pill" id="nav-role-pill">Alumno</div>
+        </div>
+        <i class="bi bi-chevron-down profile-dropdown-caret"></i>
+        <div class="profile-menu" id="profile-menu" onclick="event.stopPropagation()">
+          <div class="profile-menu-header">
+            <div class="profile-menu-avatar" id="pm-avatar">--</div>
+            <div>
+              <div class="profile-menu-name" id="pm-name">Usuario</div>
+              <div class="profile-menu-role" id="pm-role">Alumno</div>
+            </div>
+          </div>
+          <div class="profile-menu-divider"></div>
+          <button type="button" class="profile-menu-item" onclick="openProfileSettings()">
+            <i class="bi bi-person-fill"></i> Mi perfil
+          </button>
+          <div class="profile-menu-divider"></div>
+          <div class="profile-menu-darkrow">
+            <span><i class="bi bi-moon-fill"></i> Modo oscuro</span>
+            <label class="pm-switch">
+              <input type="checkbox" id="pm-dark-toggle" onchange="toggleDarkMode(this.checked)"/>
+              <span class="pm-switch-track"></span>
+            </label>
+          </div>
+          <div class="profile-menu-divider"></div>
+          <button type="button" class="profile-menu-item danger" onclick="doLogout()">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <!-- MOBILE MENU -->
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
+
+<aside class="mobile-sidebar" id="mobile-sidebar">
+
+  <div id="mobile-sidebar-content"></div>
+
+</aside>
+
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+      <div id="sidebar-alumno">
+        <button class="sidebar-item active" onclick="showPanel('dashboard')"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
+        <button class="sidebar-item" onclick="showPanel('courses')"><i class="bi bi-book-fill"></i>Mis Cursos</button>
+        <div class="sidebar-divider"></div>
+        <button class="sidebar-item" onclick="showPanel('leaderboard')"><i class="bi bi-trophy-fill"></i> Leaderboard</button>
+        <button class="sidebar-item" onclick="showPanel('progress')"><i class="bi bi-bar-chart-fill"></i> Mi progreso</button>
+        <div class="sidebar-divider"></div>
+        <button class="sidebar-item" onclick="showPanel('tutor')"><i class="bi bi-chat-dots-fill"></i> Tutor IA</button>
+        <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
+      </div>
+
+      <div id="sidebar-profesor" style="display:none">
+        <div class="sidebar-section-label">Panel</div>
+        <button class="sidebar-item active" onclick="showPanel('profe-dashboard')"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
+        <button class="sidebar-item" onclick="showPanel('profe-students')"><i class="bi bi-people-fill"></i> Alumnos</button>
+        <button class="sidebar-item" onclick="showPanel('profe-leaderboard')"><i class="bi bi-trophy-fill"></i> Leaderboard</button>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">Contenido</div>
+        <button class="sidebar-item" onclick="location.href='gestorGrupos.html'"><i class="bi bi-book-fill"></i>Mis Cursos</button>
+        <button class="sidebar-item" onclick="showPanel('activity-editor')"><i class="bi bi-pencil-square"></i> Editor actividades</button>
+        <div class="sidebar-divider"></div>
+        <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
+      </div>
+
+      <div id="sidebar-director" style="display:none">
+        <div class="sidebar-section-label">Director</div>
+        <button class="sidebar-item active" onclick="showPanel('director-dashboard')"><i class="bi bi-speedometer2"></i> Panel Director</button>
+        <a class="sidebar-item" href="TESTS_ALVARO/testGestionUsuarios.html" target="_blank" rel="noopener"><i class="bi bi-tools"></i> Test Gestión Usuarios</a>
+        <div class="sidebar-divider"></div>
+        <button class="sidebar-item" onclick="showPanel('settings')"><i class="bi bi-gear-fill"></i> Configuración</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+      <!-- ── ALUMNO: DASHBOARD ── -->
+      <div id="dashboard" class="panel active">
+        <div class="dash-greeting">¡Hola, <span id="dash-name">Alumno</span>! 👋</div>
+        <div class="dash-sub">Continúa tu camino hacia el francés perfecto</div>
+        <div class="motivational-banner mt-3 mb-4" id="motivational-banner">
+          <span class="msg-icon">🎯</span>
+          <span class="msg-text" id="motivational-msg">¡Vas genial! Sigue así 🔥</span>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-label">Puntos totales</div><div class="stat-value" id="user-score">0</div></div></div>
+          <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-label">Ejercicios hechos</div><div class="stat-value" id="dash-exercises-done">0</div></div></div>
+          <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon">📚</div><div class="stat-label">Actividades</div><div class="stat-value" id="dash-activities-done">0</div></div></div>
+          <!-- % acierto: visible en alumno, NO en panel profesor -->
+          <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-label">% de acierto</div><div class="stat-value" id="dash-accuracy">—</div></div></div>
+        </div>
+        <div id="level-card" class="level-card mb-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div style="font-size:.8rem;opacity:.7;text-transform:uppercase;letter-spacing:.06em;">Nivel actual</div>
+              <div class="level-name" id="level-indicator">Básico</div>
+              <div class="level-desc"  id="level-desc">Empezando tu aventura en francés</div>
+            </div>
+            <div style="font-size:2.5rem;" id="level-icon">🔵</div>
+          </div>
+          <div class="level-progress-label" id="level-progress-label">Progreso al siguiente nivel</div>
+          <div class="level-progress-bar"><div class="level-progress-fill" id="level-progress-fill" style="width:0%"></div></div>
+          <div class="level-next" id="level-next">Te faltan 2 000 puntos para Intermedio</div>
+        </div>
+      </div>
+
+      <!-- ── ALUMNO: CURSOS ── -->
+      <div id="courses" class="panel">
+        <div class="section-title">Mis Cursos</div>
+        <div class="row g-3" id="courses-container"></div>
+      </div>
+
+      <!-- ── ALUMNO: LISTA ACTIVIDADES ── -->
+      <div id="activity-container" class="panel">
+        <button class="back-btn" onclick="showPanel('courses')"><i class="bi bi-arrow-left"></i> Volver a cursos</button>
+        <div class="section-title" id="activity-course-title">Actividades</div>
+        <div class="notes-card mb-3" id="activity-notes-wrap" style="display:none">
+          <div style="font-size:.78rem;font-weight:700;color:var(--gold);margin-bottom:.35rem;"><i class="bi bi-journal-text me-1"></i>Mis apuntes del curso</div>
+          <textarea id="activity-notes" placeholder="Escribe tus apuntes aquí…" oninput="saveNotes()"></textarea>
+        </div>
+        <div id="activity-list"></div>
+      </div>
+
+      <!-- ── EJERCICIOS ── -->
+      <div id="exercise-panel" class="panel">
+        <button class="back-btn" id="exercise-back-btn"><i class="bi bi-arrow-left"></i> Volver a actividad</button>
+        <div class="exercise-header">
+          <span class="ex-counter" id="ex-counter">Ejercicio 1/3</span>
+          <div class="ex-progress-wrap"><div class="ex-progress-fill" id="ex-progress-fill" style="width:0%"></div></div>
+          <span class="ex-points-live"><i class="bi bi-star-fill"></i> <span id="ex-points-live">0</span> pts</span>
+        </div>
+        <div id="exercise-list" class="exercise-card"></div>
+      </div>
+
+      <!-- ── ACTIVIDAD COMPLETADA ── -->
+      <div id="activity-complete-panel" class="panel">
+        <div class="activity-complete">
+          <div class="complete-icon" id="complete-icon">🎉</div>
+          <div class="complete-title">¡Actividad completada!</div>
+          <div class="complete-points" id="complete-points">+0 puntos</div>
+          <div class="complete-sub" id="complete-sub">Has completado todos los ejercicios</div>
+          <div id="complete-accuracy" class="complete-accuracy-badge" style="display:none"></div>
+          <button class="btn-back-courses" onclick="showPanel('activity-container')">Ver más actividades</button>
+        </div>
+      </div>
+
+      <!-- ── LEADERBOARD ALUMNO (3 tabs: General / Diaria / Semanal) ── -->
+      <div id="leaderboard" class="panel">
+        <!-- Header -->
+        <div class="lb-page-header">
+          <div class="lb-title-wrap">
+            <i class="bi bi-trophy-fill lb-title-icon"></i>
+            <div>
+              <h2 class="lb-main-title">Leaderboard</h2>
+              <p class="lb-main-sub">Compite y sube al top de la clase</p>
+            </div>
+          </div>
+          <div class="lb-last-updated" id="lb-last-updated"></div>
+        </div>
+
+        <!-- Tab Selector -->
+        <div class="lb-tab-container">
+          <button class="lb-tab active" id="tab-general" onclick="switchLeaderboard('general')">
+            <i class="bi bi-globe2"></i>
+            <span>General</span>
+            <small>Histórico</small>
+          </button>
+          <button class="lb-tab" id="tab-diaria" onclick="switchLeaderboard('diaria')">
+            <i class="bi bi-sun-fill"></i>
+            <span>Diaria</span>
+            <small>Hoy</small>
+          </button>
+          <button class="lb-tab" id="tab-semanal" onclick="switchLeaderboard('semanal')">
+            <i class="bi bi-calendar-week-fill"></i>
+            <span>Semanal</span>
+            <small>Esta semana</small>
+          </button>
+        </div>
+
+        <!-- Content area -->
+        <div id="leaderboard-content"></div>
+      </div>
+
+      <!-- ── PROGRESO ── -->
+      <div id="progress" class="panel">
+        <div class="section-title">Mi Progreso</div>
+        <div class="row g-3">
+          <div class="col-md-4"><div class="stat-card p-3"><div class="stat-label">Puntos totales</div><div class="stat-value" id="prog-score">0</div></div></div>
+          <div class="col-md-4"><div class="stat-card p-3"><div class="stat-label">Nivel</div><div class="stat-value" id="prog-level">Básico</div></div></div>
+          <div class="col-md-4"><div class="stat-card p-3"><div class="stat-label">% de acierto</div><div class="stat-value" id="prog-accuracy">—</div></div></div>
+        </div>
+        <div class="mt-4">
+          <div class="section-title">Historial de cursos</div>
+          <div id="progress-course-list"></div>
+        </div>
+        <div class="mt-4">
+          <div class="section-title">Tiempo activo</div>
+          <div class="stat-card" style="max-width:300px;">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-label">Tiempo en sesión</div>
+            <div class="stat-value" id="prog-session-time">0 min</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CONFIGURACIÓN (todos los roles) ── -->
+      <div id="settings" class="panel">
+        <div class="section-title">⚙️ Configuración</div>
+
+        <div class="settings-card">
+          <div class="settings-card-header"><i class="bi bi-shield-lock-fill me-2"></i>Seguridad</div>
+          <div class="settings-body">
+            <div class="mb-3">
+              <label class="form-label">Contraseña actual</label>
+              <input type="password" class="form-control" id="settings-pass-current" placeholder="••••••••"/>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Nueva contraseña</label>
+              <input type="password" class="form-control" id="settings-pass-new" placeholder="Mínimo 8 caracteres"/>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Confirmar nueva contraseña</label>
+              <input type="password" class="form-control" id="settings-pass-confirm" placeholder="Repite la contraseña"/>
+            </div>
+            <div id="settings-pass-msg" class="d-none mb-3 alert py-2 px-3" style="font-size:.85rem;border-radius:8px;"></div>
+            <button class="btn-primary-custom" onclick="changePassword()"><i class="bi bi-lock-fill me-1"></i>Actualizar contraseña</button>
+            <div class="mt-2" style="font-size:.75rem;color:var(--text-muted);">
+              <i class="bi bi-info-circle me-1"></i>El cambio se conectará al backend en producción.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TUTOR IA ── -->
+      <div id="tutor" class="panel">
+        <div class="section-title">🤖 Tutor de Francés IA</div>
+        <div class="tutor-container">
+          <div class="tutor-chat" id="tutor-chat-box">
+            <!-- Los mensajes se agregan aquí dinámicamente -->
+            <div class="tutor-message tutor-message-bot">
+              <div class="tutor-msg-avatar"></div>
+              <div class="tutor-msg-content">
+                <p>¡Hola! Soy tu tutor de francés personal. 👋</p>
+                <p>Puedo ayudarte con:</p>
+                <ul style="margin-top:.5rem;margin-bottom:0;padding-left:1.2rem;">
+                  <li>Corregir tus errores gramaticales</li>
+                  <li>Enseñarte pronunciación con fonética visual</li>
+                  <li>Explicar reglas gramaticales</li>
+                  <li>Darte tips sobre cultura francesa</li>
+                  <li>Responder preguntas sobre los ejercicios</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="tutor-input-wrap">
+            <div class="input-group">
+              <input type="text" class="form-control tutor-input" id="tutor-message-input" placeholder="Escribe tu pregunta o corrígeme en francés..." onkeypress="if(event.key==='Enter') sendTutorMessage();"/>
+              <button class="btn btn-primary" onclick="sendTutorMessage()" style="border-radius:0 8px 8px 0;background:var(--primary);border:none;color:#fff;"><i class="bi bi-send-fill"></i></button>
+            </div>
+            <small class="tutor-hint">💡 Ej: "¿Cómo se pronuncia bonjour?" o "Corrígeme: Je va a la école"</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════
+           PROFESOR PANELS
+      ════════════════════════════ -->
+
+      <!-- ── PROFESOR: DASHBOARD ── (sin % acierto, movido al alumno) -->
+      <div id="profe-dashboard" class="panel">
+        <div class="dash-greeting">Panel del Profesor </div>
+        <div class="dash-sub">Visión general de tu aula</div>
+        <div class="row g-3 mt-2 mb-4">
+          <div class="col-6 col-md-4"><div class="metric-card"><div class="metric-value">5</div><div class="metric-label">Alumnos activos</div><div class="metric-sub">↑ 1 esta semana</div></div></div>
+          <div class="col-6 col-md-4"><div class="metric-card"><div class="metric-value" id="profe-total-exercises">176</div><div class="metric-label">Ejercicios completados</div><div class="metric-sub">Total acumulado</div></div></div>
+          <div class="col-6 col-md-4"><div class="metric-card"><div class="metric-value">3</div><div class="metric-label">Cursos activos</div><div class="metric-sub">A1 · A2 · B1</div></div></div>
+        </div>
+        <div class="section-title">Progreso por alumno</div>
+        <div class="table-responsive mb-4">
+          <table class="table table-hover" style="font-size:.88rem;">
+            <thead style="background:var(--bg);">
+              <tr><th>Alumno</th><th>Nivel</th><th>Puntos</th><th>Ejercicios</th><th>Última actividad</th><th>Tiempo</th><th>Progreso</th></tr>
+            </thead>
+            <tbody id="profe-metrics-table"></tbody>
+          </table>
+        </div>
+        <div class="section-title">Actividad reciente</div>
+        <div id="profe-recent-activity"></div>
+      </div>
+
+      <!-- ── PROFESOR: ALUMNOS ── -->
+      <div id="profe-students" class="panel">
+        <div class="page-header">
+          <div class="section-title">Alumnos</div>
+          <div style="font-size:.82rem;color:var(--text-muted);">5 alumnos registrados</div>
+        </div>
+        <div class="section-title">Gestión de Alumnos</div>
+
+<div class="row g-2 mb-4 p-3 shadow-sm bg-white" style="border-radius: 12px; border: 1px solid var(--border);">
+  <div class="col-md-3">
+    <label class="form-label small fw-bold">Buscar por nombre</label>
+    <div class="input-group input-group-sm">
+      <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+      <input type="text" id="filter-name" class="form-control border-start-0 bg-light" placeholder="Ej: Ana García" oninput="applyStudentFilters()">
+    </div>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label small fw-bold">Curso</label>
+    <select id="filter-course" class="form-select form-select-sm bg-light" onchange="applyStudentFilters()">
+      <option value="">Todos</option>
+      <option value="A1">A1 — Básico</option>
+      <option value="A2">A2 — Elemental</option>
+      <option value="B1">B1 — Intermedio</option>
+      <option value="B2">B2 — Avanzado</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label small fw-bold">Ordenar por Puntos</label>
+    <select id="filter-sort" class="form-select form-select-sm bg-light" onchange="applyStudentFilters()">
+      <option value="desc">Mayor puntuación primero</option>
+      <option value="asc">Menor puntuación primero</option>
+      <option value="name">Nombre (A-Z)</option>
+    </select>
+  </div>
+</div>
+
+<div id="profe-students-list"></div>
+        <div id="students-list"></div>
+      </div>
+
+      <!-- ── PROFESOR: LEADERBOARD ── -->
+      <div id="profe-leaderboard" class="panel">
+        <!-- Header -->
+        <div class="lb-page-header">
+          <div class="lb-title-wrap">
+            <i class="bi bi-trophy-fill lb-title-icon"></i>
+            <div>
+              <h2 class="lb-main-title">Leaderboard del Aula</h2>
+              <p class="lb-main-sub">Progreso competitivo de tus alumnos</p>
+            </div>
+          </div>
+          <div class="lb-last-updated" id="profe-lb-last-updated"></div>
+        </div>
+
+        <!-- Tab Selector -->
+        <div class="lb-tab-container">
+          <button class="lb-tab active" id="profe-tab-general" onclick="switchProfeLeaderboard('general')">
+            <i class="bi bi-globe2"></i>
+            <span>General</span>
+            <small>Histórico</small>
+          </button>
+          <button class="lb-tab" id="profe-tab-diaria" onclick="switchProfeLeaderboard('diaria')">
+            <i class="bi bi-sun-fill"></i>
+            <span>Diaria</span>
+            <small>Hoy</small>
+          </button>
+          <button class="lb-tab" id="profe-tab-semanal" onclick="switchProfeLeaderboard('semanal')">
+            <i class="bi bi-calendar-week-fill"></i>
+            <span>Semanal</span>
+            <small>Esta semana</small>
+          </button>
+        </div>
+
+        <div id="profe-leaderboard-content"></div>
+      </div>
+
+      <!-- ── PROFESOR: CURSOS ── -->
+      <div id="profe-courses" class="panel">
+        <div id="course-manager">
+          <div class="page-header">
+            <div class="section-title mb-0">Gestión de Cursos</div>
+            <button class="btn-primary-custom" onclick="openCourseModal()"><i class="bi bi-plus-lg me-1"></i>Nuevo curso</button>
+          </div>
+          <div id="courses-container"></div>
+        </div>
+      </div>
+
+      <!-- ── EDITOR ACTIVIDADES ── -->
+      <div id="activity-editor" class="panel">
+        <div class="page-header">
+          <div class="section-title mb-0">Editor de Actividades</div>
+          <button class="btn-primary-custom" onclick="openActivityModal()"><i class="bi bi-plus-lg me-1"></i>Nueva actividad</button>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" style="font-size:.82rem;">Filtrar por curso</label>
+          <select class="form-select form-select-sm" style="max-width:260px;" id="editor-course-filter" onchange="renderActivityEditor()">
+            <option value="">Todos los cursos</option>
+          </select>
+        </div>
+        <div id="activity-editor-list"></div>
+      </div>
+
+      <!-- ════════════════════════════
+           DIRECTOR PANELS
+      ════════════════════════════ -->
+
+      <div id="director-dashboard" class="panel">
+        <div class="dash-greeting">Panel del Director 👑</div>
+        <div class="dash-sub">Gestión institucional de la plataforma</div>
+        <div class="row g-3 mt-2 mb-4">
+          <div class="col-6 col-md-3"><div class="metric-card"><div class="metric-value">7</div><div class="metric-label">Usuarios totales</div><div class="metric-sub">Alumnos + Profesores</div></div></div>
+          <div class="col-6 col-md-3"><div class="metric-card"><div class="metric-value">5</div><div class="metric-label">Alumnos</div><div class="metric-sub">Activos este mes</div></div></div>
+          <div class="col-6 col-md-3"><div class="metric-card"><div class="metric-value">1</div><div class="metric-label">Profesores</div><div class="metric-sub">En la plataforma</div></div></div>
+          <div class="col-6 col-md-3"><div class="metric-card"><div class="metric-value">3</div><div class="metric-label">Cursos activos</div><div class="metric-sub">A1 · A2 · B1</div></div></div>
+        </div>
+        <div class="d-flex gap-3 flex-wrap mb-4">
+          <a class="btn-primary-custom" href="TESTS_ALVARO/testGestionUsuarios.html" target="_blank" rel="noopener"><i class="bi bi-tools me-2"></i>Test Gestión de usuarios</a>
+        </div>
+        <div class="settings-card">
+          <div class="settings-card-header"><i class="bi bi-info-circle-fill me-2"></i>Nota del sistema</div>
+          <div class="settings-body" style="font-size:.88rem;color:var(--text-muted);line-height:1.6;">
+            El panel de Director está preparado para integración con backend. La generación real de credenciales y gestión de centros se conectará al sistema de autenticación en producción.
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ── TOAST FEEDBACK ── -->
+<div class="feedback-toast" id="feedback-toast">
+  <span class="toast-icon" id="toast-icon">🎉</span>
+  <span id="toast-msg">¡Perfecto!</span>
+  <span class="feedback-points" id="toast-points">+100 pts</span>
+</div>
+
+<!-- ── LEVEL UP ── -->
+<div class="levelup-overlay" id="levelup-overlay" style="display:none">
+  <div class="levelup-card">
+    <div class="levelup-icon" id="levelup-icon">🎉</div>
+    <div class="levelup-title" id="levelup-title">¡Nivel desbloqueado!</div>
+    <div class="levelup-sub" id="levelup-sub">Has alcanzado el nivel Intermedio</div>
+    <button class="btn-levelup" onclick="closeLevelUp()">¡Genial! ✨</button>
+  </div>
+</div>
+
+<!-- ── MODAL: CURSO ── -->
+<div class="modal-overlay" id="modal-course">
+  <div class="modal-box">
+    <h5 id="modal-course-title">Nuevo Curso</h5>
+    <div class="mb-3"><label class="form-label">Título del curso</label><input type="text" class="form-control" id="mc-title" placeholder="Ej: Francés A1 Básico"/></div>
+    <div class="mb-3"><label class="form-label">Nivel</label>
+      <select class="form-select" id="mc-level">
+        <option value="A1">A1 — Básico</option><option value="A2">A2 — Elemental</option>
+        <option value="B1">B1 — Intermedio</option><option value="B2">B2 — Avanzado</option>
+      </select>
+    </div>
+    <div class="mb-3"><label class="form-label">Descripción</label><input type="text" class="form-control" id="mc-desc" placeholder="Breve descripción del curso"/></div>
+    <div class="d-flex gap-2 justify-content-end">
+      <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-course')">Cancelar</button>
+      <button class="btn-primary-custom" onclick="saveCourse()">Guardar curso</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: ACTIVIDAD ── -->
+<div class="modal-overlay" id="modal-activity">
+  <div class="modal-box">
+    <h5 id="modal-activity-title">Nueva Actividad</h5>
+    <div class="mb-3"><label class="form-label">Curso</label><select class="form-select" id="ma-course"></select></div>
+    <div class="mb-3"><label class="form-label">Título</label><input type="text" class="form-control" id="ma-title" placeholder="Ej: Saludos y presentaciones"/></div>
+    <div class="mb-3"><label class="form-label">Descripción</label><input type="text" class="form-control" id="ma-subtitle" placeholder="Breve descripción"/></div>
+    <div class="row g-2 mb-3">
+      <div class="col-md-6"><label class="form-label">Fecha límite</label><input type="date" class="form-control" id="ma-deadline"/></div>
+      <div class="col-md-6"><label class="form-label">Tiempo máx. (min, 0=sin límite)</label><input type="number" class="form-control" id="ma-maxtime" value="0" min="0"/></div>
+    </div>
+    <div class="d-flex gap-2 justify-content-end">
+      <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-activity')">Cancelar</button>
+      <button class="btn-primary-custom" onclick="saveActivity()">Guardar actividad</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: EJERCICIO (4 tipos) ── -->
+<div class="modal-overlay" id="modal-exercise">
+  <div class="modal-box" style="max-width:620px;">
+    <h5 id="modal-exercise-title">Nuevo Ejercicio</h5>
+
+    <!-- Tipo: tabs visuales -->
+    <div class="mb-4">
+      <label class="form-label">Tipo de ejercicio</label>
+      <div class="ex-type-tabs">
+        <button class="ex-type-tab active" id="tab-test"  onclick="setExerciseTab('test')"><i class="bi bi-list-check"></i><span>Opción múltiple</span></button>
+        <button class="ex-type-tab"        id="tab-fill"  onclick="setExerciseTab('fill')"><i class="bi bi-input-cursor-text"></i><span>Rellenar hueco</span></button>
+        <button class="ex-type-tab"        id="tab-match" onclick="setExerciseTab('match')"><i class="bi bi-arrow-left-right"></i><span>Unir elementos</span></button>
+        <button class="ex-type-tab"        id="tab-image" onclick="setExerciseTab('image')"><i class="bi bi-image-fill"></i><span>Con imagen</span></button>
+      </div>
+      <input type="hidden" id="me-type" value="test"/>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Pregunta / Instrucción</label>
+      <input type="text" class="form-control" id="me-question" placeholder="Escribe la pregunta…"/>
+    </div>
+
+    <!-- TIPO TEST -->
+    <div id="me-test-fields">
+      <div class="mb-2"><label class="form-label" style="font-size:.8rem;">Opciones <small class="text-muted">(radio = correcta)</small></label></div>
+      <div class="d-flex gap-2 mb-2 align-items-center"><input type="radio" name="me-correct" value="0" checked/><input type="text" class="form-control form-control-sm" id="me-opt0" placeholder="Opción A"/></div>
+      <div class="d-flex gap-2 mb-2 align-items-center"><input type="radio" name="me-correct" value="1"/><input type="text" class="form-control form-control-sm" id="me-opt1" placeholder="Opción B"/></div>
+      <div class="d-flex gap-2 mb-2 align-items-center"><input type="radio" name="me-correct" value="2"/><input type="text" class="form-control form-control-sm" id="me-opt2" placeholder="Opción C"/></div>
+      <div class="d-flex gap-2 mb-2 align-items-center"><input type="radio" name="me-correct" value="3"/><input type="text" class="form-control form-control-sm" id="me-opt3" placeholder="Opción D (opcional)"/></div>
+    </div>
+
+    <!-- TIPO FILL -->
+    <div id="me-fill-fields" style="display:none">
+      <div class="mb-3"><label class="form-label">Respuesta correcta</label><input type="text" class="form-control" id="me-fill-correct" placeholder="Respuesta exacta"/></div>
+      <div class="mb-3"><label class="form-label">Pista (opcional)</label><input type="text" class="form-control" id="me-fill-hint" placeholder="Pista para el alumno"/></div>
+    </div>
+
+    <!-- TIPO MATCH -->
+    <div id="me-match-fields" style="display:none">
+      <div class="mb-2"><label class="form-label" style="font-size:.8rem;">Pares concepto ↔ definición</label></div>
+      <div id="me-match-pairs">
+        <div class="match-pair-row"><input type="text" class="form-control form-control-sm" placeholder="Concepto"/><span class="match-arrow">↔</span><input type="text" class="form-control form-control-sm" placeholder="Definición"/></div>
+        <div class="match-pair-row"><input type="text" class="form-control form-control-sm" placeholder="Concepto"/><span class="match-arrow">↔</span><input type="text" class="form-control form-control-sm" placeholder="Definición"/></div>
+        <div class="match-pair-row"><input type="text" class="form-control form-control-sm" placeholder="Concepto"/><span class="match-arrow">↔</span><input type="text" class="form-control form-control-sm" placeholder="Definición"/></div>
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-primary mt-2" style="border-radius:8px;font-size:.8rem;" onclick="addMatchPair()"><i class="bi bi-plus-lg me-1"></i>Añadir par</button>
+    </div>
+
+    <!-- TIPO IMAGE -->
+    <div id="me-image-fields" style="display:none">
+      <div class="mb-3">
+        <label class="form-label">URL de la imagen</label>
+        <input type="text" class="form-control" id="me-image-url" placeholder="https://…" oninput="previewImage()"/>
+        <div class="mt-2" id="me-image-preview-wrap" style="display:none"><img id="me-image-preview" src="" alt="Vista previa" class="me-image-preview-wrap" style="max-height:140px;border-radius:8px;border:1px solid var(--border);"/></div>
+      </div>
+      <div class="mb-3"><label class="form-label">Respuesta correcta</label><input type="text" class="form-control" id="me-image-correct" placeholder="Lo que debe escribir el alumno"/></div>
+      <div class="mb-3"><label class="form-label">Pista (opcional)</label><input type="text" class="form-control" id="me-image-hint" placeholder="Ej: Es una fruta"/></div>
+    </div>
+
+    <div class="d-flex gap-2 justify-content-end mt-4">
+      <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-exercise')">Cancelar</button>
+      <button class="btn-primary-custom" onclick="saveExercise()"><i class="bi bi-check-lg me-1"></i>Guardar ejercicio</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-profile">
+  <div class="modal-box">
+    <h5>Mi perfil</h5>
+    <div class="mb-3">
+      <label class="form-label">Nombre de usuario</label>
+      <input type="text" class="form-control" id="profile-username" readonly style="background:var(--bg);color:var(--text-muted);cursor:not-allowed;" placeholder="Username"/>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Nombre completo</label>
+      <input type="text" class="form-control" id="profile-name" placeholder="Tu nombre completo"/>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Correo electrónico</label>
+      <input type="email" class="form-control" id="profile-email" placeholder="tu@ejemplo.com"/>
+    </div>
+    <div id="profile-msg" class="d-none mb-2 alert py-2 px-3" style="font-size:.85rem;border-radius:8px;"></div>
+    <div class="d-flex gap-2 justify-content-end">
+      <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-profile')">Cancelar</button>
+      <button class="btn-primary-custom" onclick="saveProfileChanges()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/script.js"></script>
+<script src="../js/tutor/tutor-ia.js"></script>
+<script type="module" src="../js/REST/GET/getGrupos.js"></script>
+<script type="module" src="../js/REST/GET/getAlumnos.js"></script>
+
+
+<!--
+=================================================================
+  ESQUEMA DE IDs v2.0 — DOCUMENTACIÓN INTERNA
+=================================================================
+
+── SCREENS ───────────────────────────────────────────────────────
+  #screen-login              → Login con recuerdo de sesión (localStorage)
+  #screen-app                → App principal post-login
+
+── BANNERS ───────────────────────────────────────────────────────
+  #teacher-impersonation-mode → Banner rojo visible cuando profesor impersona alumno
+
+── NAVBAR ────────────────────────────────────────────────────────
+  .app-navbar                → Navbar sticky
+  #nav-avatar                → Iniciales del usuario
+  #nav-username              → Nombre del usuario
+  #nav-role-pill             → Badge de rol (Alumno / Profesor / Vista Alumno)
+  #global-timer              → Timer de actividad (.visible/.urgent)
+  #timer-val                 → Valor del timer "MM:SS"
+
+── SIDEBARS ──────────────────────────────────────────────────────
+  #sidebar-alumno            → Sidebar para alumnos (incluye Leaderboard)
+  #sidebar-profesor          → Sidebar para profesor (incluye Vista alumno btn)
+
+── PANELS ALUMNO ─────────────────────────────────────────────────
+  #dashboard                 → Dashboard alumno
+  #courses                   → Galería de cursos
+  #activity-container        → Actividades de un curso (con apuntes)
+  #activity-notes-wrap       → Panel de apuntes editable
+  #activity-notes            → Textarea de apuntes
+  #exercise-panel            → Motor de ejercicios
+  #activity-complete-panel   → Pantalla de actividad completada
+  #leaderboard               → Leaderboard para alumno
+  #progress                  → Progreso del alumno (incluye tiempo sesión)
+  #messages                  → Chat
+
+── PANELS PROFESOR ───────────────────────────────────────────────
+  #profe-dashboard           → Panel profesor con métricas + tabla de progreso
+  #profe-students            → Listado de alumnos
+  #profe-leaderboard         → Leaderboard del aula (panel profesor)
+  #course-manager            → Div interno de #profe-courses
+  #profe-courses             → Gestión de cursos (crear/editar/eliminar)
+  #activity-editor           → Editor completo de actividades y ejercicios
+
+── MODALES ───────────────────────────────────────────────────────
+  #modal-course              → Modal crear/editar curso
+  #modal-activity            → Modal crear/editar actividad (con deadline+timer)
+  #modal-exercise            → Modal crear/editar ejercicio (test o hueco)
+
+── LEADERBOARD ───────────────────────────────────────────────────
+  #leaderboard-content       → Contenedor leaderboard alumno
+  #profe-leaderboard-content → Contenedor leaderboard profesor
+  .lb-row.top-1/2/3          → Filas destacadas top 3
+  .lb-rank.rank-1/2/3        → Medallas con gradiente
+  .lb-level-badge            → Badge de nivel junto al nombre
+
+── ACTIVITY EDITOR ───────────────────────────────────────────────
+  #activity-editor-list      → Lista dinámica de actividades editables
+  #editor-course-filter      → Selector de filtro por curso
+  .exercise-editor-item      → Fila de actividad en el editor
+
+── TIMER ─────────────────────────────────────────────────────────
+  .timer-display             → Div del timer (visible/urgent vía clases)
+  state.activityTimer        → setInterval del timer de actividad
+  state.sessionTimerInterval → setInterval del tiempo de sesión
+
+── USUARIOS DEMO ────────────────────────────────────────────────
+  alumno@test.com   / 1234   → Dashboard alumno
+  profesor@test.com / 1234   → Panel profesor
+  (cualquier email válido + pass ≥4 chars) → alumno genérico
+
+=================================================================
+
+  CAMBIOS REALIZADOS v1 → v2
+=================================================================
+
+PALETA DE COLORES:
+  ✓ Primary:    #1a3a5c / #2563eb  →  #0055A4 (azul Francia)
+  ✓ Secondary:  (sin uso)          →  #EF4135 (rojo Francia)
+  ✓ Background: #f8fafc            →  #f8f9fa
+  ✓ Todos los gradientes, badges y botones actualizados
+
+NUEVAS FUNCIONALIDADES:
+  ✓ Leaderboard mejorado: top 3 destacado, medallas, nivel junto al nombre, orden automático por puntos
+  ✓ Timer funcional por actividad (MM:SS en navbar, pulso rojo últimos 30s)
+  ✓ Fecha límite en actividades (visible en la lista)
+  ✓ Campo de apuntes editable por curso (guardado en localStorage)
+  ✓ Persistencia de sesión (localStorage: recuerda email y rol)
+  ✓ Tiempo de sesión activo simulado en "Mi Progreso"
+  ✓ Editor de actividades completo: crear, editar, eliminar actividades
+  ✓ Editor de ejercicios completo: crear, editar, eliminar ejercicios (test y hueco)
+  ✓ Creación de cursos desde el panel del profesor
+  ✓ Edición y eliminación de cursos
+  ✓ Modo impersonación: profesor ve la app como alumno con banner rojo
+  ✓ Tabla de métricas por alumno: ejercicios, tiempo, última actividad, barra de progreso
+  ✓ Modales propios (sin depender de Bootstrap modal JS)
+
+MEJORAS DE UX:
+  ✓ Banner de impersonación con botón de vuelta
+  ✓ Badge de versión "2.0" en navbar
+  ✓ Botones de editar/eliminar actividades inline (solo para profesor)
+  ✓ Pista de respuesta correcta en ejercicios de hueco cuando falla
+  ✓ Hint de credenciales demo en login
+  ✓ Sidebar con secciones y etiquetas
+
+REFACTOR JS:
+  ✓ auth logic    → doLogin, doRegister, doLogout, enterApp, selectRole
+  ✓ course logic  → buildCourses, courseCardHTML, openCourse, saveCourse, deleteCourse
+  ✓ activity logic→ buildActivityList, openActivity, saveActivity, deleteActivity
+  ✓ exercise logic→ loadExercise, checkTest, checkFill, saveExercise, deleteExercise
+  ✓ scoring system→ applyPoints, showFeedback, scheduleNextExercise, finishActivity
+  ✓ timer system  → startActivityTimer, clearActivityTimer, startSessionTimer
+  ✓ impersonation → startImpersonation, exitImpersonation
+  ✓ modal helpers → openModal, closeModal (con cierre al clicar overlay)
+
+=================================================================
+-->
+</body>
+</html>
