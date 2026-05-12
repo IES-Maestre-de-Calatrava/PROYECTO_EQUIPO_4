@@ -448,8 +448,18 @@ body.dark-mode .campo-pregunta::placeholder {
 }
 .notification-btn:hover { background:var(--primary-light); }
 .notification-badge {
-  position:absolute; top:8px; right:8px; width:8px; height:8px;
-  border-radius:50%; background:var(--secondary); box-shadow:0 0 0 2px var(--white);
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--secondary);
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    display: none; 
+}
+.notification-badge.active {
+    display: block;
 }
 /* ── PROFILE DROPDOWN ── */
 .profile-dropdown {

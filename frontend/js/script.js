@@ -215,8 +215,26 @@ function enterApp() {
 }
 
 function showNotifications(event) {
-  if (event) event.stopPropagation();
-  showToastAlert('No tienes notificaciones nuevas.', 'info');
+    if (event) event.stopPropagation();
+    const badge = document.getElementById('notification-badge');
+    if (badge) {
+        badge.style.display = 'none'; 
+    
+    showToastAlert('No tienes notificaciones nuevas.', 'info');
+}
+/**
+ * Controla si se ve o no el punto rojo de notificaciones
+ * @param {boolean} mostrar - true para poner el punto rojo, false para quitarlo
+ */
+function toggleNotificacionVisual(mostrar) {
+    const badge = document.getElementById('notification-badge');
+    if (!badge) return;
+
+    if (mostrar) {
+        badge.classList.add('active');
+    } else {
+        badge.classList.remove('active');
+    }
 }
 
 function toggleProfileMenu(event) {
