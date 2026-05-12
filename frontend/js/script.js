@@ -333,30 +333,30 @@ function showScreen(id) {
   screen.classList.add('active');
 }
 
-function showPanel(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  const panel = document.getElementById(id);
-  if (!panel) return;
-  panel.classList.add('active');
-  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
-  const map = {
-    'dashboard':'Inicio','courses':'Cursos','leaderboard':'Leaderboard',
-    'progress':'Mi progreso','messages':'Mensajes','tutor':'Tutor IA','settings':'Configuración',
-    'profe-dashboard':'Inicio','profe-students':'Alumnos',
-    'profe-leaderboard':'Leaderboard','profe-courses':'Cursos',
-    'activity-editor':'Editor actividades',
-    'director-dashboard':'Panel Director','director-users':'Usuarios',
-  };
-  const label = map[id];
-  if (label) {
-    document.querySelectorAll('.sidebar-item').forEach(b => {
-      if (b.textContent.trim().startsWith(label)) b.classList.add('active');
-    });
+  function showPanel(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById(id);
+    if (!panel) return;
+    panel.classList.add('active');
+    document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+    const map = {
+      'dashboard':'Inicio','courses':'Mis Cursos','leaderboard':'Leaderboard',
+      'progress':'Mi progreso','messages':'Mensajes','tutor':'Tutor IA','settings':'Configuración',
+      'profe-dashboard':'Inicio','profe-students':'Alumnos',
+      'profe-leaderboard':'Leaderboard','profe-courses':'Cursos',
+      'activity-editor':'Editor actividades',
+      'director-dashboard':'Panel Director','director-users':'Usuarios',
+    };
+    const label = map[id];
+    if (label) {
+      document.querySelectorAll('.sidebar-item').forEach(b => {
+        if (b.textContent.trim().startsWith(label)) b.classList.add('active');
+      });
+    }
+    if (id === 'leaderboard')       buildLeaderboard('leaderboard-content', false, _lbTabAlumno);
+    if (id === 'profe-leaderboard') buildLeaderboard('profe-leaderboard-content', true, _lbTabProfe);
+    if (id === 'progress')          buildProgressCourseList();
   }
-  if (id === 'leaderboard')       buildLeaderboard('leaderboard-content', false, _lbTabAlumno);
-  if (id === 'profe-leaderboard') buildLeaderboard('profe-leaderboard-content', true, _lbTabProfe);
-  if (id === 'progress')          buildProgressCourseList();
-}
 
 /* ─── TIMERS ─── */
 function startSessionTimer() {
