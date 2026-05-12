@@ -211,21 +211,30 @@
         }
 
         function obtenerProfesorActual() {
-            const raw = localStorage.getItem("usuario") || sessionStorage.getItem("usuario") || localStorage.getItem("lf_session") || sessionStorage.getItem("lf_session");
-            if (raw) {
-                try {
-                    const usuario = JSON.parse(raw);
-                    const rol = usuario?.rol || usuario?.role;
-                    if (rol?.toLowerCase?.() === "profesor") {
-                        return {
-                            id: usuario.id,
-                            idProfesor: usuario.idProfesor ?? usuario.id,
-                            rol: usuario.rol ?? usuario.role,
-                            role: usuario.role ?? usuario.rol
-                        };
+            const clavesSesion = ["usuario", "lf_session", "lf_session_api"];
+            const almacenes = [sessionStorage, localStorage];
+
+            for (const clave of clavesSesion) {
+                for (const almacen of almacenes) {
+                    const raw = almacen.getItem(clave);
+                    if (!raw) continue;
+
+                    try {
+                        const usuario = JSON.parse(raw);
+                        const rol = usuario?.rol || usuario?.role;
+                        const idProfesor = usuario.idProfesor ?? usuario.id_user ?? usuario.id;
+
+                        if (rol?.toLowerCase?.() === "profesor" && idProfesor) {
+                            return {
+                                id: usuario.id ?? idProfesor,
+                                idProfesor,
+                                rol: usuario.rol ?? usuario.role,
+                                role: usuario.role ?? usuario.rol
+                            };
+                        }
+                    } catch {
+                        // continuar con la siguiente sesion disponible
                     }
-                } catch {
-                    // continuar con la entrada manual
                 }
             }
 
@@ -239,6 +248,16 @@
                 rol: "PROFESOR",
                 role: "profesor"
             };
+        }
+
+        function sincronizarProfesorSesion() {
+            const profesor = obtenerProfesorActual();
+            const inputProfesor = document.getElementById("idProfesor");
+
+            if (profesor && inputProfesor) {
+                inputProfesor.value = profesor.idProfesor;
+                inputProfesor.readOnly = true;
+            }
         }
 
         function renderGrupoLista(grupos) {
@@ -339,6 +358,7 @@
         // Llamada inicial al cargar la página
         document.addEventListener("DOMContentLoaded", () => {
             cargarCentros();
+            sincronizarProfesorSesion();
         });
 
         document.getElementById("btnCargarGrupos").addEventListener("click", async () => {
@@ -366,7 +386,7 @@
         document.getElementById("btnCrearGrupo").addEventListener("click", async () => {
             const profesor = obtenerProfesorActual();
             if (!profesor) {
-                actualizarEstado("Introduce el ID del profesor o inicia sesión como profesor", "error");
+                actualizarEstado("Inicia sesión como profesor para crear grupos", "error");
                 return;
             }
 
@@ -374,7 +394,7 @@
                 idGrupo: Number(document.getElementById("idGrupo").value),
                 nombre: document.getElementById("nombreGrupo").value.trim(),
                 idCentro: Number(document.getElementById("idCentro").value),
-                idProfesor: Number(document.getElementById("idProfesor").value),
+                idProfesor: profesor.idProfesor,
                 codigo: document.getElementById("codigo").value.trim() || null
             };
 
@@ -420,7 +440,7 @@
             const profesor = obtenerProfesorActual();
 
             if (!profesor) {
-                actualizarEstado("Introduce el ID del profesor o inicia sesión como profesor", "error");
+                actualizarEstado("Inicia sesión como profesor para añadir alumnos", "error");
                 return;
             }
 
@@ -436,6 +456,7 @@
         });
 
         cargarCentros();
+        sincronizarProfesorSesion();
 </script>
 </body>
 </html>

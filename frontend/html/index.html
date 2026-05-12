@@ -154,7 +154,10 @@
 
       <!-- ── ALUMNO: CURSOS ── -->
       <div id="courses" class="panel">
-        <div class="section-title">Mis Cursos</div>
+        <div class="page-header">
+          <div class="section-title mb-0">Mis Cursos</div>
+          <button class="btn-primary-custom" onclick="openJoinCourseModal()"><i class="bi bi-key-fill me-1"></i>Unirse con código</button>
+        </div>
         <div class="row g-3" id="courses-container"></div>
       </div>
 
@@ -498,6 +501,22 @@
     <div class="d-flex gap-2 justify-content-end">
       <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-course')">Cancelar</button>
       <button class="btn-primary-custom" onclick="saveCourse()">Guardar curso</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: UNIRSE A CURSO ── -->
+<div class="modal-overlay" id="modal-join-course">
+  <div class="modal-box">
+    <h5>Unirse a un curso</h5>
+    <div class="mb-3">
+      <label class="form-label">Código del curso</label>
+      <input type="text" class="form-control" id="join-course-code" placeholder="Introduce el código"/>
+    </div>
+    <div id="join-course-msg" class="d-none mb-2 alert py-2 px-3" style="font-size:.85rem;border-radius:8px;"></div>
+    <div class="d-flex gap-2 justify-content-end">
+      <button class="btn btn-outline-secondary" style="border-radius:8px;" onclick="closeModal('modal-join-course')">Cancelar</button>
+      <button class="btn-primary-custom" id="btn-confirm-join-course" onclick="joinCourseByCode()">Unirse</button>
     </div>
   </div>
 </div>

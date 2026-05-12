@@ -17,9 +17,14 @@ async function doLogin() {
             apellidos: response.apellidos || '',
             rol: response.rol || response.role || 'alumno',
             correo: response.correo || response.email || '',
-            id_user : response.id,
+            id_user : response.idAlumno || response.id_alumno || response.id,
             id_grupo : response.id_grupo,
         };
+        const idAlumno = sessionData.id_user;
+        if (idAlumno) {
+            document.cookie = `idAlumno=${encodeURIComponent(idAlumno)}; path=/; max-age=86400`;
+            document.cookie = `id_alumno=${encodeURIComponent(idAlumno)}; path=/; max-age=86400`;
+        }
         if (document.getElementById('remember-me').checked) {
             localStorage.setItem('lf_session_api', JSON.stringify(sessionData));
         } else {
