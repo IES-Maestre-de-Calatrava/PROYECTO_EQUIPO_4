@@ -107,39 +107,24 @@ async function doRegister() {
         return;
     }
 
- try {
-    const response = await fetch('http://192.168.150.118:8085/api/admin/alumnos?idDirector=1', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-        nombreUsuario: generarUsernameDesdeNombre(nombre, apellidos),
-        contrasena: contrasena,
-        nombre: nombre,
-        apellidos: apellidos,
-        instituto: "",
-        telefono: 0,
-        correo: correo,
-        nivel: "A1",
-        rango: "Bronce",
-        grupos: []
-})
-    });
+    try {
+        const response = await fetch('http://192.168.150.118:8085/api/admin/alumnos?idDirector=1', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nombreUsuario: generarUsernameDesdeNombre(nombre, apellidos),
+                contrasena: contrasena,
+                nombre: nombre,
+                apellidos: apellidos,
+                instituto: "",
+                telefono: 0,
+                correo: correo,
+                nivel: "A1",
+                rango: "Bronce",
+                grupos: []
+            })
+        });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-        // manejar error
-        console.error(data.error);
-        return;
-    }
-
-    // éxito
-    console.log('Alumno creado:', data);
-
-} catch (err) {
-    console.error('Error de conexión:', err);
-}
-  try{
         const data = await response.json();
 
         if (!response.ok) {
@@ -1849,7 +1834,8 @@ function initMobileSidebar() {
     content = sidebarDirector.innerHTML;
   }
 
-  document.getElementById('mobile-sidebar-content').innerHTML = content;
+  const mobileEl = document.getElementById('mobile-sidebar-content');
+  if (mobileEl) mobileEl.innerHTML = content;
 }
 
 // Asegúrate de llamar a esta función también cuando cambies de rol o entres a la app
