@@ -1,7 +1,6 @@
 const API_GRUPOS = "http://192.168.150.118:8085/api/grupos";
-const API_ALUMNOS = "http://192.168.150.118:8085/alumno";
 
-import { getAllAlumnos, getAlumnoById } from '../GET/getAlumnos.js';
+import { getAllAlumnos } from '../GET/getAlumnos.js';
 
 export class PutGestionGrupos {
     async crearGrupo(datosGrupo, usuarioActual = this.#getUsuarioActual()) {
@@ -18,11 +17,10 @@ export class PutGestionGrupos {
     async añadirAlumnoAGrupo(idGrupo, idAlumno, usuarioActual = this.#getUsuarioActual()) {
         this.#validarProfesor(usuarioActual);
 
-        if (!idGrupo || !idAlumno) {
-            throw new Error("idGrupo e idAlumno son requeridos");
-        }
+        const url = `${API_GRUPOS}/${idGrupo}/alumnos`;
+        const datos = { idAlumno: Number(idAlumno) };
 
-        return await this.#asignarGrupoAlAlumno(idGrupo, idAlumno);
+        return await this.#putJson(url, datos);
     }
 
     async enviarInvitacion(idAlumno, idGrupo, usuarioActual = this.#getUsuarioActual()) {
@@ -40,7 +38,7 @@ export class PutGestionGrupos {
     }
 
     #normalizarGrupo(datosGrupo, usuarioActual) {
-        const idProfesor = datosGrupo.idProfesor || usuarioActual?.idProfesor || usuarioActual?.id || usuarioActual?.id_user;
+        const idProfesor = datosGrupo.idProfesor || usuarioActual?.idProfesor || usuarioActual?.id;
 
         const grupo = {
             idGrupo: Number(datosGrupo.idGrupo),
@@ -73,51 +71,17 @@ export class PutGestionGrupos {
         }
     }
 
-    async #asignarGrupoAlAlumno(idGrupo, idAlumno) {
-        const alumno = await getAlumnoById(idAlumno);
-        const idGrupoNumero = Number(idGrupo);
-        const idAlumnoNumero = Number(idAlumno);
-
-        const datos = {
-            ...alumno,
-            idAlumno: alumno.idAlumno ?? idAlumnoNumero,
-            idGrupo: idGrupoNumero,
-            id_grupo: idGrupoNumero
-        };
-
-        if (alumno.grupo) {
-            datos.grupo = {
-                ...alumno.grupo,
-                idGrupo: idGrupoNumero
-            };
-        }
-
-        return await this.#putJson(`${API_ALUMNOS}/${idAlumnoNumero}`, datos);
-    }
-
     #getUsuarioActual() {
-        const clavesSesion = ["usuario", "lf_session", "lf_session_api"];
-        const almacenes = [sessionStorage, localStorage];
+        const clavesSesion = ["usuario", "lf_session"];
 
         for (const clave of clavesSesion) {
-            for (const almacen of almacenes) {
-                const raw = almacen.getItem(clave);
+            const raw = localStorage.getItem(clave) || sessionStorage.getItem(clave);
 
-                if (raw) {
-                    try {
-                        const usuario = JSON.parse(raw);
-                        const idProfesor = usuario.idProfesor ?? usuario.id_user ?? usuario.id;
-
-                        return {
-                            ...usuario,
-                            id: usuario.id ?? idProfesor,
-                            idProfesor,
-                            rol: usuario.rol ?? usuario.role,
-                            role: usuario.role ?? usuario.rol
-                        };
-                    } catch (error) {
-                        console.error(`Error al leer la sesion ${clave}:`, error);
-                    }
+            if (raw) {
+                try {
+                    return JSON.parse(raw);
+                } catch (error) {
+                    console.error(`Error al leer la sesion ${clave}:`, error);
                 }
             }
         }
@@ -143,14 +107,10 @@ export class PutGestionGrupos {
         }
 
         if (!text) {
-            return { success: true };
+            return true;
         }
 
-        try {
-            return JSON.parse(text);
-        } catch {
-            return { success: true, rawResponse: text };
-        }
+        return JSON.parse(text);
     }
 
     async #putJson(url, datos) {
@@ -171,19 +131,15 @@ export class PutGestionGrupos {
         }
 
         if (!text) {
-            return { success: true };
+            return true;
         }
 
-        try {
-            return JSON.parse(text);
-        } catch {
-            return { success: true, rawResponse: text };
-        }
+        return JSON.parse(text);
     }
 
     #crearMensajeError(status, text) {
-        const detalle = this.#leerMensajeError(text);
-        return detalle ? `Error ${status}: ${detalle}` : `Error ${status}`;
+        const msg = this.#leerMensajeError(text);
+        return msg || `Error ${status}`;
     }
 
     #leerMensajeError(text) {
@@ -197,6 +153,25 @@ export class PutGestionGrupos {
         } catch {
             return text;
         }
+    }
+
+    #crearMensajeError(status, text) {
+        const detalle = this.#leerMensajeError(text);
+        return detalle ? `Error ${status}: ${detalle}` : `Error ${status}`;
+    }
+
+    async #deleteJson(url) {
+        console.log("Enviando peticion DELETE grupo:", url);
+
+        if (status === 403) {
+            return `No se pudo crear el grupo: el usuario no tiene permisos. ${mensajeApi}`;
+        }
+
+        if (status === 500) {
+            return `La API ha fallado al guardar el grupo. Comprueba que idGrupo no exista y que idCentro/idProfesor sean validos. ${mensajeApi}`;
+        }
+
+        return `Error al crear el grupo: ${status} ${mensajeApi}`;
     }
 }
 

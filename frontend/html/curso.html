@@ -3,46 +3,67 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Le Français</title>
+  <title>Le Français — Curso</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   <link rel="icon" type="image/png" href="https://static.vecteezy.com/system/resources/previews/012/624/939/non_2x/france-flag-icon-free-png.png">
   <link rel="stylesheet" href="../css/style.css" />
   <style>
+    /* ── Vistas internas de la página de curso ── */
+    .curso-vista { display: none; }
+    .curso-vista.activa { display: block; }
+
+    /* ── Card contenedor principal ── */
     .course-page-card {
       background: var(--white);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 2rem;
-      max-width: 1000px;
+      max-width: 860px;
       margin: 0 auto;
       box-shadow: var(--shadow-sm);
     }
-    .course-page-header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 1rem;
-      align-items: flex-end;
-      margin-bottom: 1.5rem;
-    }
-    .course-page-intro {
+
+    /* ── Botón volver ── */
+    .curso-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .85rem;
+      font-weight: 600;
       color: var(--text-muted);
-      max-width: 760px;
-      line-height: 1.7;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: .3rem .5rem;
+      border-radius: 6px;
+      transition: color .2s;
+      margin-bottom: 1rem;
     }
-    .actividad-form-card {
-      margin-top: 1rem;
+    .curso-back-btn:hover { color: var(--primary); }
+
+    /* ── Header de ejercicio ── */
+    .curso-ex-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
     }
-    .actividad-form-card #actividad-form-container {
-      margin-top: 1rem;
+
+    /* ── Pantalla completada ── */
+    .curso-complete {
+      text-align: center;
+      padding: 3rem 2rem;
     }
   </style>
 </head>
 
 <body>
 <div id="screen-app" class="screen active">
+
+  <!-- ── NAVBAR ── -->
   <nav class="app-navbar">
     <button class="menu-toggle" onclick="toggleMobileMenu()"><i class="bi bi-list"></i></button>
     <div class="navbar-logo">Le <span style="color:#002654">Fr</span><span style="color:#6c757d">anç</span><span style="color:#ED2939">ais</span></div>
@@ -92,11 +113,12 @@
   <aside class="mobile-sidebar" id="mobile-sidebar"><div id="mobile-sidebar-content"></div></aside>
 
   <div class="app-layout">
-    <aside class="sidebar" id="sidebar">
 
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
       <div id="sidebar-alumno">
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=dashboard'"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
-        <button class="sidebar-item active" onclick="window.location.href='index.html?panel=courses'"><i class="bi bi-book-fill"></i>Mis Cursos</button>
+        <button class="sidebar-item active" onclick="window.location.href='index.html?panel=courses'"><i class="bi bi-book-fill"></i> Mis Cursos</button>
         <div class="sidebar-divider"></div>
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=leaderboard'"><i class="bi bi-trophy-fill"></i> Leaderboard</button>
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=progress'"><i class="bi bi-bar-chart-fill"></i> Mi progreso</button>
@@ -104,183 +126,561 @@
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=tutor'"><i class="bi bi-chat-dots-fill"></i> Tutor IA</button>
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=settings'"><i class="bi bi-gear-fill"></i> Configuración</button>
       </div>
-
       <div id="sidebar-profesor" style="display:none">
         <div class="sidebar-section-label">Panel</div>
-        <button class="sidebar-item active" onclick="window.location.href='index.html?panel=profe-dashboard'"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=profe-dashboard'"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=profe-students'"><i class="bi bi-people-fill"></i> Alumnos</button>
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=profe-leaderboard'"><i class="bi bi-trophy-fill"></i> Leaderboard</button>
         <div class="sidebar-divider"></div>
         <div class="sidebar-section-label">Contenido</div>
-        <button class="sidebar-item" onclick="window.location.href='index.html?panel=profe-courses'"><i class="bi bi-collection-fill"></i> Mis Cursos</button>
+        <button class="sidebar-item active" onclick="window.location.href='index.html?panel=profe-courses'"><i class="bi bi-collection-fill"></i> Mis Cursos</button>
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=activity-editor'"><i class="bi bi-pencil-square"></i> Editor actividades</button>
         <div class="sidebar-divider"></div>
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=settings'"><i class="bi bi-gear-fill"></i> Configuración</button>
       </div>
-
       <div id="sidebar-director" style="display:none">
         <div class="sidebar-section-label">Director</div>
-        <button class="sidebar-item active" onclick="window.location.href='index.html?panel=director-dashboard'"><i class="bi bi-speedometer2"></i> Panel Director</button>
-        <a class="sidebar-item" href="TESTS_ALVARO/testGestionUsuarios.html" target="_blank" rel="noopener"><i class="bi bi-tools"></i> Test Gestión Usuarios</a>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=director-dashboard'"><i class="bi bi-speedometer2"></i> Panel Director</button>
         <div class="sidebar-divider"></div>
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=settings'"><i class="bi bi-gear-fill"></i> Configuración</button>
       </div>
     </aside>
 
+    <!-- ── CONTENIDO PRINCIPAL ── -->
     <main class="main-content">
       <div class="course-page-card">
-        <div class="course-page-header">
-          <div>
-            <div class="section-title" id="curso-titulo">Actividades del curso</div>
-            <div class="course-page-intro">
-              <p id="curso-subtitulo">Selecciona una actividad para comenzar.</p>
+
+        <!-- ════════════════════════════════
+             VISTA 1: LISTA DE ACTIVIDADES
+             ════════════════════════════════ -->
+        <div id="vista-lista" class="curso-vista activa">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+            <div>
+              <div class="section-title">Actividades del curso</div>
+              <div style="color:var(--text-muted);font-size:.9rem;margin-top:.25rem;">Elige una actividad para comenzar</div>
+            </div>
+            <button class="curso-back-btn" onclick="window.location.href='index.html?panel=courses'">
+              <i class="bi bi-arrow-left"></i> Volver a cursos
+            </button>
+          </div>
+          <div id="lista-actividades-container">
+            <div style="text-align:center;padding:3rem;color:var(--text-muted);">
+              <div class="spinner-border spinner-border-sm" role="status"></div>
+              <p class="mt-2">Cargando actividades…</p>
             </div>
           </div>
-          <button class="btn-course" onclick="window.location.href='index.html'"><i class="bi bi-arrow-left me-1"></i>Volver al panel</button>
         </div>
 
-        <!-- Lista de actividades -->
-        <div id="actividades-lista"></div>
+        <!-- ════════════════════════════════
+             VISTA 2: MOTOR DE EJERCICIOS
+             ════════════════════════════════ -->
+        <div id="vista-ejercicio" class="curso-vista">
+          <button class="curso-back-btn" id="btn-volver-lista" onclick="volverALista()">
+            <i class="bi bi-arrow-left"></i> Volver a actividades
+          </button>
 
-        <!-- Formulario de la actividad seleccionada -->
-        <div id="actividad-form-container" class="actividad-form-card" style="display:none;"></div>
-      </div>
+          <!-- Header: contador + barra + puntos -->
+          <div class="curso-ex-header">
+            <span class="ex-counter" id="ex-counter">Ejercicio 1/1</span>
+            <div class="ex-progress-wrap"><div class="ex-progress-fill" id="ex-progress-fill" style="width:0%"></div></div>
+            <span class="ex-points-live"><i class="bi bi-star-fill"></i> <span id="ex-points-live">0</span> pts</span>
+          </div>
+
+          <!-- Tarjeta del ejercicio -->
+          <div id="exercise-list" class="exercise-card"></div>
+        </div>
+
+        <!-- ════════════════════════════════
+             VISTA 3: ACTIVIDAD COMPLETADA
+             ════════════════════════════════ -->
+        <div id="vista-completada" class="curso-vista">
+          <div class="curso-complete">
+            <div class="complete-icon" id="complete-icon">🎉</div>
+            <div class="complete-title">¡Actividad completada!</div>
+            <div class="complete-points" id="complete-points">+0 puntos</div>
+            <div class="complete-sub" id="complete-sub"></div>
+            <div id="complete-accuracy" class="complete-accuracy-badge mt-2" style="display:none"></div>
+            <div style="display:flex;gap:1rem;justify-content:center;margin-top:1.75rem;flex-wrap:wrap;">
+              <button class="btn-back-courses" onclick="volverALista()">Ver más actividades</button>
+              <button class="btn-course" onclick="window.location.href='index.html?panel=courses'">Mis Cursos</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.course-page-card -->
     </main>
   </div>
 </div>
 
+<!-- ── TOAST FEEDBACK ── -->
+<div class="feedback-toast" id="feedback-toast">
+  <span class="toast-icon" id="toast-icon">🎉</span>
+  <span id="toast-msg"></span>
+  <span class="toast-points" id="toast-points"></span>
+</div>
+
+<!-- ── LEVEL UP OVERLAY ── -->
+<div class="levelup-overlay" id="levelup-overlay" style="display:none">
+  <div class="levelup-card">
+    <div class="levelup-icon" id="levelup-icon">🏆</div>
+    <div class="levelup-title" id="levelup-title">¡Nuevo nivel!</div>
+    <div class="levelup-sub"   id="levelup-sub"></div>
+    <button class="btn-levelup mt-3" onclick="closeLevelUp()">¡Genial!</button>
+  </div>
+</div>
+
+<!-- script.js: navbar, sidebar, dark mode, doLogout, etc. -->
 <script src="../js/script.js"></script>
+
 <script type="module">
-  import { generarFormularioActividad } from '../js/formularioActividades.js';
   import { obtenerActividadesDelGrupo } from '../js/REST/GET/getActividades.js';
   import { Parser } from '../js/JSON/Parser.js';
 
-  function getUserDataFromSession() {
+  /* ══════════════════════════════════════════════
+     ESTADO LOCAL DEL MOTOR DE EJERCICIOS
+     ══════════════════════════════════════════════ */
+  const motor = {
+    actividades: [],       // lista completa cargada de la API
+    actividadActual: null, // objeto de la actividad en curso
+    ejercicios: [],        // array de ejercicios convertidos
+    indice: 0,             // ejercicio actual
+    puntosSession: 0,      // pts acumulados en esta sesión
+    correctas: 0,
+    totales: 0,
+    respondido: false,
+    matchSeleccionado: null,
+    matchPares: [],
+    matchEmparejados: new Set(),
+  };
+
+  const NIVELES = [
+    { id:'basico',     min:0,    max:2000,    label:'A1 — Básico'     },
+    { id:'elemental',  min:2000, max:5000,    label:'A2 — Elemental'  },
+    { id:'intermedio', min:5000, max:9000,    label:'B1 — Intermedio' },
+    { id:'avanzado',   min:9000, max:Infinity,label:'B2 — Avanzado'   },
+  ];
+
+  /* ── Helpers de sesión ── */
+  function getSession() {
     try {
-      const raw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
+      const raw = localStorage.getItem('lf_session_api') || sessionStorage.getItem('lf_session_api');
       return raw ? JSON.parse(raw) : null;
-    } catch (e) { return null; }
+    } catch { return null; }
   }
 
-  async function actualizarPuntosEnBackend(puntosGanados) {
-    try {
-      const userData = getUserDataFromSession();
-      const idAlumno = userData?.id_user || userData?.id;
-      const puntos = Number(puntosGanados) || 0;
-      if (!idAlumno) return false;
-      const response = await fetch('http://192.168.150.118:8085/alumno/update/puntos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idAlumno: Number(idAlumno), puntos })
-      });
-      return response.ok;
-    } catch (error) {
-      console.error('Error al actualizar puntos:', error);
-      return false;
-    }
+  /* ══════════════════════════════════════════════
+     VISTA: cambiar entre lista / ejercicio / completada
+     ══════════════════════════════════════════════ */
+  function mostrarVista(id) {
+    document.querySelectorAll('.curso-vista').forEach(v => v.classList.remove('activa'));
+    document.getElementById(id).classList.add('activa');
   }
 
-  function escaparHTML(texto) {
-    return String(texto ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":' &#39;'}[c]));
-  }
+  window.volverALista = function() {
+    mostrarVista('vista-lista');
+  };
 
-  function renderListaActividades(actividades) {
-    const lista = document.getElementById('actividades-lista');
-    if (!actividades || actividades.length === 0) {
-      lista.innerHTML = '<p style="color:#d97706;font-weight:600;">No hay actividades disponibles para tu grupo.</p>';
-      return;
-    }
-    lista.innerHTML = actividades.map((act, i) => `
-      <div class="activity-item" style="cursor:pointer;" onclick="window._abrirActividad(${i})">
-        <div class="activity-icon"><i class="bi bi-journal-text"></i></div>
-        <div class="activity-info">
-          <div class="activity-title">${i + 1}. ${escaparHTML(act.nombre || 'Actividad ' + (i+1))}</div>
-          <div class="activity-subtitle">
-            Dificultad: ${escaparHTML(act.dificultad || '—')}
-            ${act.puntos ? ' · <strong>' + act.puntos + ' pts</strong>' : ''}
-            ${act.duracion ? ' · ' + act.duracion + ' min' : ''}
-          </div>
-        </div>
-        <span class="activity-status status-pending">Hacer &#8594;</span>
-      </div>
-    `).join('');
-  }
-
-  function abrirActividad(actividad) {
-    const lista = document.getElementById('actividades-lista');
-    const contenedor = document.getElementById('actividad-form-container');
-    lista.style.display = 'none';
-    contenedor.style.display = '';
-
-    document.getElementById('curso-titulo').textContent = actividad.nombre || 'Actividad';
-    document.getElementById('curso-subtitulo').innerHTML =
-      '<button class="btn btn-sm btn-outline-secondary" style="border-radius:8px;" onclick="window._volverListaActividades()"><i class="bi bi-arrow-left me-1"></i>Ver todas las actividades</button>';
-
-    const preguntas = JSON.stringify(Parser(actividad.preguntas));
-    const respuestas = JSON.stringify(Parser(actividad.respuestas));
-    const puntos = Number(actividad.puntos) || 0;
-    let puntosYaAsignados = false;
-    contenedor.innerHTML = '';
-
-    generarFormularioActividad(preguntas, respuestas, 'actividad-form-container', (resultado) => {
-      if (resultado.porcentaje >= 60 && !puntosYaAsignados) {
-        puntosYaAsignados = true;
-        const puntosGanados = Math.max(0, Math.round(puntos));
-        actualizarPuntosEnBackend(puntosGanados);
-        const msg = document.createElement('div');
-        msg.style.cssText = 'margin-top:20px;padding:15px;background:#d4edda;border:1px solid #28a745;border-radius:8px;color:#155724;font-weight:600;';
-        msg.innerHTML = `&#127881; &#161;Actividad completada! Has ganado <strong>+${puntosGanados} puntos</strong>`;
-        contenedor.appendChild(msg);
-      }
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', async () => {
+  /* ══════════════════════════════════════════════
+     CARGAR Y RENDERIZAR LISTA DE ACTIVIDADES
+     ══════════════════════════════════════════════ */
+  async function cargarActividades() {
     try {
       const actividades = await obtenerActividadesDelGrupo();
-      window._actividadesCache = actividades;
-
-      window._abrirActividad = (i) => abrirActividad(actividades[i]);
-      window._volverListaActividades = () => {
-        document.getElementById('actividades-lista').style.display = '';
-        document.getElementById('actividad-form-container').style.display = 'none';
-        document.getElementById('curso-titulo').textContent = 'Actividades del curso';
-        document.getElementById('curso-subtitulo').textContent = 'Selecciona una actividad para comenzar.';
-      };
-
-      renderListaActividades(actividades);
-    } catch (error) {
-      console.error('Error al cargar las actividades:', error);
-      document.getElementById('actividades-lista').innerHTML =
-        '<p style="color:#dc2626;">Error al cargar las actividades. Por favor, vuelve a intentarlo.</p>';
+      motor.actividades = actividades || [];
+      renderLista(motor.actividades);
+    } catch (e) {
+      console.error(e);
+      document.getElementById('lista-actividades-container').innerHTML =
+        '<p style="color:#dc2626;font-weight:600;">Error al cargar las actividades. Comprueba la conexión.</p>';
     }
-  });
+  }
+
+  function renderLista(actividades) {
+    const cont = document.getElementById('lista-actividades-container');
+    if (!actividades.length) {
+      cont.innerHTML = '<p style="color:#d97706;font-weight:600;padding:1rem 0;">No hay actividades disponibles para tu grupo.</p>';
+      return;
+    }
+    cont.innerHTML = actividades.map((act, i) => {
+      const ejercicios = convertirEjercicios(act);
+      const nEj = ejercicios.length;
+      const diff = act.dificultad || '—';
+      const pts  = act.puntos ? `<span style="color:var(--gold);font-weight:700;"><i class="bi bi-star-fill me-1"></i>${act.puntos} pts</span>` : '';
+      const dur  = act.duracion ? `<span><i class="bi bi-stopwatch me-1"></i>${act.duracion} min</span>` : '';
+      return `
+        <div class="activity-item" style="cursor:pointer;" onclick="window._abrirActividad(${i})">
+          <div class="activity-icon"><i class="bi bi-journal-text"></i></div>
+          <div class="activity-info">
+            <div class="activity-title">${i + 1}. ${esc(act.nombre || 'Actividad ' + (i+1))}</div>
+            <div class="activity-subtitle">
+              ${nEj} ejercicio${nEj !== 1 ? 's' : ''} · Dificultad: ${esc(diff)}
+              ${pts || dur ? ' · ' : ''}${pts}${pts && dur ? ' · ' : ''}${dur}
+            </div>
+          </div>
+          <span class="activity-status status-pending">Empezar →</span>
+        </div>`;
+    }).join('');
+  }
+
+  window._abrirActividad = function(i) {
+    const act = motor.actividades[i];
+    if (!act) return;
+    motor.actividadActual = act;
+    motor.ejercicios      = convertirEjercicios(act);
+    motor.indice          = 0;
+    motor.puntosSession   = 0;
+    motor.correctas       = 0;
+    motor.totales         = 0;
+    motor.respondido      = false;
+
+    document.getElementById('ex-points-live').textContent = '0';
+    mostrarVista('vista-ejercicio');
+    cargarEjercicio(0);
+  };
+
+  /* ══════════════════════════════════════════════
+     CONVERTIR DATOS API → FORMATO DEL MOTOR
+     La API devuelve:
+       preguntas:  '{"0":"¿Cómo se dice…?","1":"…"}'
+       respuestas: '{"0":"bonjour","1":"…"}'
+     Generamos ejercicios tipo 'fill' (uno por pregunta).
+     Si en el futuro la API devuelve tipo/opciones,
+     este converter puede ampliarse.
+     ══════════════════════════════════════════════ */
+  function convertirEjercicios(act) {
+    try {
+      const preguntas  = Parser(act.preguntas)  || [];
+      const respuestas = Parser(act.respuestas) || [];
+      return preguntas.map((preg, i) => ({
+        type:    'fill',
+        question: String(preg),
+        correct:  String(respuestas[i] ?? ''),
+        hint:     respuestas[i] ? `Pista: empieza por "${String(respuestas[i])[0]}"` : '',
+      }));
+    } catch { return []; }
+  }
+
+  /* ══════════════════════════════════════════════
+     MOTOR DE EJERCICIOS  (igual que script.js)
+     ══════════════════════════════════════════════ */
+  function cargarEjercicio(idx) {
+    motor.respondido = false;
+    const ex    = motor.ejercicios[idx];
+    const total = motor.ejercicios.length;
+    const pct   = Math.round((idx / total) * 100);
+
+    document.getElementById('ex-counter').textContent       = `Ejercicio ${idx + 1}/${total}`;
+    document.getElementById('ex-progress-fill').style.width = pct + '%';
+
+    const card = document.getElementById('exercise-list');
+
+    if (ex.type === 'test') {
+      const letters = ['A','B','C','D'];
+      const opts = ex.options.map((o, i) =>
+        `<button class="option-btn" onclick="window._checkTest(${i},${ex.correct},${idx})">
+           <span class="option-letter">${letters[i]}</span>${esc(o)}
+         </button>`).join('');
+      card.innerHTML = `<span class="exercise-type-badge">Opción múltiple</span>
+        <div class="exercise-question">${esc(ex.question)}</div>
+        <div>${opts}</div>
+        <div id="ex-feedback" class="mt-3"></div>`;
+
+    } else if (ex.type === 'fill') {
+      card.innerHTML = `<span class="exercise-type-badge">Rellena el hueco</span>
+        <div class="exercise-question">${esc(ex.question)}</div>
+        <div class="fill-blank-wrap mt-2">
+          <input class="fill-input" id="fill-input" type="text"
+                 placeholder="${esc(ex.hint || 'Tu respuesta…')}" autocomplete="off"/>
+          <button class="btn-check" id="fill-btn"
+                  onclick="window._checkFill('${esc(ex.correct)}',${idx})">Comprobar →</button>
+        </div>
+        <div id="ex-feedback" class="mt-3"></div>`;
+      document.getElementById('fill-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('fill-btn').click();
+      });
+
+    } else if (ex.type === 'match') {
+      cargarEjercicioMatch(ex, idx);
+
+    } else if (ex.type === 'image') {
+      card.innerHTML = `<span class="exercise-type-badge">Actividad con imagen</span>
+        <div class="exercise-question">${esc(ex.question)}</div>
+        <img src="${esc(ex.imageUrl || '')}" alt="Imagen del ejercicio" class="image-exercise-img"/>
+        <div class="fill-blank-wrap mt-2">
+          <input class="fill-input" id="fill-input" type="text"
+                 placeholder="${esc(ex.hint || 'Tu respuesta…')}" autocomplete="off"/>
+          <button class="btn-check" id="fill-btn"
+                  onclick="window._checkFill('${esc(ex.correct)}',${idx})">Comprobar →</button>
+        </div>
+        <div id="ex-feedback" class="mt-3"></div>`;
+      document.getElementById('fill-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('fill-btn').click();
+      });
+    }
+  }
+
+  /* ── Match ── */
+  function cargarEjercicioMatch(ex, idx) {
+    const card = document.getElementById('exercise-list');
+    motor.matchPares        = [...ex.pairs];
+    motor.matchEmparejados  = new Set();
+    motor.matchSeleccionado = null;
+
+    const shuffledRight = [...ex.pairs.map(p => p[1])].sort(() => Math.random() - .5);
+    const leftHTML  = ex.pairs.map((p, i) =>
+      `<div class="match-item" id="ml-${i}" onclick="window._selectMatch('left',${i})">${esc(p[0])}</div>`).join('');
+    const rightHTML = shuffledRight.map((val, i) => {
+      const origIdx = ex.pairs.findIndex(p => p[1] === val);
+      return `<div class="match-item" id="mr-${origIdx}" data-val="${esc(val)}" onclick="window._selectMatch('right',${origIdx})">${esc(val)}</div>`;
+    }).join('');
+
+    card.innerHTML = `<span class="exercise-type-badge">Unir elementos</span>
+      <div class="exercise-question">${esc(ex.question)}</div>
+      <div class="match-exercise-wrap">
+        <div class="match-col" id="match-left">${leftHTML}</div>
+        <div class="match-col" id="match-right">${rightHTML}</div>
+      </div>
+      <div id="ex-feedback" class="mt-3"></div>`;
+
+    card._matchIdx = idx;
+  }
+
+  window._selectMatch = function(side, idx) {
+    if (motor.matchEmparejados.has(idx)) return;
+    const el = document.getElementById(side === 'left' ? `ml-${idx}` : `mr-${idx}`);
+    if (el.classList.contains('matched')) return;
+
+    if (!motor.matchSeleccionado) {
+      motor.matchSeleccionado = { side, idx };
+      el.classList.add('selected');
+      return;
+    }
+    const prev = motor.matchSeleccionado;
+    if (prev.side === side) {
+      document.getElementById(prev.side === 'left' ? `ml-${prev.idx}` : `mr-${prev.idx}`).classList.remove('selected');
+      motor.matchSeleccionado = { side, idx };
+      el.classList.add('selected');
+      return;
+    }
+    const leftIdx  = prev.side === 'left' ? prev.idx : idx;
+    const rightIdx = prev.side === 'right' ? prev.idx : idx;
+    const prevEl   = document.getElementById(prev.side === 'left' ? `ml-${prev.idx}` : `mr-${prev.idx}`);
+    prevEl.classList.remove('selected');
+    motor.matchSeleccionado = null;
+
+    const correcto = motor.matchPares[leftIdx][1] === motor.matchPares[rightIdx][1];
+    if (correcto) {
+      document.getElementById(`ml-${leftIdx}`).classList.add('matched');
+      document.getElementById(`mr-${rightIdx}`).classList.add('matched');
+      motor.matchEmparejados.add(leftIdx);
+      motor.totales++;
+      motor.correctas++;
+      sumarPuntos(100);
+      if (motor.matchEmparejados.size === motor.matchPares.length) {
+        mostrarToast(true, 0);
+        const cardEl = document.getElementById('exercise-list');
+        programarSiguiente(cardEl._matchIdx);
+      }
+    } else {
+      document.getElementById(`ml-${leftIdx}`).classList.add('wrong');
+      document.getElementById(`mr-${rightIdx}`).classList.add('wrong');
+      motor.totales++;
+      sumarPuntos(-20);
+      mostrarToast(false, -20);
+      setTimeout(() => {
+        document.getElementById(`ml-${leftIdx}`)?.classList.remove('wrong');
+        document.getElementById(`mr-${rightIdx}`)?.classList.remove('wrong');
+      }, 600);
+    }
+  };
+
+  /* ── Comprobar test ── */
+  window._checkTest = function(elegida, correcta, idx) {
+    if (motor.respondido) return;
+    motor.respondido = true;
+    motor.totales++;
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(b => b.disabled = true);
+    const correcto = elegida === correcta;
+    const pts = correcto ? 100 : -20;
+    btns[elegida].classList.add(correcto ? 'correct' : 'wrong');
+    if (!correcto) btns[correcta].classList.add('correct');
+    if (correcto) motor.correctas++;
+    sumarPuntos(pts);
+    mostrarToast(correcto, pts);
+    programarSiguiente(idx);
+  };
+
+  /* ── Comprobar relleno ── */
+  window._checkFill = function(correcta, idx) {
+    if (motor.respondido) return;
+    const input = document.getElementById('fill-input');
+    const val   = input.value.trim();
+    if (!val) return;
+    motor.respondido = true;
+    motor.totales++;
+    const correcto = val.toLowerCase() === correcta.toLowerCase();
+    const pts = correcto ? 100 : -20;
+    input.disabled = true;
+    document.getElementById('fill-btn').disabled = true;
+    input.classList.add(correcto ? 'correct' : 'wrong');
+    if (!correcto) {
+      const hint = document.createElement('div');
+      hint.style.cssText = 'font-size:.82rem;color:#059669;margin-top:.4rem;font-weight:500;';
+      hint.textContent = `Respuesta correcta: ${correcta}`;
+      input.parentElement.appendChild(hint);
+    }
+    if (correcto) motor.correctas++;
+    sumarPuntos(pts);
+    mostrarToast(correcto, pts);
+    programarSiguiente(idx);
+  };
+
+  /* ── Programar siguiente ejercicio ── */
+  function programarSiguiente(idx) {
+    setTimeout(() => {
+      const siguiente = idx + 1;
+      if (siguiente < motor.ejercicios.length) {
+        motor.indice = siguiente;
+        cargarEjercicio(siguiente);
+      } else {
+        terminarActividad();
+      }
+    }, 1600);
+  }
+
+  /* ── Sumar puntos en pantalla ── */
+  function sumarPuntos(pts) {
+    motor.puntosSession = Math.max(0, motor.puntosSession + pts);
+    document.getElementById('ex-points-live').textContent = motor.puntosSession;
+
+    // Mini pop-up de puntos flotante
+    const pop = document.createElement('div');
+    pop.className = pts >= 0 ? 'points-pop' : 'points-pop points-pop--neg';
+    pop.textContent = pts >= 0 ? `+${pts}` : `${pts}`;
+    pop.style.cssText = `top:${Math.random()*30+35}%;left:${Math.random()*30+35}%;`;
+    document.body.appendChild(pop);
+    setTimeout(() => pop.remove(), 1000);
+  }
+
+  /* ── Toast de feedback ── */
+  function mostrarToast(correcto, pts) {
+    const t = document.getElementById('feedback-toast');
+    const msgs = correcto
+      ? ['¡Perfecto! 🔥','¡Excelente! ⭐','¡Correcto! 💪','¡Brillante! ✨','¡Muy bien! 🎯','¡Genial! 🚀']
+      : ['¡Casi! Sigue intentándolo 💪','¡No te rindas! 📚','¡Buen intento! 🎯','¡Aprendemos de los fallos! 💡'];
+    t.querySelector('#toast-msg').textContent    = msgs[Math.floor(Math.random() * msgs.length)];
+    t.querySelector('#toast-points').textContent = pts > 0 ? `+${pts} pts` : pts < 0 ? `${pts} pts` : '';
+    t.querySelector('#toast-icon').textContent   = correcto ? '🎉' : '😅';
+    t.className = `feedback-toast show ${correcto ? 'toast-correct' : 'toast-wrong'}`;
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  /* ── Terminar actividad y sincronizar BD ── */
+  async function terminarActividad() {
+    const act    = motor.actividadActual;
+    const puntos = Number(act.puntos) || motor.puntosSession;
+
+    document.getElementById('complete-icon').textContent   = '🎉';
+    document.getElementById('complete-points').textContent = `+${puntos} puntos`;
+    document.getElementById('complete-sub').textContent    = `Has completado "${esc(act.nombre || 'la actividad')}"`;
+
+    const accEl = document.getElementById('complete-accuracy');
+    if (motor.totales > 0) {
+      const acc = Math.round((motor.correctas / motor.totales) * 100);
+      accEl.textContent    = `Acierto: ${acc}%`;
+      accEl.style.display  = 'inline-block';
+    } else {
+      accEl.style.display = 'none';
+    }
+
+    mostrarVista('vista-completada');
+    await sincronizarPuntos(puntos);
+  }
+
+  /* ── Sincronizar puntos con el backend ── */
+  async function sincronizarPuntos(puntosGanados) {
+    if (!puntosGanados || puntosGanados <= 0) return;
+    try {
+      const session  = getSession();
+      const idAlumno = session?.id_user || session?.id;
+      if (!idAlumno) return;
+
+      const resGet = await fetch(`http://192.168.150.118:8085/alumno/find/${idAlumno}`);
+      if (!resGet.ok) throw new Error(`GET ${resGet.status}`);
+      const alumno = await resGet.json();
+
+      const puntosActuales = Number(alumno.puntos) || 0;
+      const puntosNuevos   = puntosActuales + puntosGanados;
+      let nivel = alumno.nivel || 'A1';
+      if (puntosNuevos >= 9000)      nivel = 'B2';
+      else if (puntosNuevos >= 5000) nivel = 'B1';
+      else if (puntosNuevos >= 2000) nivel = 'A2';
+      else                           nivel = 'A1';
+
+      await fetch(`http://192.168.150.118:8085/alumno/${idAlumno}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...alumno, puntos: puntosNuevos, nivel })
+      });
+    } catch (err) {
+      console.warn('No se pudo sincronizar puntos:', err.message);
+    }
+  }
+
+  /* ── Nivel up stub (para compatibilidad con puntos-pop de script.js) ── */
+  window.closeLevelUp = function() {
+    document.getElementById('levelup-overlay').style.display = 'none';
+  };
+
+  /* ── Escapeado HTML ── */
+  function esc(t) {
+    return String(t ?? '').replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  /* ══════════════════════════════════════════════
+     INIT
+     ══════════════════════════════════════════════ */
+  document.addEventListener('DOMContentLoaded', cargarActividades);
+
 </script>
 
+<!-- Mostrar sidebar correcto y navbar según sesión guardada -->
 <script>
-  // Mostrar sidebar correcto en curso.html según rol de la sesión
   (function() {
     try {
       const raw = localStorage.getItem('lf_session_api') || sessionStorage.getItem('lf_session_api')
-               || localStorage.getItem('lf_session') || sessionStorage.getItem('lf_session');
+               || localStorage.getItem('lf_session')     || sessionStorage.getItem('lf_session');
       if (!raw) return;
-      const session = JSON.parse(raw);
-      const rol = (session.rol || session.role || 'alumno').toLowerCase();
-      document.getElementById('sidebar-alumno').style.display   = rol === 'alumno' ? '' : 'none';
+      const s   = JSON.parse(raw);
+      const rol = (s.rol || s.role || 'alumno').toLowerCase();
+      document.getElementById('sidebar-alumno').style.display   = rol === 'alumno'   ? '' : 'none';
       document.getElementById('sidebar-profesor').style.display = rol === 'profesor' ? '' : 'none';
       document.getElementById('sidebar-director').style.display = rol === 'director' ? '' : 'none';
-      // Actualizar navbar
-      const nombre = session.nombre || session.name || '';
-      const apellidos = session.apellidos || '';
-      const fullName = [nombre, apellidos].filter(Boolean).join(' ') || session.correo || session.email || 'Usuario';
+      const nombre  = s.nombre || s.name || '';
+      const apells  = s.apellidos || '';
+      const full    = [nombre, apells].filter(Boolean).join(' ') || s.correo || s.email || 'Usuario';
       const navU = document.getElementById('nav-username');
       const navA = document.getElementById('nav-avatar');
       const navR = document.getElementById('nav-role-pill');
-      if (navU) navU.textContent = fullName;
-      if (navA) navA.textContent = fullName.substring(0,2).toUpperCase();
-      if (navR) { navR.textContent = rol.charAt(0).toUpperCase() + rol.slice(1); navR.className = 'user-role-pill ' + (rol !== 'alumno' ? rol : ''); }
+      const pmA  = document.getElementById('pm-avatar');
+      const pmN  = document.getElementById('pm-name');
+      const pmR  = document.getElementById('pm-role');
+      if (navU) navU.textContent = full;
+      if (navA) navA.textContent = full.substring(0,2).toUpperCase();
+      if (navR) { navR.textContent = rol.charAt(0).toUpperCase() + rol.slice(1); navR.className = 'user-role-pill' + (rol !== 'alumno' ? ' ' + rol : ''); }
+      if (pmA)  pmA.textContent  = full.substring(0,2).toUpperCase();
+      if (pmN)  pmN.textContent  = full;
+      if (pmR)  pmR.textContent  = rol.charAt(0).toUpperCase() + rol.slice(1);
+      // Dark mode
+      const dark = localStorage.getItem('lf_darkmode') === '1';
+      if (dark) document.body.classList.add('dark-mode');
+      const tog = document.getElementById('pm-dark-toggle');
+      if (tog) tog.checked = dark;
     } catch(e) {}
   })();
 </script>
+
 </body>
 </html>

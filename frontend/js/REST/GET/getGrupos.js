@@ -49,12 +49,15 @@ export async function getAlumnosByGrupo(idGrupo) {
 }
 
 function getUserIdFromSession() {
-    let sessionData = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
+    let sessionData = sessionStorage.getItem('lf_session_api');
+    if (!sessionData) {
+        sessionData = localStorage.getItem('lf_session_api');
+    }
 
     if (sessionData) {
         try {
             const data = JSON.parse(sessionData);
-            return data.id_user || data.id || data.idProfesor;
+            return data.id_user;
         } catch (e) {
             console.error("Error parsing session data:", e);
             return null;
@@ -65,20 +68,19 @@ function getUserIdFromSession() {
 
 async function renderGrupos() {
     try {
-        const contenedor = document.getElementById("courses-container");
-        if (!contenedor) return;
-
         const userId = getUserIdFromSession();
 
         if (!userId) {
             console.error("No user ID found in session");
 
-            contenedor.innerHTML = "<p>Error: Usuario no autenticado.</p>";
+            document.getElementById("courses-container").innerHTML =
+                "<p>Error: Usuario no autenticado.</p>";
 
             return;
         }
 
         const grupos = await getGruposByAlumno(userId);
+        const contenedor = document.getElementById("courses-container");
 
         let html = `<h2 style="text-align:center;color:#333">GRUPOS</h2>`;
         html += `<div class="groups-grid">`;
@@ -143,10 +145,8 @@ async function renderGrupos() {
 
         console.error("Error al obtener los grupos:", error);
 
-        const contenedor = document.getElementById("courses-container");
-        if (contenedor) {
-            contenedor.innerHTML = "<p>Error al cargar datos.</p>";
-        }
+        document.getElementById("courses-container").innerHTML =
+            "<p>Error al cargar datos.</p>";
     }
 }
 
