@@ -11,26 +11,20 @@ async function doLogin() {
     const response = await postLogin();
     if (response && response !== false) {
         // Guardar nombre y datos del usuario devueltos por la API
-        // La API puede devolver el nombre en distintos campos según el rol
-        const nombre = response.nombre
-            || response.name
-            || response.nombreAlumno
-            || response.nombreProfesor
-            || response.nombreUsuario
-            || '';
-        const apellidos = response.apellidos
-            || response.apellidosAlumno
-            || response.apellidosProfesor
-            || '';
         const sessionData = {
             id_sesion: response.id_sesion,
-            nombre: nombre,
-            apellidos: apellidos,
+            nombre: response.nombre || response.name || '',
+            apellidos: response.apellidos || '',
             rol: response.rol || response.role || 'alumno',
             correo: response.correo || response.email || '',
-            id_user : response.id || response.idAlumno || response.idProfesor || response.idUsuario,
-            id_grupo : response.id_grupo || response.idGrupo,
+            id_user : response.idAlumno || response.id_alumno || response.id,
+            id_grupo : response.id_grupo,
         };
+        const idAlumno = sessionData.id_user;
+        if (idAlumno) {
+            document.cookie = `idAlumno=${encodeURIComponent(idAlumno)}; path=/; max-age=86400`;
+            document.cookie = `id_alumno=${encodeURIComponent(idAlumno)}; path=/; max-age=86400`;
+        }
         if (document.getElementById('remember-me').checked) {
             localStorage.setItem('lf_session_api', JSON.stringify(sessionData));
         } else {
