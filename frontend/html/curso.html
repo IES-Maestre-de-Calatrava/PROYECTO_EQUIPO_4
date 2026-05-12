@@ -120,11 +120,11 @@
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=dashboard'"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
         <button class="sidebar-item active" onclick="window.location.href='index.html?panel=courses'"><i class="bi bi-book-fill"></i> Mis Cursos</button>
         <div class="sidebar-divider"></div>
-        <button class="sidebar-item" onclick="window.location.href='index.html?panel=leaderboard'"><i class="bi bi-trophy-fill"></i> Leaderboard</button>
-        <button class="sidebar-item" onclick="window.location.href='index.html?panel=progress'"><i class="bi bi-bar-chart-fill"></i> Mi progreso</button>
+        <a class="sidebar-item" href="index.html#leaderboard"><i class="bi bi-trophy-fill"></i> Leaderboard</a>
+        <a class="sidebar-item" href="index.html#progress"><i class="bi bi-bar-chart-fill"></i> Mi progreso</a>
         <div class="sidebar-divider"></div>
-        <button class="sidebar-item" onclick="window.location.href='index.html?panel=tutor'"><i class="bi bi-chat-dots-fill"></i> Tutor IA</button>
-        <button class="sidebar-item" onclick="window.location.href='index.html?panel=settings'"><i class="bi bi-gear-fill"></i> Configuración</button>
+        <a class="sidebar-item" href="index.html#tutor"><i class="bi bi-chat-dots-fill"></i> Tutor IA</a>
+        <a class="sidebar-item" href="index.html#settings"><i class="bi bi-gear-fill"></i> Configuración</a>
       </div>
       <div id="sidebar-profesor" style="display:none">
         <div class="sidebar-section-label">Panel</div>
@@ -136,13 +136,13 @@
         <button class="sidebar-item active" onclick="window.location.href='index.html?panel=profe-courses'"><i class="bi bi-collection-fill"></i> Mis Cursos</button>
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=activity-editor'"><i class="bi bi-pencil-square"></i> Editor actividades</button>
         <div class="sidebar-divider"></div>
-        <button class="sidebar-item" onclick="window.location.href='index.html?panel=settings'"><i class="bi bi-gear-fill"></i> Configuración</button>
+        <a class="sidebar-item" href="index.html#settings"><i class="bi bi-gear-fill"></i> Configuración</a>
       </div>
       <div id="sidebar-director" style="display:none">
         <div class="sidebar-section-label">Director</div>
         <button class="sidebar-item" onclick="window.location.href='index.html?panel=director-dashboard'"><i class="bi bi-speedometer2"></i> Panel Director</button>
         <div class="sidebar-divider"></div>
-        <button class="sidebar-item" onclick="window.location.href='index.html?panel=settings'"><i class="bi bi-gear-fill"></i> Configuración</button>
+        <a class="sidebar-item" href="index.html#settings"><i class="bi bi-gear-fill"></i> Configuración</a>
       </div>
     </aside>
 
@@ -285,6 +285,7 @@
      ══════════════════════════════════════════════ */
   async function cargarActividades() {
     try {
+      // Obtener actividades del grupo
       const actividades = await obtenerActividadesDelGrupo();
       motor.actividades = actividades || [];
       renderLista(motor.actividades);

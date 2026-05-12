@@ -177,46 +177,92 @@ function doLogout() {
 
 function enterApp() {
   const user = state.currentUser;
+  
+  // 1. Actualizar elementos de navegación y perfil (usamos nombre completo donde sea posible)
+  const nombreCompleto = (user.nombre && user.apellidos) ? `${user.nombre} ${user.apellidos}` : user.name;
+  
   document.getElementById('nav-avatar').textContent   = user.name.substring(0,2).toUpperCase();
-  document.getElementById('nav-username').textContent = user.name;
+  document.getElementById('nav-username').textContent = nombreCompleto; // Cambiado a nombre completo
+  
   const pmAvatar = document.getElementById('pm-avatar');
   const pmName   = document.getElementById('pm-name');
   const pmRole   = document.getElementById('pm-role');
   const pmDark   = document.getElementById('pm-dark-toggle');
+  
   if (pmAvatar) pmAvatar.textContent = user.name.substring(0,2).toUpperCase();
-  if (pmName)   pmName.textContent   = user.name;
+  if (pmName)   pmName.textContent   = nombreCompleto; // Cambiado a nombre completo
   if (pmRole)   pmRole.textContent   = user.role.charAt(0).toUpperCase() + user.role.slice(1);
   if (pmDark)   pmDark.checked       = localStorage.getItem('lf_darkmode') === '1';
+  
   const pill = document.getElementById('nav-role-pill');
 
+  // Ocultar todos los sidebars
   ['sidebar-alumno','sidebar-profesor','sidebar-director'].forEach(id => {
     document.getElementById(id).style.display = 'none';
   });
 
+  // 2. Lógica por ROL
   if (user.role === 'alumno') {
     pill.textContent = 'Alumno';
     pill.className   = 'user-role-pill';
     document.getElementById('sidebar-alumno').style.display = '';
-    buildCourses(); updateDashboard(); showPanel('dashboard'); startSessionTimer();
+    
+    // --- CAMBIO AQUÍ: Actualizar el saludo del Dashboard ---
+    const dashNameEl = document.getElementById('dash-name');
+    if (dashNameEl) {
+      dashNameEl.textContent = nombreCompleto;
+    }
+    
+    buildCourses(); 
+    updateDashboard(); 
+    showPanel('dashboard'); 
+    startSessionTimer();
+    
   } else if (user.role === 'profesor') {
     pill.textContent = 'Profesor';
     pill.className   = 'user-role-pill profesor';
     document.getElementById('sidebar-profesor').style.display = '';
-    buildProfeDashboard(); buildStudents(); buildProfeCourses(); buildProfeLeaderboard();
-    populateEditorFilter(); renderActivityEditor(); showPanel('profe-dashboard');
+    buildProfeDashboard(); 
+    buildStudents(); 
+    buildProfeCourses(); 
+    buildProfeLeaderboard();
+    populateEditorFilter(); 
+    renderActivityEditor(); 
+    showPanel('profe-dashboard');
+    
   } else if (user.role === 'director') {
     pill.textContent = 'Director';
     pill.className   = 'user-role-pill director';
     document.getElementById('sidebar-director').style.display = '';
-    buildDirectorUsers(); showPanel('director-dashboard');
+    buildDirectorUsers(); 
+    showPanel('director-dashboard');
   }
+  
   seedChat();
   showScreen('screen-app');
 }
 
 function showNotifications(event) {
-  if (event) event.stopPropagation();
-  showToastAlert('No tienes notificaciones nuevas.', 'info');
+    if (event) event.stopPropagation();
+    const badge = document.getElementById('notification-badge');
+    if (badge) {
+        badge.style.display = 'none'; 
+    
+    showToastAlert('No tienes notificaciones nuevas.', 'info');
+}}
+/**
+ * Controla si se ve o no el punto rojo de notificaciones
+ * @param {boolean} mostrar - true para poner el punto rojo, false para quitarlo
+ */
+function toggleNotificacionVisual(mostrar) {
+    const badge = document.getElementById('notification-badge');
+    if (!badge) return;
+
+    if (mostrar) {
+        badge.classList.add('active');
+    } else {
+        badge.classList.remove('active');
+    }
 }
 
 function toggleProfileMenu(event) {
@@ -258,28 +304,52 @@ function saveProfileChanges() {
   const name = document.getElementById('profile-name').value.trim();
   const email = document.getElementById('profile-email').value.trim();
   const msg = document.getElementById('profile-msg');
+
   if (!name || !email) {
     msg.textContent = 'Nombre y correo son obligatorios.';
     msg.className = 'alert alert-danger py-2 px-3';
     msg.classList.remove('d-none');
     return;
   }
+
   const user = state.currentUser;
   if (!user) return;
+
+  // Actualizamos el objeto en el estado global
   user.name = name;
   user.email = email;
-  document.getElementById('nav-avatar').textContent = name.substring(0,2).toUpperCase();
+
+  // Actualizamos la navegación
+  document.getElementById('nav-avatar').textContent = name.substring(0, 2).toUpperCase();
   document.getElementById('nav-username').textContent = name;
+
+  // ACTUALIZACIÓN: Saludo del Dashboard con el nombre completo
   const dashName = document.getElementById('dash-name');
-  if (dashName) dashName.textContent = name.split(' ')[0];
+  if (dashName) {
+    // Antes usaba name.split(' ')[0], ahora el nombre completo ingresado
+    dashName.textContent = name; 
+  }
+
+  // Actualizar también el nombre en el modal de perfil (pm-name) si existe
+  const pmName = document.getElementById('pm-name');
+  if (pmName) pmName.textContent = name;
+
   try {
-    const saved = localStorage.getItem('lf_session');
+    // Actualizamos el localStorage para que los cambios persistan al recargar
+    // Nota: Revisa si usas 'lf_session' o 'lf_session_api' (según gestionLogin.js)
+    const sessionKey = 'lf_session_api'; 
+    const saved = localStorage.getItem(sessionKey);
+    
     if (saved) {
       const session = JSON.parse(saved);
-      session.email = email;
-      localStorage.setItem('lf_session', JSON.stringify(session));
+      session.nombre = name; // Guardamos el nuevo nombre completo
+      session.correo = email;
+      localStorage.setItem(sessionKey, JSON.stringify(session));
     }
-  } catch(e) {}
+  } catch (e) {
+    console.error("Error al guardar cambios en localStorage", e);
+  }
+
   showToastAlert('Perfil actualizado.', 'info');
   closeModal('modal-profile');
 }
@@ -315,30 +385,30 @@ function showScreen(id) {
   screen.classList.add('active');
 }
 
-function showPanel(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  const panel = document.getElementById(id);
-  if (!panel) return;
-  panel.classList.add('active');
-  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
-  const map = {
-    'dashboard':'Inicio','courses':'Cursos','leaderboard':'Leaderboard',
-    'progress':'Mi progreso','messages':'Mensajes','tutor':'Tutor IA','settings':'Configuración',
-    'profe-dashboard':'Inicio','profe-students':'Alumnos',
-    'profe-leaderboard':'Leaderboard','profe-courses':'Cursos',
-    'activity-editor':'Editor actividades',
-    'director-dashboard':'Panel Director','director-users':'Usuarios',
-  };
-  const label = map[id];
-  if (label) {
-    document.querySelectorAll('.sidebar-item').forEach(b => {
-      if (b.textContent.trim().startsWith(label)) b.classList.add('active');
-    });
+  function showPanel(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById(id);
+    if (!panel) return;
+    panel.classList.add('active');
+    document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+    const map = {
+      'dashboard':'Inicio','courses':'Mis Cursos','leaderboard':'Leaderboard',
+      'progress':'Mi progreso','messages':'Mensajes','tutor':'Tutor IA','settings':'Configuración',
+      'profe-dashboard':'Inicio','profe-students':'Alumnos',
+      'profe-leaderboard':'Leaderboard','profe-courses':'Cursos',
+      'activity-editor':'Editor actividades',
+      'director-dashboard':'Panel Director','director-users':'Usuarios',
+    };
+    const label = map[id];
+    if (label) {
+      document.querySelectorAll('.sidebar-item').forEach(b => {
+        if (b.textContent.trim().startsWith(label)) b.classList.add('active');
+      });
+    }
+    if (id === 'leaderboard')       buildLeaderboard('leaderboard-content', false, _lbTabAlumno);
+    if (id === 'profe-leaderboard') buildLeaderboard('profe-leaderboard-content', true, _lbTabProfe);
+    if (id === 'progress')          buildProgressCourseList();
   }
-  if (id === 'leaderboard')       buildLeaderboard('leaderboard-content', false, _lbTabAlumno);
-  if (id === 'profe-leaderboard') buildLeaderboard('profe-leaderboard-content', true, _lbTabProfe);
-  if (id === 'progress')          buildProgressCourseList();
-}
 
 /* ─── TIMERS ─── */
 function startSessionTimer() {
@@ -473,6 +543,104 @@ function openCourse(courseId) {
   console.log('openCourse called with', courseId);
   if (!courseId) return;
   window.location.href = 'curso.html';
+}
+
+function getCookieValue(name) {
+  const cookie = document.cookie
+    .split('; ')
+    .find(row => row.startsWith(`${name}=`));
+  return cookie ? decodeURIComponent(cookie.split('=').slice(1).join('=')) : null;
+}
+
+function getAlumnoIdActual() {
+  const idCookie = getCookieValue('idAlumno') || getCookieValue('id_alumno');
+  if (idCookie) return idCookie;
+
+  const sessionRaw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
+  if (!sessionRaw) return null;
+
+  try {
+    const session = JSON.parse(sessionRaw);
+    const idAlumno = session.idAlumno || session.id_alumno || session.id_user || session.id || null;
+    if (idAlumno) {
+      document.cookie = `idAlumno=${encodeURIComponent(idAlumno)}; path=/; max-age=86400`;
+      document.cookie = `id_alumno=${encodeURIComponent(idAlumno)}; path=/; max-age=86400`;
+    }
+    return idAlumno;
+  } catch (error) {
+    console.error('Error leyendo la sesión del alumno:', error);
+    return null;
+  }
+}
+
+function showJoinCourseMsg(message, type = 'danger') {
+  const msg = document.getElementById('join-course-msg');
+  if (!msg) return;
+  msg.textContent = message;
+  msg.className = `alert alert-${type} py-2 px-3 mb-2`;
+  msg.style.fontSize = '.85rem';
+  msg.style.borderRadius = '8px';
+}
+
+function openJoinCourseModal() {
+  const input = document.getElementById('join-course-code');
+  const msg = document.getElementById('join-course-msg');
+  if (input) input.value = '';
+  if (msg) msg.className = 'd-none mb-2 alert py-2 px-3';
+  openModal('modal-join-course');
+  setTimeout(() => input?.focus(), 50);
+}
+
+async function joinCourseByCode() {
+  const input = document.getElementById('join-course-code');
+  const button = document.getElementById('btn-confirm-join-course');
+  const codigo = input?.value.trim();
+  const idAlumno = getAlumnoIdActual();
+
+  if (!codigo) {
+    showJoinCourseMsg('Introduce el código del curso.');
+    return;
+  }
+
+  if (!idAlumno) {
+    showJoinCourseMsg('No se encontró el ID del alumno en la sesión.');
+    return;
+  }
+
+  const params = new URLSearchParams({
+    codigo,
+    idAlumno: String(idAlumno)
+  });
+  const url = `http://192.168.150.118:8085/api/grupos/unirse?${params.toString()}`;
+
+  try {
+    if (button) button.disabled = true;
+    const response = await fetch(url, { method: 'POST' });
+    const text = await response.text();
+
+    if (!response.ok) {
+      throw new Error(getJoinCourseErrorMessage(response.status, text));
+    }
+
+    showJoinCourseMsg('Te has unido al curso correctamente.', 'success');
+    buildCourses();
+    setTimeout(() => closeModal('modal-join-course'), 900);
+  } catch (error) {
+    showJoinCourseMsg(error.message || 'No se pudo unir al curso.');
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
+function getJoinCourseErrorMessage(status, text) {
+  if (!text) return `Error ${status} al unirse al curso.`;
+
+  try {
+    const error = JSON.parse(text);
+    return error.message || error.error || error.mensaje || `Error ${status} al unirse al curso.`;
+  } catch {
+    return text;
+  }
 }
 
 function saveNotes() {
@@ -1639,15 +1807,17 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 
     if (savedApi) {
       // Sesión proveniente del backend real — usa nombre y apellidos de la BD
-      const { nombre, apellidos, rol, correo, id_sesion, id_user, id_grupo } = JSON.parse(savedApi);
+      const { nombre, apellidos, rol, correo, id_sesion, id_user, idAlumno, id_alumno } = JSON.parse(savedApi);
       const fullName = [nombre, apellidos].filter(Boolean).join(' ') || correo || 'Usuario';
       const role = (rol || 'alumno').toLowerCase();
-      state.currentUser = { email: correo, name: fullName, role, id_sesion, id_user, id_grupo };
+      const alumnoId = idAlumno || id_alumno || id_user;
+      if (alumnoId) {
+        document.cookie = `idAlumno=${encodeURIComponent(alumnoId)}; path=/; max-age=86400`;
+        document.cookie = `id_alumno=${encodeURIComponent(alumnoId)}; path=/; max-age=86400`;
+      }
+      state.currentUser = { email: correo, name: fullName, role, id_sesion, idAlumno: alumnoId };
       if (document.getElementById('screen-app')) {
         enterApp();
-        // Navegar al panel indicado por parámetro URL (p.e. desde curso.html)
-        const _urlPanel = new URLSearchParams(window.location.search).get('panel');
-        if (_urlPanel) { showPanel(_urlPanel); history.replaceState(null,'',window.location.pathname); }
       }
     } else if (savedMock) {
       // Sesión mock (login sin backend)
@@ -1668,9 +1838,6 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 
       if (document.getElementById('screen-app')) {
         enterApp();
-        // Navegar al panel indicado por parámetro URL
-        const _urlPanel = new URLSearchParams(window.location.search).get('panel');
-        if (_urlPanel) { showPanel(_urlPanel); history.replaceState(null,'',window.location.pathname); }
       }
     } else {
       // Sin sesión guardada — redirigir a login si estamos en index
