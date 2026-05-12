@@ -1,4 +1,4 @@
-const API = "http://192.168.150.74:8085/alumno";
+const API = "http://192.168.150.118:8085/alumno";
 
 export async function getAllAlumnos(){
     const response = await fetch(`${API}/find`);

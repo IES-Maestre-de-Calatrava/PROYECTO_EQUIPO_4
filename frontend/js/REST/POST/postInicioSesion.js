@@ -1,4 +1,4 @@
-const API = 'http://192.168.150.74:8085/api/auth';
+const API = 'http://192.168.150.118:8085/api/auth';
 import { sha256 } from '../../Utilidades.js';
 
 export async function postLogin() {

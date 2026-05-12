@@ -1,4 +1,4 @@
-    const API = "http://192.168.150.74:8085/api/grupos";
+    const API = "http://192.168.150.118:8085/api/grupos";
 
 export async function getAllGrupos() {
     const response = await fetch(`${API}`);

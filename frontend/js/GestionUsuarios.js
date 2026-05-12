@@ -1,4 +1,4 @@
-const API_BASE = "http://192.168.150.74:8085/api/admin"; // Ajusta esto a tu URL de servidor
+const API_BASE = "http://192.168.150.118:8085/api/admin"; // Ajusta esto a tu URL de servidor
 
 // --- FUNCIONES PARA ALUMNOS ---
 

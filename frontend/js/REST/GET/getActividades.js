@@ -3,7 +3,7 @@ import {getProfesorById} from './getProfesores.js';
 import { Parser } from '../../JSON/Parser.js';
 import { generarFormularioActividad } from '../../formularioActividades.js';
 
-const API = "http://192.168.150.74:8085/actividad/";
+const API = "http://192.168.150.118:8085/actividad/";
 
 /**
  * Obtiene el ID del grupo desde la sesión almacenada
@@ -87,7 +87,7 @@ async function sumarPuntosAlumno(puntosGanados) {
         const idAlumno = getUserIdFromSession();
         if (!idAlumno) return false;
 
-        const resGet = await fetch(`http://192.168.150.74:8085/alumno/find/${idAlumno}`);
+        const resGet = await fetch(`http://192.168.150.118:8085/alumno/find/${idAlumno}`);
         if (!resGet.ok) throw new Error(`GET alumno: HTTP ${resGet.status}`);
         const alumno = await resGet.json();
 
@@ -99,7 +99,7 @@ async function sumarPuntosAlumno(puntosGanados) {
         else if (puntosNuevos >= 2000) nuevoNivel = 'A2';
         else nuevoNivel = 'A1';
 
-        const resPut = await fetch(`http://192.168.150.74:8085/alumno/${idAlumno}`, {
+        const resPut = await fetch(`http://192.168.150.118:8085/alumno/${idAlumno}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

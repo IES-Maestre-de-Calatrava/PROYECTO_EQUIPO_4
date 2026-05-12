@@ -1,5 +1,5 @@
-const API_ALUMNOS = "http://192.168.150.74:8085/alumno";
-const API_PROFESORES = "http://192.168.150.74:8085/profesor";
+const API_ALUMNOS = "http://192.168.150.118:8085/alumno";
+const API_PROFESORES = "http://192.168.150.118:8085/profesor";
 
 export class GetGestionUsuarios {
     async getAlumnos() {

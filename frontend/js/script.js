@@ -108,7 +108,7 @@ async function doRegister() {
     }
 
  try {
-    const response = await fetch('http://192.168.150.74:8085/api/admin/alumnos?idDirector=1', {
+    const response = await fetch('http://192.168.150.118:8085/api/admin/alumnos?idDirector=1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -810,7 +810,7 @@ async function syncPuntosConBD(puntosGanados) {
     if (!idAlumno) return;
 
     // Obtener datos actuales del alumno para conservar los campos requeridos
-    const resGet = await fetch(`http://192.168.150.74:8085/alumno/find/${idAlumno}`);
+    const resGet = await fetch(`http://192.168.150.118:8085/alumno/find/${idAlumno}`);
     if (!resGet.ok) throw new Error(`GET alumno: HTTP ${resGet.status}`);
     const alumno = await resGet.json();
 
@@ -826,7 +826,7 @@ async function syncPuntosConBD(puntosGanados) {
     else                           nuevoNivel = 'A1';
 
     // Enviar actualización
-    const resPut = await fetch(`http://192.168.150.74:8085/alumno/${idAlumno}`, {
+    const resPut = await fetch(`http://192.168.150.118:8085/alumno/${idAlumno}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -930,7 +930,7 @@ async function _fetchLeaderboardStudents() {
     return _lbStudentsCache;
   }
   try {
-    const res = await fetch('http://192.168.150.74:8085/alumno/find');
+    const res = await fetch('http://192.168.150.118:8085/alumno/find');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const alumnos = await res.json();
 
