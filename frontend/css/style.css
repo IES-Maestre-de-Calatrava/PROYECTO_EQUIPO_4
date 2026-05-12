@@ -1656,3 +1656,8 @@ body.dark-mode .lb-last-updated { background: #2a3a4e; border-color: #4e6680; }
     display: none;
   }
 }
+.sidebar-item {
+    text-decoration: none; /* Esto quita el subrayado */
+    display: flex;         /* Opcional: ayuda a alinear el icono con el texto */
+    align-items: center;
+}
