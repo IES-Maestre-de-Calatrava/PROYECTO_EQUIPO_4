@@ -272,6 +272,51 @@ body.dark-mode .campo-pregunta {
 body.dark-mode .campo-pregunta::placeholder {
     color: #94a3b8 !important; /* Gris azulado claro para el placeholder */
 }
+/* 8. AJUSTES PARA BANNERS Y TARJETAS DE NIVEL EN MODO OSCURO */
+
+/* Banner motivacional en modo oscuro */
+body.dark-mode .motivational-banner {
+    background: linear-gradient(90deg, #1e293b, #1a3a5f) !important;
+    border-left-color: #a5b4fc !important;
+    border-top: 1px solid rgba(165, 180, 252, 0.1) !important;
+    border-right: 1px solid rgba(165, 180, 252, 0.1) !important;
+    border-bottom: 1px solid rgba(165, 180, 252, 0.1) !important;
+}
+
+body.dark-mode .motivational-banner .msg-text {
+    color: #a5b4fc !important; /* Texto en color lavanda */
+}
+
+/* Tarjeta de nivel en modo oscuro */
+body.dark-mode .level-card {
+    background: linear-gradient(135deg, #1e1b4b, #312e81) !important;
+    border: 1px solid #4338ca !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Variantes específicas de la tarjeta de nivel (Opcional) */
+body.dark-mode .level-card.intermedio {
+    background: linear-gradient(135deg, #064e3b, #065f46) !important;
+}
+
+body.dark-mode .level-card.avanzado {
+    background: linear-gradient(135deg, #78350f, #92400e) !important;
+}
+
+/* Ajustes de elementos internos de la tarjeta de nivel */
+body.dark-mode .level-progress-bar {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .level-progress-fill {
+    background: #a5b4fc !important; /* Barra de progreso en lavanda brillante */
+}
+
+body.dark-mode .level-desc, 
+body.dark-mode .level-progress-label, 
+body.dark-mode .level-next {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
 /* ── FIN MODO OSCURO ── */
 
 /* =============================================
