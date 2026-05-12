@@ -62,6 +62,13 @@ public class AuthController {
 
             Conexion conexion = conexionRepository.buscarPorIdAlumno(alumno.getIdAlumno()).orElse(null);
             List<Grupo> grupo = grupoRepository.buscarGruposPorAlumno(alumno.getIdAlumno());
+            Long gruponew;
+
+            if(grupo.isEmpty()){
+                gruponew = null;
+            } else {
+                gruponew = grupo.get(0).getIdGrupo();
+            }
 
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("id",        alumno.getIdAlumno());
@@ -72,7 +79,7 @@ public class AuthController {
             respuesta.put("nivel",     alumno.getNivel());
             respuesta.put("rango",     alumno.getRango());
             respuesta.put("id_sesion", conexion.getIdsesion());
-            respuesta.put("id_grupo", grupo.get(0).getIdGrupo());
+            respuesta.put("id_grupo",  gruponew);
             return ResponseEntity.ok(respuesta);
         }
 
