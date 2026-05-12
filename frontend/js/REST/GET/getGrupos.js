@@ -80,8 +80,7 @@ async function renderGrupos() {
 
         const grupos = await getGruposByAlumno(userId);
 
-        let html = `<h2 style="text-align:center;color:#333">GRUPOS</h2>`;
-        html += `<div class="groups-grid">`;
+        let html = `<div class="groups-grid">`;
 
         for (let grupo of grupos) {
 

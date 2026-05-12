@@ -177,39 +177,67 @@ function doLogout() {
 
 function enterApp() {
   const user = state.currentUser;
+  
+  // 1. Actualizar elementos de navegación y perfil (usamos nombre completo donde sea posible)
+  const nombreCompleto = (user.nombre && user.apellidos) ? `${user.nombre} ${user.apellidos}` : user.name;
+  
   document.getElementById('nav-avatar').textContent   = user.name.substring(0,2).toUpperCase();
-  document.getElementById('nav-username').textContent = user.name;
+  document.getElementById('nav-username').textContent = nombreCompleto; // Cambiado a nombre completo
+  
   const pmAvatar = document.getElementById('pm-avatar');
   const pmName   = document.getElementById('pm-name');
   const pmRole   = document.getElementById('pm-role');
   const pmDark   = document.getElementById('pm-dark-toggle');
+  
   if (pmAvatar) pmAvatar.textContent = user.name.substring(0,2).toUpperCase();
-  if (pmName)   pmName.textContent   = user.name;
+  if (pmName)   pmName.textContent   = nombreCompleto; // Cambiado a nombre completo
   if (pmRole)   pmRole.textContent   = user.role.charAt(0).toUpperCase() + user.role.slice(1);
   if (pmDark)   pmDark.checked       = localStorage.getItem('lf_darkmode') === '1';
+  
   const pill = document.getElementById('nav-role-pill');
 
+  // Ocultar todos los sidebars
   ['sidebar-alumno','sidebar-profesor','sidebar-director'].forEach(id => {
     document.getElementById(id).style.display = 'none';
   });
 
+  // 2. Lógica por ROL
   if (user.role === 'alumno') {
     pill.textContent = 'Alumno';
     pill.className   = 'user-role-pill';
     document.getElementById('sidebar-alumno').style.display = '';
-    buildCourses(); updateDashboard(); showPanel('dashboard'); startSessionTimer();
+    
+    // --- CAMBIO AQUÍ: Actualizar el saludo del Dashboard ---
+    const dashNameEl = document.getElementById('dash-name');
+    if (dashNameEl) {
+      dashNameEl.textContent = nombreCompleto;
+    }
+    
+    buildCourses(); 
+    updateDashboard(); 
+    showPanel('dashboard'); 
+    startSessionTimer();
+    
   } else if (user.role === 'profesor') {
     pill.textContent = 'Profesor';
     pill.className   = 'user-role-pill profesor';
     document.getElementById('sidebar-profesor').style.display = '';
-    buildProfeDashboard(); buildStudents(); buildProfeCourses(); buildProfeLeaderboard();
-    populateEditorFilter(); renderActivityEditor(); showPanel('profe-dashboard');
+    buildProfeDashboard(); 
+    buildStudents(); 
+    buildProfeCourses(); 
+    buildProfeLeaderboard();
+    populateEditorFilter(); 
+    renderActivityEditor(); 
+    showPanel('profe-dashboard');
+    
   } else if (user.role === 'director') {
     pill.textContent = 'Director';
     pill.className   = 'user-role-pill director';
     document.getElementById('sidebar-director').style.display = '';
-    buildDirectorUsers(); showPanel('director-dashboard');
+    buildDirectorUsers(); 
+    showPanel('director-dashboard');
   }
+  
   seedChat();
   showScreen('screen-app');
 }
@@ -276,28 +304,52 @@ function saveProfileChanges() {
   const name = document.getElementById('profile-name').value.trim();
   const email = document.getElementById('profile-email').value.trim();
   const msg = document.getElementById('profile-msg');
+
   if (!name || !email) {
     msg.textContent = 'Nombre y correo son obligatorios.';
     msg.className = 'alert alert-danger py-2 px-3';
     msg.classList.remove('d-none');
     return;
   }
+
   const user = state.currentUser;
   if (!user) return;
+
+  // Actualizamos el objeto en el estado global
   user.name = name;
   user.email = email;
-  document.getElementById('nav-avatar').textContent = name.substring(0,2).toUpperCase();
+
+  // Actualizamos la navegación
+  document.getElementById('nav-avatar').textContent = name.substring(0, 2).toUpperCase();
   document.getElementById('nav-username').textContent = name;
+
+  // ACTUALIZACIÓN: Saludo del Dashboard con el nombre completo
   const dashName = document.getElementById('dash-name');
-  if (dashName) dashName.textContent = name.split(' ')[0];
+  if (dashName) {
+    // Antes usaba name.split(' ')[0], ahora el nombre completo ingresado
+    dashName.textContent = name; 
+  }
+
+  // Actualizar también el nombre en el modal de perfil (pm-name) si existe
+  const pmName = document.getElementById('pm-name');
+  if (pmName) pmName.textContent = name;
+
   try {
-    const saved = localStorage.getItem('lf_session');
+    // Actualizamos el localStorage para que los cambios persistan al recargar
+    // Nota: Revisa si usas 'lf_session' o 'lf_session_api' (según gestionLogin.js)
+    const sessionKey = 'lf_session_api'; 
+    const saved = localStorage.getItem(sessionKey);
+    
     if (saved) {
       const session = JSON.parse(saved);
-      session.email = email;
-      localStorage.setItem('lf_session', JSON.stringify(session));
+      session.nombre = name; // Guardamos el nuevo nombre completo
+      session.correo = email;
+      localStorage.setItem(sessionKey, JSON.stringify(session));
     }
-  } catch(e) {}
+  } catch (e) {
+    console.error("Error al guardar cambios en localStorage", e);
+  }
+
   showToastAlert('Perfil actualizado.', 'info');
   closeModal('modal-profile');
 }
