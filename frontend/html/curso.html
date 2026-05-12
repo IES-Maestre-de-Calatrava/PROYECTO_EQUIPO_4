@@ -95,35 +95,35 @@
     <aside class="sidebar" id="sidebar">
 
       <div id="sidebar-alumno">
-        <a class="sidebar-item active" href="index.html#dashboard"><i class="bi bi-grid-1x2-fill"></i> Inicio</a>
-        <a class="sidebar-item" href="index.html#courses"><i class="bi bi-book-fill"></i>Mis Cursos</a>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=dashboard'"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
+        <button class="sidebar-item active" onclick="window.location.href='index.html?panel=courses'"><i class="bi bi-book-fill"></i>Mis Cursos</button>
         <div class="sidebar-divider"></div>
-        <a class="sidebar-item" href="index.html#leaderboard"><i class="bi bi-trophy-fill"></i> Leaderboard</a>
-        <a class="sidebar-item" href="index.html#progress"><i class="bi bi-bar-chart-fill"></i> Mi progreso</a>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=leaderboard'"><i class="bi bi-trophy-fill"></i> Leaderboard</button>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=progress'"><i class="bi bi-bar-chart-fill"></i> Mi progreso</button>
         <div class="sidebar-divider"></div>
-        <a class="sidebar-item" href="index.html#tutor"><i class="bi bi-chat-dots-fill"></i> Tutor IA</a>
-        <a class="sidebar-item" href="index.html#settings"><i class="bi bi-gear-fill"></i> Configuración</a>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=tutor'"><i class="bi bi-chat-dots-fill"></i> Tutor IA</button>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=settings'"><i class="bi bi-gear-fill"></i> Configuración</button>
       </div>
 
       <div id="sidebar-profesor" style="display:none">
         <div class="sidebar-section-label">Panel</div>
-        <a class="sidebar-item active" href="index.html#profe-dashboard"><i class="bi bi-grid-1x2-fill"></i> Inicio</a>
-        <a class="sidebar-item" href="index.html#profe-students"><i class="bi bi-people-fill"></i> Alumnos</a>
-        <a class="sidebar-item" href="index.html#profe-leaderboard"><i class="bi bi-trophy-fill"></i> Leaderboard</a>
+        <button class="sidebar-item active" onclick="window.location.href='index.html?panel=profe-dashboard'"><i class="bi bi-grid-1x2-fill"></i> Inicio</button>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=profe-students'"><i class="bi bi-people-fill"></i> Alumnos</button>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=profe-leaderboard'"><i class="bi bi-trophy-fill"></i> Leaderboard</button>
         <div class="sidebar-divider"></div>
         <div class="sidebar-section-label">Contenido</div>
-        <a class="sidebar-item" href="index.html#profe-courses"><i class="bi bi-collection-fill"></i> Mis Cursos</a>
-        <a class="sidebar-item" href="index.html#activity-editor"><i class="bi bi-pencil-square"></i> Editor actividades</a>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=profe-courses'"><i class="bi bi-collection-fill"></i> Mis Cursos</button>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=activity-editor'"><i class="bi bi-pencil-square"></i> Editor actividades</button>
         <div class="sidebar-divider"></div>
-        <a class="sidebar-item" href="index.html#settings"><i class="bi bi-gear-fill"></i> Configuración</a>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=settings'"><i class="bi bi-gear-fill"></i> Configuración</button>
       </div>
 
       <div id="sidebar-director" style="display:none">
         <div class="sidebar-section-label">Director</div>
-        <a class="sidebar-item active" href="index.html#director-dashboard"><i class="bi bi-speedometer2"></i> Panel Director</a>
+        <button class="sidebar-item active" onclick="window.location.href='index.html?panel=director-dashboard'"><i class="bi bi-speedometer2"></i> Panel Director</button>
         <a class="sidebar-item" href="TESTS_ALVARO/testGestionUsuarios.html" target="_blank" rel="noopener"><i class="bi bi-tools"></i> Test Gestión Usuarios</a>
         <div class="sidebar-divider"></div>
-        <a class="sidebar-item" href="index.html#settings"><i class="bi bi-gear-fill"></i> Configuración</a>
+        <button class="sidebar-item" onclick="window.location.href='index.html?panel=settings'"><i class="bi bi-gear-fill"></i> Configuración</button>
       </div>
     </aside>
 
@@ -131,15 +131,19 @@
       <div class="course-page-card">
         <div class="course-page-header">
           <div>
-            <div class="section-title">Ejercicios del curso</div>
+            <div class="section-title" id="curso-titulo">Actividades del curso</div>
             <div class="course-page-intro">
-              <p>Responde unas preguntas rápidas para repasar el contenido del curso. Este panel está diseñado con la misma paleta suave y moderna de la app para mantener la experiencia uniforme.</p>
+              <p id="curso-subtitulo">Selecciona una actividad para comenzar.</p>
             </div>
           </div>
-          <button class="btn-course" onclick="window.location.href='index.html'">Volver al panel</button>
+          <button class="btn-course" onclick="window.location.href='index.html'"><i class="bi bi-arrow-left me-1"></i>Volver al panel</button>
         </div>
 
-        <div id="actividad-form-container" class="actividad-form-card"></div>
+        <!-- Lista de actividades -->
+        <div id="actividades-lista"></div>
+
+        <!-- Formulario de la actividad seleccionada -->
+        <div id="actividad-form-container" class="actividad-form-card" style="display:none;"></div>
       </div>
     </main>
   </div>
@@ -151,109 +155,132 @@
   import { obtenerActividadesDelGrupo } from '../js/REST/GET/getActividades.js';
   import { Parser } from '../js/JSON/Parser.js';
 
-  /**
-   * Obtiene los datos de sesión del usuario
-   */
   function getUserDataFromSession() {
-    let sessionData = sessionStorage.getItem('lf_session_api');
-    if (!sessionData) {
-      sessionData = localStorage.getItem('lf_session_api');
-    }
-    
-    if (sessionData) {
-      try {
-        return JSON.parse(sessionData);
-      } catch (e) {
-        console.error("Error parsing session data:", e);
-        return null;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Actualiza los puntos del usuario en el backend
-   */
-  function getCookieValue(nombre) {
-    const cookie = document.cookie
-      .split('; ')
-      .find(row => row.startsWith(`${nombre}=`));
-    return cookie ? decodeURIComponent(cookie.split('=').slice(1).join('=')) : null;
+    try {
+      const raw = sessionStorage.getItem('lf_session_api') || localStorage.getItem('lf_session_api');
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
   }
 
   async function actualizarPuntosEnBackend(puntosGanados) {
     try {
       const userData = getUserDataFromSession();
-      const idAlumno = getCookieValue('idAlumno') || userData?.id_user || userData?.id;
+      const idAlumno = userData?.id_user || userData?.id;
       const puntos = Number(puntosGanados) || 0;
-
-      if (!idAlumno) {
-        console.error("No idAlumno found in cookies/session");
-        return false;
-      }
-
+      if (!idAlumno) return false;
       const response = await fetch('http://192.168.150.118:8085/alumno/update/puntos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          idAlumno: Number(idAlumno),
-          puntos: puntos
-        })
+        body: JSON.stringify({ idAlumno: Number(idAlumno), puntos })
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      console.log(`Puntos actualizados: alumno ${idAlumno} +${puntos}`);
-      return true;
+      return response.ok;
     } catch (error) {
-      console.error("Error al actualizar puntos:", error);
+      console.error('Error al actualizar puntos:', error);
       return false;
     }
   }
 
+  function escaparHTML(texto) {
+    return String(texto ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":' &#39;'}[c]));
+  }
+
+  function renderListaActividades(actividades) {
+    const lista = document.getElementById('actividades-lista');
+    if (!actividades || actividades.length === 0) {
+      lista.innerHTML = '<p style="color:#d97706;font-weight:600;">No hay actividades disponibles para tu grupo.</p>';
+      return;
+    }
+    lista.innerHTML = actividades.map((act, i) => `
+      <div class="activity-item" style="cursor:pointer;" onclick="window._abrirActividad(${i})">
+        <div class="activity-icon"><i class="bi bi-journal-text"></i></div>
+        <div class="activity-info">
+          <div class="activity-title">${i + 1}. ${escaparHTML(act.nombre || 'Actividad ' + (i+1))}</div>
+          <div class="activity-subtitle">
+            Dificultad: ${escaparHTML(act.dificultad || '—')}
+            ${act.puntos ? ' · <strong>' + act.puntos + ' pts</strong>' : ''}
+            ${act.duracion ? ' · ' + act.duracion + ' min' : ''}
+          </div>
+        </div>
+        <span class="activity-status status-pending">Hacer &#8594;</span>
+      </div>
+    `).join('');
+  }
+
+  function abrirActividad(actividad) {
+    const lista = document.getElementById('actividades-lista');
+    const contenedor = document.getElementById('actividad-form-container');
+    lista.style.display = 'none';
+    contenedor.style.display = '';
+
+    document.getElementById('curso-titulo').textContent = actividad.nombre || 'Actividad';
+    document.getElementById('curso-subtitulo').innerHTML =
+      '<button class="btn btn-sm btn-outline-secondary" style="border-radius:8px;" onclick="window._volverListaActividades()"><i class="bi bi-arrow-left me-1"></i>Ver todas las actividades</button>';
+
+    const preguntas = JSON.stringify(Parser(actividad.preguntas));
+    const respuestas = JSON.stringify(Parser(actividad.respuestas));
+    const puntos = Number(actividad.puntos) || 0;
+    let puntosYaAsignados = false;
+    contenedor.innerHTML = '';
+
+    generarFormularioActividad(preguntas, respuestas, 'actividad-form-container', (resultado) => {
+      if (resultado.porcentaje >= 60 && !puntosYaAsignados) {
+        puntosYaAsignados = true;
+        const puntosGanados = Math.max(0, Math.round(puntos));
+        actualizarPuntosEnBackend(puntosGanados);
+        const msg = document.createElement('div');
+        msg.style.cssText = 'margin-top:20px;padding:15px;background:#d4edda;border:1px solid #28a745;border-radius:8px;color:#155724;font-weight:600;';
+        msg.innerHTML = `&#127881; &#161;Actividad completada! Has ganado <strong>+${puntosGanados} puntos</strong>`;
+        contenedor.appendChild(msg);
+      }
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      // Obtener actividades del grupo
       const actividades = await obtenerActividadesDelGrupo();
-      
-      if (!actividades || actividades.length === 0) {
-        document.getElementById('actividad-form-container').innerHTML = 
-          '<p style="color: #d97706; font-weight: 600;">No hay actividades disponibles para tu grupo.</p>';
-        return;
-      }
+      window._actividadesCache = actividades;
 
-      // Usar la primera actividad
-      const actividad = actividades[0];
-      const preguntas = JSON.stringify(Parser(actividad.preguntas));
-      const respuestas = JSON.stringify(Parser(actividad.respuestas));
-      const puntos = Number(actividad.puntos) || 0;
-      let puntosYaAsignados = false;
-      
-      // Generar el formulario con los datos reales
-      generarFormularioActividad(preguntas, respuestas, 'actividad-form-container', (resultado) => {
-        console.log('Resultado de la actividad:', resultado);
-        
-        // Si el usuario responde correctamente el 60% o más, asignar puntos
-        if (resultado.porcentaje >= 60 && !puntosYaAsignados) {
-          puntosYaAsignados = true;
-          const puntosGanados = Math.max(0, Math.round(puntos));
-          actualizarPuntosEnBackend(puntosGanados);
-          
-          // Mostrar mensaje de éxito con puntos
-          const contenedor = document.getElementById('actividad-form-container');
-          const mensajeExito = document.createElement('div');
-          mensajeExito.style.cssText = 'margin-top: 20px; padding: 15px; background-color: #d4edda; border: 1px solid #28a745; border-radius: 8px; color: #155724; font-weight: 600;';
-          mensajeExito.innerHTML = `🎉 ¡Actividad completada! Has ganado <strong>+${puntosGanados} puntos</strong>`;
-          contenedor.appendChild(mensajeExito);
-        }
-      });
+      window._abrirActividad = (i) => abrirActividad(actividades[i]);
+      window._volverListaActividades = () => {
+        document.getElementById('actividades-lista').style.display = '';
+        document.getElementById('actividad-form-container').style.display = 'none';
+        document.getElementById('curso-titulo').textContent = 'Actividades del curso';
+        document.getElementById('curso-subtitulo').textContent = 'Selecciona una actividad para comenzar.';
+      };
+
+      renderListaActividades(actividades);
     } catch (error) {
-      console.error('Error al cargar la actividad:', error);
-      document.getElementById('actividad-form-container').innerHTML = 
-        '<p style="color: #dc2626;">Error al cargar la actividad.</p>';
+      console.error('Error al cargar las actividades:', error);
+      document.getElementById('actividades-lista').innerHTML =
+        '<p style="color:#dc2626;">Error al cargar las actividades. Por favor, vuelve a intentarlo.</p>';
     }
   });
+</script>
+
+<script>
+  // Mostrar sidebar correcto en curso.html según rol de la sesión
+  (function() {
+    try {
+      const raw = localStorage.getItem('lf_session_api') || sessionStorage.getItem('lf_session_api')
+               || localStorage.getItem('lf_session') || sessionStorage.getItem('lf_session');
+      if (!raw) return;
+      const session = JSON.parse(raw);
+      const rol = (session.rol || session.role || 'alumno').toLowerCase();
+      document.getElementById('sidebar-alumno').style.display   = rol === 'alumno' ? '' : 'none';
+      document.getElementById('sidebar-profesor').style.display = rol === 'profesor' ? '' : 'none';
+      document.getElementById('sidebar-director').style.display = rol === 'director' ? '' : 'none';
+      // Actualizar navbar
+      const nombre = session.nombre || session.name || '';
+      const apellidos = session.apellidos || '';
+      const fullName = [nombre, apellidos].filter(Boolean).join(' ') || session.correo || session.email || 'Usuario';
+      const navU = document.getElementById('nav-username');
+      const navA = document.getElementById('nav-avatar');
+      const navR = document.getElementById('nav-role-pill');
+      if (navU) navU.textContent = fullName;
+      if (navA) navA.textContent = fullName.substring(0,2).toUpperCase();
+      if (navR) { navR.textContent = rol.charAt(0).toUpperCase() + rol.slice(1); navR.className = 'user-role-pill ' + (rol !== 'alumno' ? rol : ''); }
+    } catch(e) {}
+  })();
 </script>
 </body>
 </html>
