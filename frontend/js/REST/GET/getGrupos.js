@@ -3,13 +3,17 @@
 export async function getAllGrupos() {
     const response = await fetch(`${API}`);
     if (!response.ok) throw new Error(`Error ${response.status}`);
-    return await response.json();
+    const data = await response.json();
+    if (!Array.isArray(data)) return [];
+    return data;
 }
 
 export async function getGruposByAlumno(id) {
     const response = await fetch(`${API}/alumno/${id}`);
     if (!response.ok) throw new Error(`Error ${response.status}`);
-    return await response.json();
+    const data = await response.json();
+    if (!Array.isArray(data)) return [];
+    return data;
 }
 
 export async function getGrupoById(id) {
@@ -29,7 +33,9 @@ export async function getGruposByNombre(nombre) {
             throw new Error(`Error ${response.status}`);
         }
 
-        return await response.json();
+        const data = await response.json();
+        if (!Array.isArray(data)) return [];
+        return data;
     } catch (error) {
         console.error("Error en getGruposByNombre:", error);
         return [];
@@ -39,7 +45,9 @@ export async function getGruposByNombre(nombre) {
 export async function getGruposByProfesor(idProfesor) {
     const response = await fetch(`${API}/profesor/${idProfesor}`);
     if (!response.ok) throw new Error(`Error ${response.status}`);
-    return await response.json();
+    const data = await response.json();
+    if (!Array.isArray(data)) return [];
+    return data;
 }
 
 export async function getAlumnosByGrupo(idGrupo) {
