@@ -316,6 +316,119 @@ body.dark-mode .level-desc,
 body.dark-mode .level-progress-label, 
 body.dark-mode .level-next {
     color: rgba(255, 255, 255, 0.7) !important;
+}/* ============================================================
+   CORRECCIONES FINALES MODO OSCURO (Banners y Tarjetas)
+   ============================================================ */
+
+body.dark-mode {
+    /* Forzamos el fondo del body para anular gradientes de otros archivos */
+    background: var(--bg) !important;
+}
+
+/* ── BANNER MOTIVACIONAL ── */
+body.dark-mode .motivational-banner {
+    background: linear-gradient(90deg, #1e293b, #1a3a5f) !important;
+    border: 1px solid rgba(165, 180, 252, 0.2) !important;
+    border-left: 4px solid #a5b4fc !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+}
+
+body.dark-mode .motivational-banner .msg-text {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .motivational-banner .msg-icon {
+    background: rgba(165, 180, 252, 0.2) !important;
+    color: #a5b4fc !important;
+}
+
+/* ── TARJETA DE NIVEL (LEVEL CARD) ── */
+body.dark-mode .level-card {
+    background: linear-gradient(135deg, #1e1b4b, #312e81) !important;
+    border: 1px solid #4338ca !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Variantes de color para niveles específicos en modo oscuro */
+body.dark-mode .level-card.intermedio {
+    background: linear-gradient(135deg, #064e3b, #065f46) !important;
+    border-color: #059669 !important;
+}
+
+body.dark-mode .level-card.avanzado {
+    background: linear-gradient(135deg, #78350f, #92400e) !important;
+    border-color: #d97706 !important;
+}
+
+/* Elementos internos de la tarjeta de nivel */
+body.dark-mode .level-progress-bar {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .level-progress-fill {
+    background: #a5b4fc !important; 
+    box-shadow: 0 0 8px rgba(165, 180, 252, 0.5);
+}
+
+body.dark-mode .level-name, 
+body.dark-mode .level-desc {
+    color: #ffffff !important;
+}
+
+body.dark-mode .level-next {
+    color: #cbd5e1 !important;
+}
+
+/* ── AJUSTES GESTOR DE GRUPOS ── */
+body.dark-mode .group-item {
+    background: #1e293b !important;
+    border: 1px solid #334155 !important;
+}
+
+body.dark-mode .group-item:hover {
+    border-color: #a5b4fc !important;
+    background: #243347 !important;
+}
+
+body.dark-mode .result-panel {
+    background: #0f172a !important;
+    border: 1px solid #334155 !important;
+    color: #a5b4fc !important;
+}
+/* ============================================================
+   CORRECCIÓN DE FONDOS BLANCOS EN MODO OSCURO
+   ============================================================ */
+
+body.dark-mode .container.main-content,
+body.dark-mode .main-content {
+    background-color: var(--bg) !important; /* El color oscuro general */
+    background: var(--bg) !important;       /* Asegura que no haya gradientes */
+    color: var(--text-main) !important;
+}
+
+body.dark-mode .section {
+    background-color: #1e293b !important;   /* Un tono ligeramente más claro que el fondo para que resalte */
+    background: #1e293b !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-main) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Si dentro de las secciones hay otros elementos con fondo blanco */
+body.dark-mode .section *, 
+body.dark-mode .container.main-content * {
+    /* Esto ayuda a que los textos hereden el color claro y no se queden negros */
+    border-color: var(--border) !important;
+}
+
+/* Ajuste para inputs y tarjetas dentro de esas secciones */
+body.dark-mode .card,
+body.dark-mode .input-group-text,
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border-color: #334155 !important;
 }
 /* ── FIN MODO OSCURO ── */
 
